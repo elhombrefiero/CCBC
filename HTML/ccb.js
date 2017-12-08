@@ -152,7 +152,7 @@ function getBreweryConditions(){
         request.open("GET", "ccbc.xml");
         request.onreadystatechange = function() {
             if (request.readyState == 4) {
-                alert("Download complete! ");
+                window.alert("Download complete! ");
             }
         }
     }
