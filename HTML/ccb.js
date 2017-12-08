@@ -141,7 +141,26 @@ function makeTank(x_pos, y_pos, length, height){
     
 }
 
+function getBreweryConditions(){
+    var request = null;
+    if (window.XMLHttpRequest) {
+        request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) {
+        request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    if (request){
+        request.open("GET", "ccbc.xml");
+        request.onreadystatechange = function() {
+            if (request.readyState == 4) {
+                alert("Download complete! ");
+            }
+        }
+    }
+}
+    
+
 function init(){
     // Do some stuff
     drawBrewery();
+    setInterval(getBreweryConditions, 1000);
 }
