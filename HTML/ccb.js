@@ -68,24 +68,40 @@ function drawBrewery(){
     // Heater Constants
     var length_of_heater = 0.75 * length_of_tank;
     var height_of_heater = 0.1 * height_of_tank;
+    var heater_properties = {
+        color: "#ff0000", // #ff0000 - red
+        font_size: "20px Helvetica",
+        font_color: "#ffffff",
+        font_placement: "center",
+    };
     
     // Heater 1, on Hot Water Tank
     var heater1 = myCanvas.getContext("2d");
-        heater1.fillStyle = "#ff0000"; // #ff0000 - red
+        heater1.fillStyle = heater_properties.color; // #ff0000 - red
         heater1.fillRect(x_pos_tank1, highest_height_of_tank + (0.8 * height_of_tank), length_of_heater, height_of_heater);
-        heater1.font = "20px Helvetica";
-        heater1.fillStyle = "#ffffff";
-        heater1.textAlign = "center";
+        heater1.font = heater_properties.font_size;
+        heater1.fillStyle = heater_properties.font_color;
+        heater1.textAlign = heater_properties.font_placement;
         heater1.fillText("H1", x_pos_tank1 + 0.5 * length_of_heater, highest_height_of_tank + (0.8 * height_of_tank) + (0.75 * height_of_heater));
         
     // Heater 2, on Mash Heater Tank
     var heater2 = myCanvas.getContext("2d");
-        heater2.fillStyle = "#ff0000"; // #ff0000 - red
+        heater2.fillStyle = heater_properties.color;
         heater2.fillRect(x_pos_tank2 + (0.25 * length_of_tank) - (0.5 * height_of_heater), highest_height_of_tank + height_of_tank - length_of_heater, height_of_heater, length_of_heater);
-        heater2.font = "20px Helvetica";
-        heater2.fillStyle = "#ffffff";
-        heater2.textAlign = "center";
+        heater2.font = heater_properties.font_size;
+        heater2.fillStyle = heater_properties.font_color;
+        heater2.textAlign = heater_properties.font_placement;
         heater2.fillText("H2", x_pos_tank2 + (0.25 * length_of_tank), highest_height_of_tank + (0.8 * height_of_tank) + (0.75 * height_of_heater));
+        
+    // Heater 3, on Boil Tank (T4)
+    
+    var heater3 = myCanvas.getContext("2d");
+        heater3.fillStyle = heater_properties.color;
+        heater3.fillRect(x_pos_tank4,highest_height_of_tank + (0.8 * height_of_tank), length_of_heater, height_of_heater);
+        heater3.font = heater_properties.font_size;
+        heater3.fillStyle = heater_properties.font_color;
+        heater3.textAlign = heater_properties.font_placement;
+        heater3.fillText("H3", x_pos_tank4 + 0.5 * length_of_heater, highest_height_of_tank + (0.8 * height_of_tank) + (0.75 * height_of_heater));
         
     // Pumps consist of a rectangle, overlayed by a circle. It's in that order so it looks like a pump on a pump diagram
     
