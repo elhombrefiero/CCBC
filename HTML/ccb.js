@@ -165,18 +165,26 @@ function getBreweryConditions(){
         request = new ActiveXObject("Microsoft.XMLHTTP");
     }
     if (request){
-        request.open("GET", "ccbc.xml");
+        request.open("GET", "http://localhost/CCBC/ccbc.xml", true);
         request.onreadystatechange = function() {
             if (request.readyState == 4) {
-                window.alert("Download complete! ");
+                grabTemperatures(this);
             }
         }
+        request.send(null);
     }
 }
-    
+
+function grabTemperatures(xml){
+    var xmlDoc = xml.responseXML;
+    var temps = xmlDoc.getElementsByTagName("Temperatures");
+    var T1 = temps[0].getElementsByTagName("T1")[0].childNodes[0].nodeValue;
+    alert("Value of T1 is : " + T1);
+}
 
 function init(){
     // Do some stuff
+    //var myAjaxUpdate = setInterval("getBreweryConditions()", 1000);
+    getBreweryConditions();
     drawBrewery();
-    setInterval(getBreweryConditions, 1000);
 }
