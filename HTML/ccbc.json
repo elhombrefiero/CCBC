@@ -1,0 +1,20 @@
+{
+    "H1": {
+        "Name": "Heater1",
+        "Value": "ON"
+    },
+    "P1": {
+        "Name": "Pump1",
+        "Value": "ON"
+    },
+    "T1": {
+        "Name": "Temp1",
+        "Units": "F",
+        "Value": "100"
+    },
+    "T2": {
+        "Name": "Temp2",
+        "Units": "F",
+        "Value": "120"
+    }
+}
