@@ -31,13 +31,25 @@ class CCBCGUI:
     switches on the arduino ON or OFF.
     """
 
-    def __init__(self, master, port):
+    def __init__(self, master):
         self.master = master
-        self.port = port
+        # Stylize the widgets
+        self.style = Style()
+        self.style.configure('TButton', font='helvetica 24')
+        self.style.configure('TLabel', font='helvetica 24')
+        self.style.configure('TEntry', font='helvetica 24')
 
         print('Coulson Craft Brewery Control, Basic Switch Control.')
-        print('Using port {}'.format(self.port))
         self.master.title('Simple Switch Controller')
+
+        # Button and label for Serial activation
+        self.serial_button = Button(self.master,
+                                  text='Start Arduino comms',
+                                  command=self.startUpSerial
+                                 )
+        self.serial_button.grid(column=0, row=0)
+        self.serial_entry = Entry(self.master)
+        self.serial_entry.grid(column=1, row=0)
 
         # Switch 1 buttons and positions
         self.switch1 = Switch(1)
@@ -57,6 +69,26 @@ class CCBCGUI:
                                     )
         self.switch1_status.grid(column=1, row=5)
 
+        # Switch 2 buttons and positions
+        self.switch2 = Switch(2)
+        self.switch2_OnOrOff = StringVar()
+        self.switch2_OnOrOff.set('OFF')
+        self.switch2_button = Button(self.master,
+                              text='Switch2',
+                              command=self.changeSwitch2Status
+                              )
+
+        self.switch2_button.grid(column=0, row=6)
+
+
+        self.switch2_status = Label(
+                                    self.master,
+                                    textvariable=self.switch2_OnOrOff,
+                                    )
+        self.switch2_status.grid(column=1, row=6)
+
+
+
         self.exitbutton = Button(self.master,
                                  text='Exit',
                                  command=sys.exit
@@ -66,7 +98,7 @@ class CCBCGUI:
         self.exitbutton.grid(row=13)
 
     def changeSwitch1Status(self):
-        """ """
+        """  """
 
         self.switch1.changeSwitchStatus()
         self.switch1_OnOrOff.set(self.switch1.status)
@@ -75,16 +107,35 @@ class CCBCGUI:
         #    ser.
         print('Switch 1 status: {}'.format(self.switch1.status))
 
+    def changeSwitch2Status(self):
+        """  """
+
+        self.switch2.changeSwitchStatus()
+        self.switch2_OnOrOff.set(self.switch2.status)
+        # Issue serial command to change status from arduino
+        #try:
+        #    ser.
+        print('Switch 2 status: {}'.format(self.switch2.status))
 
 
-def startUpSerial():
-    """ """
+
+    def startUpSerial(self):
+        """ Opens a serial port to communicate with arduino.
+        """
+
+        port = self.serial_entry.get()
+        print('Attempting to open serial port: {}'.format(port))
+        # Assumes a baudrate of 9600
+        try:
+            self.ser = serial.Serial(port, 9600, timeout=1)
+        except Exception as x:
+            print('Something wrong happened: {}'.format(x))
 
 def main():
 
 
     root = Tk()
-    my_gui = CCBCGUI(root, 'COM4')
+    my_gui = CCBCGUI(root)
     root.mainloop()
 
 if __name__ == '__main__':
