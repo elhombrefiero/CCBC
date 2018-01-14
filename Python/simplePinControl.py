@@ -42,9 +42,9 @@ class CCBCGUI:
         self.master = master
         # Stylize the widgets
         self.style = Style()
-        self.style.configure('TButton', font='helvetica 24')
-        self.style.configure('TLabel', font='helvetica 24')
-        self.style.configure('TEntry', font='helvetica 24')
+        self.style.configure('TButton', font='helvetica 18', padding=6)
+        self.style.configure('TLabel', font='helvetica 18', padding=24)
+        self.style.configure('TEntry', font='helvetica 18', padding=6)
 
         print('Coulson Craft Brewery Control, Basic Switch Control.')
         self.master.title('Simple Switch Controller')
@@ -52,24 +52,24 @@ class CCBCGUI:
         # Button and label for Serial activation
         self.serial_button = Button(self.master,
                                   text='Start Arduino comms',
-                                  command=self.startUpSerial
+                                  command=self.startUpSerial,
                                  )
-        self.serial_button.grid(column=0, row=0)
+        self.serial_button.grid(column=1, row=0)
         self.serial_entry = Entry(self.master)
-        self.serial_entry.grid(column=1, row=0)
+        self.serial_entry.grid(column=2, row=0)
         self.read_serial = Button(self.master,
                                   text='Read Serial',
                                   command=self.readSerial
                                   )
-        self.read_serial.grid(column=0, row=1, rowspan=2)                          
+        self.read_serial.grid(column=1, row=1, columnspan=2, sticky=W+E)                          
 
         # Switch 1 buttons and positions
-        self.switch1 = Switch(1)
+        self.switch1 = Switch(9) # Pump 1 is pin 9 on the Arduino
         self.switch1_OnOrOff = StringVar()
         self.switch1_OnOrOff.set('OFF')
         self.switch1_button = Button(self.master,
-                              text='Switch1',
-                              command=self.changeSwitch1Status
+                              text='Pump 1',
+                              command=self.changeSwitch1Status,
                               )
 
         self.switch1_button.grid(column=0, row=5)
@@ -82,11 +82,11 @@ class CCBCGUI:
         self.switch1_status.grid(column=1, row=5)
 
         # Switch 2 buttons and positions
-        self.switch2 = Switch(2)
+        self.switch2 = Switch(8) # Pump 2 is pin 8 on the Arduino
         self.switch2_OnOrOff = StringVar()
         self.switch2_OnOrOff.set('OFF')
         self.switch2_button = Button(self.master,
-                              text='Switch2',
+                              text='Pump 2',
                               command=self.changeSwitch2Status
                               )
 
@@ -100,11 +100,11 @@ class CCBCGUI:
         self.switch2_status.grid(column=1, row=6)
 
         # Switch 3 buttons and positions
-        self.switch3 = Switch(3)
+        self.switch3 = Switch(7) # Pump 3 is pin 7 on the Arduino
         self.switch3_OnOrOff = StringVar()
         self.switch3_OnOrOff.set('OFF')
         self.switch3_button = Button(self.master,
-                              text='Switch3',
+                              text='Pump 3',
                               command=self.changeSwitch3Status
                               )
 
@@ -117,17 +117,12 @@ class CCBCGUI:
                                     )
         self.switch3_status.grid(column=1, row=7)
 
-        self.exitbutton = Button(self.master,
-                                 text='Exit',
-                                 command=sys.exit
-                                 )
- 
         # Switch 4 buttons and positions
-        self.switch4 = Switch(4)
+        self.switch4 = Switch(6) # Fan is pin 6 on the arduino
         self.switch4_OnOrOff = StringVar()
         self.switch4_OnOrOff.set('OFF')
         self.switch4_button = Button(self.master,
-                              text='Switch4',
+                              text='Fan',
                               command=self.changeSwitch4Status
                               )
 
@@ -141,76 +136,76 @@ class CCBCGUI:
         self.switch4_status.grid(column=1, row=8)
 
         # Switch 5 buttons and positions
-        self.switch5 = Switch(5)
+        self.switch5 = Switch(5) # Heater 1 is pin 5 on the arduino
         self.switch5_OnOrOff = StringVar()
         self.switch5_OnOrOff.set('OFF')
         self.switch5_button = Button(self.master,
-                              text='Switch5',
+                              text='Heater 1',
                               command=self.changeSwitch5Status
                               )
 
-        self.switch5_button.grid(column=0, row=9)
+        self.switch5_button.grid(column=2, row=5)
 
 
         self.switch5_status = Label(
                                     self.master,
                                     textvariable=self.switch5_OnOrOff,
                                     )
-        self.switch5_status.grid(column=1, row=9)   
+        self.switch5_status.grid(column=3, row=5)   
         
         # Switch 6 buttons and positions
-        self.switch6 = Switch(6)
+        self.switch6 = Switch(4) # Heater 2 is pin 4 on the arduino
         self.switch6_OnOrOff = StringVar()
         self.switch6_OnOrOff.set('OFF')
         self.switch6_button = Button(self.master,
-                              text='Switch6',
+                              text='Heater 2',
                               command=self.changeSwitch6Status
                               )
 
-        self.switch6_button.grid(column=0, row=10)
+        self.switch6_button.grid(column=2, row=6)
 
 
         self.switch6_status = Label(
                                     self.master,
                                     textvariable=self.switch6_OnOrOff,
                                     )
-        self.switch6_status.grid(column=1, row=10)   
+        self.switch6_status.grid(column=3, row=6)   
 
         # Switch 7 buttons and positions
-        self.switch7 = Switch(7)
+        self.switch7 = Switch(3) # Heater 3 is pin 3 on arduino
         self.switch7_OnOrOff = StringVar()
         self.switch7_OnOrOff.set('OFF')
         self.switch7_button = Button(self.master,
-                              text='Switch7',
+                              text='Heater 3',
                               command=self.changeSwitch7Status
                               )
 
-        self.switch7_button.grid(column=0, row=11)
+        self.switch7_button.grid(column=2, row=7)
 
 
         self.switch7_status = Label(
                                     self.master,
                                     textvariable=self.switch7_OnOrOff,
                                     )
-        self.switch7_status.grid(column=1, row=11)
+        self.switch7_status.grid(column=3, row=7)
 
         # Switch 8 buttons and positions
-        self.switch8 = Switch(8)
+        self.switch8 = Switch(2) # Aux is pin 2 on arduino
         self.switch8_OnOrOff = StringVar()
         self.switch8_OnOrOff.set('OFF')
         self.switch8_button = Button(self.master,
-                              text='Switch8',
+                              text='Aux',
                               command=self.changeSwitch8Status
                               )
 
-        self.switch8_button.grid(column=0, row=12)
+        self.switch8_button.grid(column=2, row=8)
 
 
         self.switch8_status = Label(
                                     self.master,
                                     textvariable=self.switch8_OnOrOff,
                                     )
-        self.switch8_status.grid(column=1, row=12)
+        self.switch8_status.grid(column=3, row=8)
         
         # Turn everything off
         self.shutitdown = Button(self.master,
@@ -224,7 +219,7 @@ class CCBCGUI:
                                  command=self.shutItDown,
                                  )
 
-        self.exitbutton.grid(row=13)
+        self.exitbutton.grid(column=1, row=13, columnspan=2, sticky=W+E)
 
     def readSerial(self):
         
