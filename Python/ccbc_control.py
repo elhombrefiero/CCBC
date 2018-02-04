@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-""" Coulson Craft Brewery Control. This python script acts as the brains of the
-CCB. This script handles the following:
+""" Coulson Craft Brewery Control (aka "The Brains")
 
-    1) Reads the data coming from serial port 9600 from an Arduino reading
-    OneWire temperature sensors. 
-    2) Sends information through serial port xxxx which tells the Arduino
-    which pumps and heaters should be in operation.
+This python script acts as the brains of the
+CCB. Works in conjunction with an Arduino script to:
+
+    1) Read data coming in through the serial port. 
+    2) Sends commands to the Arduino to turn pins ON or OFF.
+    3) Creates a json file used by the CCBC webpage to
+       display the status visually
 
     More to come.
     """
@@ -17,8 +19,58 @@ import io
 import re
 import os
 import serial
+from PID.PID import PID
 
-html_dir = os.path.join("../", "HTML")
+# Create classes for the sensors and heaters
+class TemperatureSensor:
+    """ OneWire temperature sensor"""
+    
+    def __init__(self, display_name, ard_name, cur_temp):
+        """ Initialize the probe with name, arduino name, and value"""
+        self.display_name = display_name
+        self_ard_name = ard_name
+        self.cur_temp = cur_temp
+        
+    def updateTemp(self, temp):
+        self.cur_temp = temp
+        
+class Heater:
+    """ Heater 
+    
+    Controlled with a high/low setpoint and a temperature sensor"""
+    
+    def __init__(self, 
+                 display_name, 
+                 ard_name, 
+                 cur_status,
+                 temp_sensor,
+                 temp_setpnt,
+                 P=1.2,
+                 I=1,
+                 D=0.001,
+                 ):
+        """ Initializes a heater. 
+        
+        Display name, Arduino name, Current Status, TemperatureSensor, Temperature Setpoint"""
+        
+        self.display_name = display_name
+        self.ard_name = ard_name
+        self.temp_sensor = temp_sensor
+        self.temp_setpnt = temp_setpnt
+        
+        # Create a PID controller
+        self.pid = PID(P,I,D)
+        self.pid.SetPoint = temp_setpnt
+        self.pid.setSampleTime(0.01)
+        
+    def updateSetpoint(self, new_setpoint):
+        self.pid.Setpoint = new_setpoint
+        
+# Directory that has the CCBC webpage. 
+# Note that directory is different depending on operating system
+# Windows: C:\xampp\htdocs\CCBC
+# Linux: /var/www/html
+html_dir = os.path.join("C:", "xampp", "htdocs", "CCBC")
 
 # Try to make this functionality work with both Python 2 and 3
 try:
