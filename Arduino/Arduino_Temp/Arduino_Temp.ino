@@ -39,6 +39,9 @@ void setup(void) {
   Serial.print("Device 0 Address: ");
   printAddress(T1);
   Serial.println();
+  Serial.print("Device 1 Address: ");
+  printAddress(T2);
+  Serial.println();
 }
 
 // function to print a device address
@@ -57,11 +60,15 @@ void loop(void) {
   sensors.requestTemperatures();
 
   // Get temperature
-  float tempC = sensors.getTempCByIndex(0);
+  float tempC1 = sensors.getTempCByIndex(0);
+  float tempC2 = sensors.getTempCByIndex(1);
   Serial.print("T1: ");
-  Serial.print(DallasTemperature::toFahrenheit(tempC));
+  Serial.print(DallasTemperature::toFahrenheit(tempC1));
+  Serial.print(" deg F\t");
+  Serial.print("T2: ");
+  Serial.print(DallasTemperature::toFahrenheit(tempC2));
   Serial.print(" deg F\n");
   
-  delay(5000); // in milliseconds
+  delay(1000); // in milliseconds
   
 }
