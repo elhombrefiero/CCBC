@@ -158,21 +158,18 @@ function makeTank(x_pos, y_pos, length, height){
 }
 
 function getBreweryConditions(){
-    var request = null;
-    if (window.XMLHttpRequest) {
-        request = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        request = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    if (request){
-        request.open("GET", "http://localhost/CCBC/ccbc.xml", true);
-        request.onreadystatechange = function() {
-            if (request.readyState == 4) {
-                grabTemperatures(this);
-            }
-        }
-        request.send(null);
-    }
+    var showData = $('#show-data');
+    $.getJSON('ccbc.json', function(data) {
+      console.log(data);     
+     
+      var H1 = data.H1.Name + ': ' + data.H1.Value;
+      console.log(H1);
+      
+      var T1 = data.T1.Name + ': ' + data.T1.Value + data.T1.Units;
+      console.log(T1);
+    
+      showData.empty();
+      });
 }
 
 function grabTemperatures(xml){
