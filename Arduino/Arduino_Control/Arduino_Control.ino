@@ -110,7 +110,8 @@ void loop()
   Serial.print("T2::Temp2::");
   Serial.print(DallasTemperature::toFahrenheit(tempC2));
   Serial.print("::F\n");
-
+  // A delay of 1 second works well for the interaction between Ard and rPi.
+  // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
   delay(1000); // in milliseconds
   
 }

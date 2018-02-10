@@ -61,6 +61,7 @@ class Heater:
                  P=1.2,
                  I=1,
                  D=0.001,
+                 max_temp = 175,
                  ):
         """ Initializes a heater. 
         
@@ -99,7 +100,7 @@ class Heater:
         self.pid.update(current_temp)
         
         # Use the pid output value to determine whether to turn a pin on or off
-        if (self.pid.output > 0.25):
+        if (self.pid.output > 0):
             pin_status = "ON"
         else:
             pin_status = "OFF"
@@ -169,9 +170,12 @@ def returnFormattedDictionary(ArduinoText):
         # Use each input in data_structure to try adding to dictionary
         for number in data_structure.keys():
             try:
-                data_from_arduino[ard_input][data_structure[number]] = item_contents[number]
+                data_from_arduino[ard_input][data_structure[number]] = float(item_contents[number])
             except:
                 continue
+            if (number != 2):
+                data_from_arduino[ard_input][data_structure[number]] = item_contents[number]
+            
     return data_from_arduino
             
             
@@ -197,8 +201,8 @@ def randomArduinoValues():
 if __name__ == "__main__":
     ser = serial.Serial("COM4", 9600, timeout=1)
     
-    T1 = TemperatureSensor("Temperature1", "T1", "TEST", 50)
-    H1 = Heater("Heater1", "H1", 7, "OFF", T1, 80)
+    T1 = TemperatureSensor("Temperature1", "T1", "TEST", 50.0)
+    H1 = Heater("Heater1", "H1", 7, "OFF", T1, 80.0)
     
     ard_dictionary = {}
 
@@ -210,10 +214,11 @@ if __name__ == "__main__":
         except:
             continue
         try:
-            T1.cur_temp = ard_dictionary['T1']['Value']
+            T1.cur_temp = float(ard_dictionary['T1']['Value'])
         except:
             continue
         H1.determinePinStatus()
+        H1.temp_sensor.printSensorID()
         print("H1 properties:")
-        print("Setpoint: {}, PID setpoint: {}\nCurrent Temperature: {}\nPin {} Status: {}".format(H1.temp_setpnt, H1.pid.SetPoint, H1.temp_sensor.cur_temp, H1.pin_num, H1.cur_status))
-        time.sleep(0.05)
+        print("Setpoint: {}, PID setpoint: {}\nCurrent Temperature: {}\nPin {} Status: {}".format(H1.temp_setpnt, H1.pid.SetPoint, round(H1.temp_sensor.cur_temp,2 ), H1.pin_num, H1.cur_status))
+        #time.sleep(0.05)
