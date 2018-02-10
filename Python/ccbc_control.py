@@ -21,7 +21,10 @@ import os
 import serial
 import time
 import random
+from simplePinControl import Switch
 from PID.PID import PID
+
+
 
 # Create classes for the sensors and heaters
 class TemperatureSensor:
@@ -50,7 +53,8 @@ class Heater:
     
     def __init__(self, 
                  display_name, 
-                 ard_name, 
+                 ard_name,
+                 pin_num,
                  cur_status,
                  temp_sensor,
                  temp_setpnt,
@@ -60,12 +64,17 @@ class Heater:
                  ):
         """ Initializes a heater. 
         
-        Display name, Arduino name, Current Status, TemperatureSensor, Temperature Setpoint"""
+        Display name, Arduino name, Pin Number, Current Status, TemperatureSensor, Temperature Setpoint"""
         
         self.display_name = display_name
         self.ard_name = ard_name
+        self.pin_num = pin_num
+        self.cur_status = cur_status
         self.temp_sensor = temp_sensor
         self.temp_setpnt = temp_setpnt
+        
+        # Make a switch instance using the pin number
+        self.switch = Switch(self.pin_num)
         
         # Create a PID controller
         self.pid = PID(P,I,D)
@@ -73,7 +82,33 @@ class Heater:
         self.pid.setSampleTime(0.01)
         
     def updateSetpoint(self, new_setpoint):
-        self.pid.Setpoint = new_setpoint
+        self.pid.SetPoint = new_setpoint
+        
+    def determinePinStatus(self):
+        """ Looks at the current temperature and determines whether to set the pin
+        to on/off.
+        """
+        
+        # Get current temperature
+        current_temp = float(self.temp_sensor.getCurrentTemp())
+        
+        # Get current status
+        current_status = self.cur_status
+        
+        # Update the pid value
+        self.pid.update(current_temp)
+        
+        # Use the pid output value to determine whether to turn a pin on or off
+        if (self.pid.output > 0.25):
+            pin_status = "ON"
+        else:
+            pin_status = "OFF"
+        
+        if (pin_status != current_status):
+            self.switch.changeSwitchStatus()
+            self.switch.sendStatusToArd(ser)
+            self.cur_status = pin_status
+        
         
 # Directory that has the CCBC webpage. 
 # Note that directory is different depending on operating system
@@ -91,7 +126,6 @@ except NameError:
 
 # Use the serial read functionality to read what the arduino is pushing out.
 
-#TODO: Add some functionality to read arduino data
 # Format of the arduino data must be in the following form:
 #   1) Arduino variable name (e.g., T1)
 #   2) General variable name used by python and HTML (e.g., Temp1)
@@ -108,7 +142,15 @@ data_structure = {
 }
 def readArduinoSerial():
     """ Read the output from the Arduino serial and do something"""
-    #serial_read = "T1::Temp1::100::F,T2::Temp2::120::F,H1::Heater1::ON,P1::Pump1::ON"
+    
+    """for line in ser.readlines():
+            print(line.strip().decode('utf-8'))"""
+    
+    arduino_text = ""
+    for line in self.ser.readlines():
+        arduino_text += line.strip().decode('utf-8')
+        print(line.strip().decode('utf-8'))
+    #return serial_read = ser.
 
 def returnFormattedDictionary(ArduinoText):
     # Create an empty dictionary used to store all of the info coming from Arduino
@@ -141,19 +183,37 @@ def writeJSONFile(dictionary):
                           indent=4, sort_keys=True,
                           separators=(',', ': '), ensure_ascii=False)
         outfile.write(to_unicode(str_))
+    return str_
 
+""" Test Function
 def randomArduinoValues():
     temp1 = random.randint(100,180)
     temp2 = random.randint(150, 200)
     serial_read = "T1::Temp1::{}::F,T2::Temp2::{}::F,H1::Heater1::ON,P1::Pump1::ON".format(temp1, temp2)
     dictionary = returnFormattedDictionary(serial_read)
     writeJSONFile(dictionary)
-    
+"""    
     
 if __name__ == "__main__":
-    num_of_seconds = 1
-    while num_of_seconds < 60:
-        randomArduinoValues()
-        print("Wrote file at {} seconds".format(num_of_seconds))
-        time.sleep(1)
-        num_of_seconds += 1
+    ser = serial.Serial("COM4", 9600, timeout=1)
+    
+    T1 = TemperatureSensor("Temperature1", "T1", "TEST", 50)
+    H1 = Heater("Heater1", "H1", 7, "OFF", T1, 80)
+    
+    ard_dictionary = {}
+
+    while 1:
+        try:
+            for line in ser.readlines():
+                ard_dictionary.update(returnFormattedDictionary(line.strip().decode('utf-8')))
+                print(line.strip().decode('utf-8'))
+        except:
+            continue
+        try:
+            T1.cur_temp = ard_dictionary['T1']['Value']
+        except:
+            continue
+        H1.determinePinStatus()
+        print("H1 properties:")
+        print("Setpoint: {}, PID setpoint: {}\nCurrent Temperature: {}\nPin {} Status: {}".format(H1.temp_setpnt, H1.pid.SetPoint, H1.temp_sensor.cur_temp, H1.pin_num, H1.cur_status))
+        time.sleep(0.05)
