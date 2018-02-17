@@ -136,11 +136,8 @@ except NameError:
 # three, where the third input is the status (ON or OFF)
 # For each variable, there will be two colons (::) between each input.
 # After each variable, there will be one comma
-data_structure = {
-                  1:"Name",
-                  2:"Value",
-                  3:"Units",
-}
+data_structure = ["Name","Serial","Value","Units"]
+
 def readArduinoSerial():
     """ Read the output from the Arduino serial and do something"""
     
@@ -160,22 +157,21 @@ def returnFormattedDictionary(ArduinoText):
     # First split the serial read text by comma
     serial_read_input_list = ArduinoText.split(",")
 
-    # Use a regular expression on each list item to build the dictionary
-    # If a list doesn't have the last inputs, then it'll continue
+    # Split the contents by '::'.
+    # If a list doesn't have the last inputs, then it'll skip it
     for item in serial_read_input_list:
-        item_contents = re.findall("[\w]+", item)
-        # First add the entry
+        item_contents = item.split("::")
+        # First add the entry, which is the name
         ard_input = item_contents[0]
+        # Create a dictionary that will be returned
         data_from_arduino[ard_input] = {}
         # Use each input in data_structure to try adding to dictionary
-        for number in data_structure.keys():
+        for i in range(0, len(data_structure)):
             try:
-                data_from_arduino[ard_input][data_structure[number]] = float(item_contents[number])
+                data_from_arduino[ard_input][data_structure[i]] = item_contents[i]
             except:
                 continue
-            if (number != 2):
-                data_from_arduino[ard_input][data_structure[number]] = item_contents[number]
-            
+              
     return data_from_arduino
             
             
@@ -201,7 +197,7 @@ def randomArduinoValues():
 if __name__ == "__main__":
     ser = serial.Serial("COM4", 9600, timeout=1)
     
-    T1 = TemperatureSensor("Temperature1", "T1", "TEST", 50.0)
+    T1 = TemperatureSensor("Temperature1", "T1", "28FFAC378217045A", 50.0)
     H1 = Heater("Heater1", "H1", 7, "OFF", T1, 80.0)
     
     ard_dictionary = {}
@@ -214,7 +210,7 @@ if __name__ == "__main__":
         except:
             continue
         try:
-            T1.cur_temp = float(ard_dictionary['T1']['Value'])
+            T1.cur_temp = float(ard_dictionary['Temp1']['Value'])
         except:
             continue
         H1.determinePinStatus()

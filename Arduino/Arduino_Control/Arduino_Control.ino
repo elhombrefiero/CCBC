@@ -98,16 +98,20 @@ void loop()
   // Send temperature information through serial
   // IMPORTANT!!!
   // The python script reads in the data in the following format:
-  // ArduinoName::GeneralName::Value::Units followed by a comma
+  // ArduinoName::SerialNumber::Value::Units followed by a comma
   // For example, for temperature probes 1 and 2, it will look like this:
   // T1::Temp1::100::F,T2::Temp2::150::F
   // If you change this format here, change it in the python script as well!
   float tempC1 = sensors.getTempCByIndex(0);
   float tempC2 = sensors.getTempCByIndex(1);
-  Serial.print("T1::Temp1::");
+  Serial.print("Temp1::");
+  printAddress(T1);
+  Serial.print("::");
   Serial.print(DallasTemperature::toFahrenheit(tempC1));
   Serial.print("::F,");
-  Serial.print("T2::Temp2::");
+  Serial.print("Temp2::");
+  printAddress(T2);
+  Serial.print("::");
   Serial.print(DallasTemperature::toFahrenheit(tempC2));
   Serial.print("::F\n");
   // A delay of 1 second works well for the interaction between Ard and rPi.
