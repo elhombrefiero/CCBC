@@ -96,27 +96,30 @@ void loop()
   sensors.requestTemperatures();
   
   // Send temperature information through serial
-  // IMPORTANT!!!
-  // The python script reads in the data in the following format:
-  // ArduinoName::SerialNumber::Value::Units followed by a comma
-  // For example, for temperature probes 1 and 2, it will look like this:
-  // T1::Temp1::100::F,T2::Temp2::150::F
-  // If you change this format here, change it in the python script as well!
+  /* IMPORTANT!!!
+     The python script reads in the data in data pairs separated by an equal sign (=),
+     Each sensor will have all its attributes in this format, with a pound sign (#)
+     separating each sensor. 
+     For temperatures, the python script uses serial number to map that to a specific 
+     sensor.
+     An example, using two temperature probes:
+     name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
+     If you change this format here, change it in the python script as well! */
   float tempC1 = sensors.getTempCByIndex(0);
   float tempC2 = sensors.getTempCByIndex(1);
-  Serial.print("Temp1::");
+  Serial.print("name=Temp1,serial_num=");
   printAddress(T1);
-  Serial.print("::");
+  Serial.print(",value=");
   Serial.print(DallasTemperature::toFahrenheit(tempC1));
-  Serial.print("::F,");
-  Serial.print("Temp2::");
+  Serial.print(",units=F#");
+  Serial.print("name=Temp2,serial_num=");
   printAddress(T2);
-  Serial.print("::");
+  Serial.print(",value=");
   Serial.print(DallasTemperature::toFahrenheit(tempC2));
-  Serial.print("::F\n");
-  // A delay of 1 second works well for the interaction between Ard and rPi.
+  Serial.print(",units=F#");
+  // A delay of 5 second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(1000); // in milliseconds
+  delay(5000); // in milliseconds
   
 }
 

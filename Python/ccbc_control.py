@@ -30,12 +30,12 @@ from PID.PID import PID
 class TemperatureSensor:
     """ OneWire temperature sensor"""
     
-    def __init__(self, display_name, ard_name, serial_num, cur_temp):
+    def __init__(self, display_name, ard_name, serial_num, cur_temp, units="F"):
         """ Initialize the probe with name, arduino name, and value"""
-        self.display_name = display_name
-        self_ard_name = ard_name
+        self.name = display_name
         self.serial_num = serial_num
-        self.cur_temp = cur_temp
+        self.value = cur_temp
+        self.units = units
         
     def updateTemp(self, temp):
         self.cur_temp = temp
@@ -154,12 +154,11 @@ def returnFormattedDictionary(ArduinoText):
     # Create an empty dictionary used to store all of the info coming from Arduino
     data_from_arduino = {}
     
-    # First split the serial read text by comma
-    serial_read_input_list = ArduinoText.split(",")
+    # First split the serial read text by pound sign
+    serial_read_input_list = ArduinoText.split("#")
 
-    # Split the contents by '::'.
-    # If a list doesn't have the last inputs, then it'll skip it
-    for item in serial_read_input_list:
+    # Split the contents by ','. This gets each sensor input
+    for sensor_data in serial_read_input_list:
         item_contents = item.split("::")
         # First add the entry, which is the name
         ard_input = item_contents[0]
@@ -192,12 +191,14 @@ def randomArduinoValues():
     serial_read = "T1::Temp1::{}::F,T2::Temp2::{}::F,H1::Heater1::ON,P1::Pump1::ON".format(temp1, temp2)
     dictionary = returnFormattedDictionary(serial_read)
     writeJSONFile(dictionary)
-"""    
+"""   
+
     
 if __name__ == "__main__":
     ser = serial.Serial("COM4", 9600, timeout=1)
     
-    T1 = TemperatureSensor("Temperature1", "T1", "28FFAC378217045A", 50.0)
+    T1 = TemperatureSensor("Temp1", "28FFAC378217045A", 50.0)
+    T2 = TemperatureSensor("Temp2", "test", 59.0)
     H1 = Heater("Heater1", "H1", 7, "OFF", T1, 80.0)
     
     ard_dictionary = {}
@@ -217,4 +218,4 @@ if __name__ == "__main__":
         H1.temp_sensor.printSensorID()
         print("H1 properties:")
         print("Setpoint: {}, PID setpoint: {}\nCurrent Temperature: {}\nPin {} Status: {}".format(H1.temp_setpnt, H1.pid.SetPoint, round(H1.temp_sensor.cur_temp,2 ), H1.pin_num, H1.cur_status))
-        #time.sleep(0.05)
+        time.sleep(1)
