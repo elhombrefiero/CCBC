@@ -102,6 +102,11 @@ void loop()
      separating each sensor. 
      For temperatures, the python script uses serial number to map that to a specific 
      sensor.
+     Format of the arduino data is in the following form:
+     Arduino variable name (e.g., Name=Temp1)
+     Serial number (e.g., serial_num="28FF4A778016477")
+     Value of the parameter (e.g., value=108.5)
+     Units of the parameter (e.g., units=F)
      An example, using two temperature probes:
      name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
@@ -116,7 +121,7 @@ void loop()
   printAddress(T2);
   Serial.print(",value=");
   Serial.print(DallasTemperature::toFahrenheit(tempC2));
-  Serial.print(",units=F#");
+  Serial.println(",units=F#");
   // A delay of 5 second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
   delay(5000); // in milliseconds
