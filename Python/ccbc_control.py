@@ -42,11 +42,12 @@ html_dir = os.path.join("C:", "xampp", "htdocs", "CCBC")
 class TemperatureSensor:
     """ OneWire temperature sensor"""
     
-    def __init__(self, display_name, serial_num, cur_temp, units="F"):
+    def __init__(self, display_name, serial_num, initial_temp, units="F"):
         """ Initialize the probe with name, OneWire serial number, and value"""
         self.name = display_name
         self.serial_num = serial_num
-        self.cur_temp = cur_temp
+        self.initial_temp = initial_temp
+        self.cur_temp = initial_temp
         self.units = units
         
     def updateTemp(self, temp):
@@ -55,8 +56,14 @@ class TemperatureSensor:
     def getCurrentTemp(self):
         return self.cur_temp
         
+    def returnSerial(self):
+        return self.serial_num   
+        
     def printSensorInfo(self):
         print("Temperature Sensor {}\nSerial Num: {}\nCurrent Temperature: {}F".format(self.name,self.serial_num,self.cur_temp))
+        
+class PressureSensor:
+    """ To be defined"""
         
 class Heater:
     """ Heater 
@@ -70,6 +77,7 @@ class Heater:
                  cur_status,
                  temp_sensor,
                  temp_setpnt,
+                 serial,
                  P=1.2,
                  I=1,
                  D=0.001,
@@ -84,6 +92,7 @@ class Heater:
         self.cur_status = cur_status
         self.temp_sensor = temp_sensor
         self.temp_setpnt = temp_setpnt
+        self.ser = serial
         
         # Make a switch instance using the pin number
         self.switch = Switch(self.pin_num)
@@ -115,8 +124,8 @@ class Heater:
         return self.pid.SetPoint
         
     def returnCurrentTemp(self):
-        return 
-        
+        return self.temp_sensor.cur_temp
+               
     def determinePinStatus(self):
         """ Looks at the current temperature and determines whether to set the pin
         to on/off.
@@ -139,13 +148,20 @@ class Heater:
         
         if (pin_status != current_status):
             self.switch.changeSwitchStatus()
-            self.switch.sendStatusToArd(ser)
+            self.switch.sendStatusToArd(self.ser)
             self.cur_status = pin_status
+            
+class Pump:
+    """ To be defined"""
         
 class CCBC_Brains:
 
     def __init__(self, serial_port, baud_rate=9600, timeout=1):
-        """ Ryan's Setup
+        """ Reads sensor values and runs functions to command hardware"""
+        
+        self.ard_dictionary = {}
+        self.ser = serial.Serial(serial_port, baud_rate, timeout=timeout)
+        """ #Ryan's Setup
         self.T1 = TemperatureSensor("Hot Water Tank", "28FF4A778016477", 999)
         self.T2 = TemperatureSensor("Mash Tun Hi", "28FF9833801651A", 999)
         self.T3 = TemperatureSensor("Mash Tun Low", "28FF849580164B9", 999)     
@@ -160,14 +176,11 @@ class CCBC_Brains:
         self.H2 = Heater("Heater 2", 4, "OFF", self.T8, 75, max_temp=215)
         self.H3 = Heater("Heater 3", 3, "OFF", self.T7, 75)
         """
-        #Test Setup (COMMENT OUT THESE NEXT THREE LINES FOR CCBC)
+        #Rene's Test Setup (COMMENT OUT THESE NEXT THREE LINES FOR CCBC)
         self.T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
         self.T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
-        self.H1 = Heater("Heater1", 7, "OFF", self.T1, 74.0)
-        
-        self.ard_dictionary = {}
-        self.ser = serial.Serial(serial_port, baud_rate, timeout=timeout)
-    
+        self.H1 = Heater("Heater1", 7, "OFF", self.T1, 80.0, self.ser)
+   
     def readArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
 
@@ -194,70 +207,126 @@ class CCBC_Brains:
         arduino_text = ""
         for line in self.ser.readlines():
             arduino_text += line.strip().decode('utf-8')
-            print(line.strip().decode('utf-8'))
+            #print(line.strip().decode('utf-8'))
         if arduino_text:
             return arduino_text
 
-def returnFormattedDictionary(ArduinoText):
-    # Create an empty dictionary used to store all of the info coming from Arduino
-    data_structure = ["Name","Serial","Value","Units"]
-    data_from_arduino = {}
-    
-    # First split the serial read text by pound sign
-    serial_read_input_list = ArduinoText.split("#")
+    def returnFormattedDictionary(self, ArduinoText):
+        # Create an empty dictionary used to store all of the info coming from Arduino
 
-    # Split the contents by ','. This gets each sensor input
-    for sensor_data in serial_read_input_list:
-        sensor_details = sensor_data.split(",")
-        # Take the first input, which is name=something, and start a dictionary with that
-        try:
-            name = sensor_details[0].split('=')[1]
-            data_from_arduino[name] = {}
-            # Each detail is a pair of name=value
-            for key_value in sensor_details:
-                split = key_value.split("=")
-                key = split[0]
-                value = split[1]
-                # Create a dictionary that will be returned
-                data_from_arduino[name][key] = value
-        except:
-            next
-              
-    if data_from_arduino:
-        return data_from_arduino
+        data_from_arduino = {}
+        
+        # First split the serial read text by pound sign
+        serial_read_input_list = ArduinoText.split("#")
+
+        # Split the contents by ','. This gets each sensor input
+        for sensor_data in serial_read_input_list:
+            sensor_details = sensor_data.split(",")
+            # Take the first input, which is name=something, and start a dictionary with that
+            try:
+                name = sensor_details[0].split('=')[1]
+                data_from_arduino[name] = {}
+                # Each detail is a pair of name=value
+                for key_value in sensor_details:
+                    split = key_value.split("=")
+                    key = split[0]
+                    value = split[1]
+                    # Create a dictionary that will be returned
+                    data_from_arduino[name][key] = value
+            except:
+                next
+                  
+        if data_from_arduino:
+            return data_from_arduino
+            
+    def updateTempSensorValues(self):
+        """ Cycle through the temperature sensors and update their values
+        
+        Basically, update the values to the ones in the dictionary.
+        """
+        
+        # Look through each temperature sensor
+        for hw_sensor in [self.T1, self.T2]:
+            # Grab the serial number for the sensor
+            sensor_serial = hw_sensor.returnSerial()
+            # Look through the entries in the dictionary
+            try:
+                for name, sensor_dict in self.ard_dictionary.items():
+                    # Within each entry, look at the name and value
+                    for attribute, value in sensor_dict.items():
+                        # If the serial number value matches the one in the 
+                        # hw_sensor, then update the hw_sensor value
+                        if value == sensor_serial:
+                            hw_sensor.updateTemp(sensor_dict['value']) 
+            except:
+                return
+                
+    def updateHeaterControllers(self):
+        """ Make heaters send their commands, if applicable."""
+        
+        for heater in [self.H1]:
+            heater.determinePinStatus()
+
+    def updateArdDictionary(self):
+        # Read arduino info and update the dictionary, which houses
+        # all sensor data
+        
+        new_ard_data = self.readArduinoSerial()
+        
+        if new_ard_data:
+            new_ard_dict = self.returnFormattedDictionary(new_ard_data)
+        else:
+            return
+        
+        self.ard_dictionary.update(new_ard_dict)
+        
+    def returnArdDict(self):
+        return self.ard_dictionary
             
             
-def writeJSONFile(dictionary):
-    # Write a json file using the dictionary
-    with io.open(os.path.join(html_dir, "ccbc.json"),
-                 "w", encoding='utf8') as outfile:
-        str_ = json.dumps(dictionary,
-                          indent=4, sort_keys=True,
-                          separators=(',', ': '), ensure_ascii=False)
-        outfile.write(to_unicode(str_))
-    return str_
+    def writeJSONFile(dictionary):
+        # Write a json file using the dictionary
+        with io.open(os.path.join(html_dir, "ccbc.json"),
+                     "w", encoding='utf8') as outfile:
+            str_ = json.dumps(dictionary,
+                              indent=4, sort_keys=True,
+                              separators=(',', ': '), ensure_ascii=False)
+            outfile.write(to_unicode(str_))
+        return str_
+        
+    def updateAndExecute(self):
+        """ This function does everything in one go. 
+        
+        1) Reads in Arduino data and updates the dictionary of current values
+        2) Updates the sensors to match the values in the dictionary
+        3) Issues commands to the controllers to do something
+        """
+        
+        # Read in arduino data and update dictionary
+        self.updateArdDictionary()
+        
+        # Update the sensors to match the values in the dictionary
+        # TODO: Add pressure sensor get commands here       
+        self.updateTempSensorValues()
 
-""" Test Function
-def randomArduinoValues():
-    temp1 = random.randint(100,180)
-    temp2 = random.randint(150, 200)
-    serial_read = "name=Temp1,serial_num=28FFAC378217045A,value={},units=F#name=Temp2,serial_num=28FF6AB585160484,value={},units=F#".format(temp1, temp2)
-    dictionary = returnFormattedDictionary(serial_read)
-    writeJSONFile(dictionary)
-"""   
-
-    
+        # Make heaters do their thing
+        # TODO: Add pump command here
+        self.updateHeaterControllers()
+  
 if __name__ == "__main__":
     
     test_ccbc = CCBC_Brains('COM4')
 
     while 1:
-        try:
-            ard_data = test_ccbc.readArduinoSerial()
-        except:
-            continue
-        print(returnFormattedDictionary(ard_data))
-        time.sleep(2)
+        
+        test_ccbc.updateAndExecute()
+        #print(test_ccbc.returnArdDict())
+        print("{} temperature: {}F".format(test_ccbc.T1.name, test_ccbc.T1.getCurrentTemp()))
+        print("{} temperature: {}F".format(test_ccbc.T2.name, test_ccbc.T2.getCurrentTemp()))
+        print("T1 from Heater1: {}F\t Heater1 setpoint: {}".format(test_ccbc.H1.returnCurrentTemp(), test_ccbc.H1.returnSetpoint()))
+        print("Heater1 Status: {}".format(test_ccbc.H1.returnPinStatus()))
+        
+        time.sleep(4)
 """    
     while 1:
         try:
