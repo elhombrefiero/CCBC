@@ -277,8 +277,10 @@ class CCBC_Brains:
             new_ard_dict = self.returnFormattedDictionary(new_ard_data)
         else:
             return
-        
-        self.ard_dictionary.update(new_ard_dict)
+        try:
+            self.ard_dictionary.update(new_ard_dict)
+        except:
+            return
         
     def returnArdDict(self):
         return self.ard_dictionary
@@ -315,12 +317,12 @@ class CCBC_Brains:
   
 if __name__ == "__main__":
     
-    test_ccbc = CCBC_Brains('COM4')
+    test_ccbc = CCBC_Brains('/dev/ttyACM0')
 
     while 1:
         
         test_ccbc.updateAndExecute()
-        #print(test_ccbc.returnArdDict())
+        print(test_ccbc.returnArdDict())
         print("{} temperature: {}F".format(test_ccbc.T1.name, test_ccbc.T1.getCurrentTemp()))
         print("{} temperature: {}F".format(test_ccbc.T2.name, test_ccbc.T2.getCurrentTemp()))
         print("T1 from Heater1: {}F\t Heater1 setpoint: {}".format(test_ccbc.H1.returnCurrentTemp(), test_ccbc.H1.returnSetpoint()))
