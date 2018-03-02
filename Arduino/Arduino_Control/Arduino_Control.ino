@@ -204,6 +204,7 @@ void setSwitchOnOff(int pin, String status_of_pin)
 {
   if (status_of_pin == "ON") {
     digitalWrite(pin, HIGH);
+<<<<<<< HEAD
     //Serial.print("Pin ");
     //Serial.print(pin);
     //Serial.print(" set to high");
@@ -215,5 +216,18 @@ void setSwitchOnOff(int pin, String status_of_pin)
     //Serial.print(pin);
     //Serial.print(" set to low");
     //Serial.println();
+=======
+    // Serial.print("Pin ");
+    // Serial.print(pin);
+    // Serial.print(" set to high");
+    // Serial.println();
+  }
+  else {
+    digitalWrite(pin, LOW);
+    // Serial.print("Pin ");
+    // Serial.print(pin);
+    // Serial.print(" set to low");
+    // Serial.println();
+>>>>>>> Ready for ccbc
   }
 }

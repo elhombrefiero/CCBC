@@ -161,7 +161,7 @@ class CCBC_Brains:
         
         self.ard_dictionary = {}
         self.ser = serial.Serial(serial_port, baud_rate, timeout=timeout)
-        """ #Ryan's Setup
+        #Ryan's Setup
         self.T1 = TemperatureSensor("Hot Water Tank", "28FF4A778016477", 999)
         self.T2 = TemperatureSensor("Mash Tun Hi", "28FF9833801651A", 999)
         self.T3 = TemperatureSensor("Mash Tun Low", "28FF849580164B9", 999)     
@@ -172,15 +172,16 @@ class CCBC_Brains:
         self.T8 = TemperatureSensor("Wort Out", "28FF59A08516534", 999)
         self.T9 = TemperatureSensor("Ambient Temp", "28FF43788016540", 999)
         #self.T10 = TemperatureSensor("Controller Temp", "TBD", 999)
-        self.H1 = Heater("Heater 1", 5, "OFF", self.T1, 75)
-        self.H2 = Heater("Heater 2", 4, "OFF", self.T8, 75, max_temp=215)
-        self.H3 = Heater("Heater 3", 3, "OFF", self.T7, 75)
+        self.H1 = Heater("Heater 1", 5, "OFF", self.T1, 115)
+        self.H2 = Heater("Heater 2", 4, "OFF", self.T8, 215, max_temp=215)
+        self.H3 = Heater("Heater 3", 3, "OFF", self.T7, 115)
         """
         #Rene's Test Setup (COMMENT OUT THESE NEXT THREE LINES FOR CCBC)
         self.T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
         self.T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
         self.H1 = Heater("Heater1", 7, "OFF", self.T1, 80.0, self.ser)
-   
+        """
+        
     def readArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
 
@@ -331,8 +332,12 @@ if __name__ == "__main__":
         print(test_ccbc.returnArdDict())
         print("{} temperature: {}F".format(test_ccbc.T1.name, test_ccbc.T1.getCurrentTemp()))
         print("{} temperature: {}F".format(test_ccbc.T2.name, test_ccbc.T2.getCurrentTemp()))
-        print("T1 from Heater1: {}F\t Heater1 setpoint: {}".format(test_ccbc.H1.returnCurrentTemp(), test_ccbc.H1.returnSetpoint()))
+        print("Temperature from Heater1: {}F\t Heater1 setpoint: {}".format(test_ccbc.H1.returnCurrentTemp(), test_ccbc.H1.returnSetpoint()))
         print("Heater1 Status: {}".format(test_ccbc.H1.returnPinStatus()))
+        print("Temperature from Heater2: {}F\t Heater2 setpoint: {}".format(test_ccbc.H2.returnCurrentTemp(), test_ccbc.H2.returnSetpoint()))
+        print("Heater2 Status: {}".format(test_ccbc.H2.returnPinStatus()))
+        print("Temperature from Heater3: {}F\t Heater3 setpoint: {}".format(test_ccbc.H3.returnCurrentTemp(), test_ccbc.H3.returnSetpoint()))
+        print("Heater3 Status: {}".format(test_ccbc.H3.returnPinStatus()))
         
         time.sleep(4)
 """    
