@@ -246,9 +246,12 @@ class CCBC_Brains:
         """
         
         # Look through each temperature sensor
-        for hw_sensor in [self.T1, self.T2]:
+        for hw_sensor in [self.T1, self.T2, self.T3, self.T4, self.T5, self.T6, self.T7, self.T8, self.T9]:
             # Grab the serial number for the sensor
-            sensor_serial = hw_sensor.returnSerial()
+            try:
+                sensor_serial = hw_sensor.returnSerial()
+            except:
+                return
             # Look through the entries in the dictionary
             try:
                 for name, sensor_dict in self.ard_dictionary.items():
@@ -264,8 +267,11 @@ class CCBC_Brains:
     def updateHeaterControllers(self):
         """ Make heaters send their commands, if applicable."""
         
-        for heater in [self.H1]:
-            heater.determinePinStatus()
+        for heater in [self.H1, self.H2, self.H3]:
+            try:
+                heater.determinePinStatus()
+            except:
+                return
 
     def updateArdDictionary(self):
         # Read arduino info and update the dictionary, which houses
