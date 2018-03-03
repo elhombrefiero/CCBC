@@ -125,13 +125,13 @@ class CCBC_Brains:
                 for name, sensor_dict in self.ard_dictionary.items():
                     # Within each entry, look at the name and value
                     for attribute, value in sensor_dict.items():
+                        # Check for faulty number
+                        if (float(sensor_dict['value']) < 32 or float(sensor_dict['value']) > 250):
+                            return
                         # If the serial number value matches the one in the 
                         # hw_sensor, then update the hw_sensor value
                         if value == sensor_serial:
-                            if (sensor_dict['value'] < 32 or sensor_dict['value'] > 250):
-                                return
-                            else:
-                                hw_sensor.updateTemp(sensor_dict['value']) 
+                            hw_sensor.updateTemp(sensor_dict['value']) 
             except:
                 return
                 
