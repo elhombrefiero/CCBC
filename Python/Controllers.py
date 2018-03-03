@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from PID.PID import PID
+from simplePinControl import Switch
 
 class Heater:
     """ Heater 
