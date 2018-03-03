@@ -24,163 +24,16 @@ import time
 import random
 from simplePinControl import Switch
 from PID.PID import PID
-
-# Make the json print functionality work with both Python 2 and 3
-try:
-    to_unicode = unicode
-except NameError:
-    to_unicode = str
-    
-# Directory that has the CCBC webpage. 
-# Note that directory is different depending on operating system
-# Windows: C:\xampp\htdocs\CCBC
-# Linux: /var/www/html
-# TODO: make this an if statement
-html_dir = os.path.join("C:", "xampp", "htdocs", "CCBC")
-
-# Create classes for the sensors and heaters
-class TemperatureSensor:
-    """ OneWire temperature sensor"""
-    
-    def __init__(self, display_name, serial_num, initial_temp, units="F"):
-        """ Initialize the probe with name, OneWire serial number, and value"""
-        self.name = display_name
-        self.serial_num = serial_num
-        self.initial_temp = initial_temp
-        self.cur_temp = initial_temp
-        self.units = units
-        
-    def updateTemp(self, temp):
-        self.cur_temp = temp
-        
-    def getCurrentTemp(self):
-        return self.cur_temp
-        
-    def returnSerial(self):
-        return self.serial_num   
-        
-    def printSensorInfo(self):
-        print("Temperature Sensor {}\nSerial Num: {}\nCurrent Temperature: {}F".format(self.name,self.serial_num,self.cur_temp))
-        
-class PressureSensor:
-    """ To be defined"""
-        
-class Heater:
-    """ Heater 
-    
-    Controlled with a high/low setpoint and a temperature sensor"""
-    # TODO: Make the temperature sensors an array instead
-    # TODO: Make a function that calculates the delta of all of the temperature sensors.
-    def __init__(self, 
-                 display_name, 
-                 pin_num,
-                 cur_status,
-                 temp_sensor,
-                 temp_setpnt,
-                 serial,
-                 P=1.2,
-                 I=1,
-                 D=0.001,
-                 max_temp = 185,
-                 ):
-        """ Initializes a heater. 
-        
-        Display name, Pin Number, Current Status, TemperatureSensor, Temperature Setpoint"""
-        
-        self.display_name = display_name
-        self.pin_num = pin_num
-        self.cur_status = cur_status
-        self.temp_sensor = temp_sensor
-        self.temp_setpnt = temp_setpnt
-        self.ser = serial
-        
-        # Make a switch instance using the pin number
-        self.switch = Switch(self.pin_num)
-        
-        # Create a PID controller
-        self.pid = PID(P,I,D)
-        self.pid.SetPoint = temp_setpnt
-        self.pid.setSampleTime(0.01)
-        
-    def updateSetpoint(self, new_setpoint):
-        self.pid.SetPoint = new_setpoint
-        
-    def updateP(self, new_p):
-        """ Uses built-in function of PID script to update P variable"""
-        self.pid.setKp(new_p)
-        
-    def updateI(self, new_i):
-        """ Uses built-in function of PID script to update I variable"""
-        self.pid.setKi(new_i)
-
-    def updateD(self, new_d):
-        """ Uses built-in function of PID script to update D variable"""
-        self.pid.setKd(new_d)
-        
-    def returnPinStatus(self):
-        return self.switch.status
-        
-    def returnSetpoint(self):
-        return self.pid.SetPoint
-        
-    def returnCurrentTemp(self):
-        return self.temp_sensor.cur_temp
-               
-    def determinePinStatus(self):
-        """ Looks at the current temperature and determines whether to set the pin
-        to on/off.
-        """
-        
-        # Get current temperature
-        current_temp = float(self.temp_sensor.getCurrentTemp())
-        
-        # Get current status
-        current_status = self.cur_status
-        
-        # Update the pid value
-        self.pid.update(current_temp)
-        
-        # Use the pid output value to determine whether to turn a pin on or off
-        if (self.pid.output > 0):
-            pin_status = "ON"
-        else:
-            pin_status = "OFF"
-        
-        if (pin_status != current_status):
-            self.switch.changeSwitchStatus()
-            self.switch.sendStatusToArd(self.ser)
-            self.cur_status = pin_status
-            
-class Pump:
-    """ To be defined"""
-        
+     
 class CCBC_Brains:
 
-    def __init__(self, serial_port, baud_rate=9600, timeout=1):
+    def __init__(self, serial_port, t_sensors=[], heaters=[], baud_rate=9600, timeout=1):
         """ Reads sensor values and runs functions to command hardware"""
         
         self.ard_dictionary = {}
         self.ser = serial.Serial(serial_port, baud_rate, timeout=timeout)
-        #Ryan's Setup
-        self.T1 = TemperatureSensor("Hot Water Tank", "28FF4A778016477", 999)
-        self.T2 = TemperatureSensor("Mash Tun Hi", "28FF9833801651A", 999)
-        self.T3 = TemperatureSensor("Mash Tun Low", "28FF849580164B9", 999)     
-        self.T4 = TemperatureSensor("HERMS In", "28FF7C248016561", 999)
-        self.T5 = TemperatureSensor("HERMS Out", "28FF329480164E5", 999)
-        self.T6 = TemperatureSensor("HERMS H20", "28FFB4188016527", 999)
-        self.T7 = TemperatureSensor("Boil Tun", "28FFB4778016473", 999)
-        self.T8 = TemperatureSensor("Wort Out", "28FF59A08516534", 999)
-        self.T9 = TemperatureSensor("Ambient Temp", "28FF43788016540", 999)
-        #self.T10 = TemperatureSensor("Controller Temp", "TBD", 999)
-        self.H1 = Heater("Heater 1", 5, "OFF", self.T1, 115)
-        self.H2 = Heater("Heater 2", 4, "OFF", self.T8, 215, max_temp=215)
-        self.H3 = Heater("Heater 3", 3, "OFF", self.T7, 115)
-        """
-        #Rene's Test Setup (COMMENT OUT THESE NEXT THREE LINES FOR CCBC)
-        self.T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
-        self.T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
-        self.H1 = Heater("Heater1", 7, "OFF", self.T1, 80.0, self.ser)
-        """
+        self.t_sensors = t_sensors
+        self.heaters = heaters
         
     def readArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
@@ -245,9 +98,9 @@ class CCBC_Brains:
         
         Basically, update the values to the ones in the dictionary.
         """
-        
+        # TODO: Add logic to skip over bad info
         # Look through each temperature sensor
-        for hw_sensor in [self.T1, self.T2, self.T3, self.T4, self.T5, self.T6, self.T7, self.T8, self.T9]:
+        for hw_sensor in self.t_sensors:
             # Grab the serial number for the sensor
             try:
                 sensor_serial = hw_sensor.returnSerial()
@@ -268,8 +121,10 @@ class CCBC_Brains:
     def updateHeaterControllers(self):
         """ Make heaters send their commands, if applicable."""
         
-        for heater in [self.H1, self.H2, self.H3]:
+        for heater in self.heaters:
             try:
+                # TODO: Change heater logic to output whether to change stuff
+                #       Then change the pin value here
                 heater.determinePinStatus()
             except:
                 return
@@ -340,21 +195,3 @@ if __name__ == "__main__":
         print("Heater3 Status: {}".format(test_ccbc.H3.returnPinStatus()))
         
         time.sleep(4)
-"""    
-    while 1:
-        try:
-            for line in ser.readlines():
-                ard_dictionary.update(returnFormattedDictionary(line.strip().decode('utf-8')))
-                print(line.strip().decode('utf-8'))
-        except:
-            continue
-        try:
-            T1.cur_temp = float(ard_dictionary['Temp1']['Value'])
-        except:
-            continue
-        H1.determinePinStatus()
-        H1.temp_sensor.printSensorInfo()
-        print("H1 properties:")
-        print("Setpoint: {}, PID setpoint: {}\nCurrent Temperature: {}\nPin {} Status: {}".format(H1.temp_setpnt, H1.pid.SetPoint, round(H1.temp_sensor.cur_temp,2 ), H1.pin_num, H1.cur_status))
-        time.sleep(1)
-"""
