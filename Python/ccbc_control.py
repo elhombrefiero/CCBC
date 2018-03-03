@@ -34,6 +34,20 @@ class CCBC_Brains:
         self.ser = serial_instance
         self.t_sensors = t_sensors
         self.heaters = heaters
+    
+    def printTemperatureSensors(self):
+        """ Goes through the sensors in the array and returns their 
+        name and current value.
+        """
+        
+        for temp_sensor in self.t_sensors:
+            print("{}: {}F".format(temp_sensor.name, temp_sensor.getCurrentTemp()))
+    
+    def printHeaterStatus(self):
+        """ Goes through the heaters in array and returns their name and status"""
+        
+        for heeater in self.heaters:
+            print("{} Status: {}".format(heater.display_name, heater.returnPinStatus()))
         
     def readArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.

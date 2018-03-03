@@ -13,14 +13,11 @@ H1 = Heater("Heater1", 7, "OFF", T1, 80.0)
 
 if __name__ == "__main__":
 
-    test_ccbc = CCBC_Brains('/dev/ttyACM0', t_sensors=[T1, T2], heaters=[H1])
+    test_ccbc = CCBC_Brains(ser, t_sensors=[T1, T2], heaters=[H1])
 
     while 1:
         
         test_ccbc.updateAndExecute()
-        print(test_ccbc.returnArdDict())
-        print("{} temperature: {}F".format(test_ccbc.T1.name, test_ccbc.T1.getCurrentTemp()))
-        print("{} temperature: {}F".format(test_ccbc.T2.name, test_ccbc.T2.getCurrentTemp()))
-        print("Temperature from Heater1: {}F\t Heater1 setpoint: {}".format(test_ccbc.H1.returnCurrentTemp(), test_ccbc.H1.returnSetpoint()))
-        print("Heater1 Status: {}".format(test_ccbc.H1.returnPinStatus()))       
+        test_ccbc.printTemperatureSensors()
+        test_ccbc.printHeaterStatus()   
         time.sleep(4)
