@@ -125,7 +125,7 @@ class CCBC_Brains:
             try:
                 # TODO: Change heater logic to output whether to change stuff
                 #       Then change the pin value here
-                heater.determinePinStatus()
+                heater.determinePinStatus(self.ser)
             except:
                 return
 
