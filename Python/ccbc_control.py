@@ -46,7 +46,7 @@ class CCBC_Brains:
     def printHeaterStatus(self):
         """ Goes through the heaters in array and returns their name and status"""
         
-        for heeater in self.heaters:
+        for heater in self.heaters:
             print("{} Status: {}".format(heater.display_name, heater.returnPinStatus()))
         
     def readArduinoSerial(self):
