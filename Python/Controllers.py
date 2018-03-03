@@ -14,7 +14,6 @@ class Heater:
                  cur_status,
                  temp_sensor,
                  temp_setpnt,
-                 serial,
                  P=1.2,
                  I=1,
                  D=0.001,
@@ -29,7 +28,6 @@ class Heater:
         self.cur_status = cur_status
         self.temp_sensor = temp_sensor
         self.temp_setpnt = temp_setpnt
-        self.ser = serial
         
         # Make a switch instance using the pin number
         self.switch = Switch(self.pin_num)
@@ -63,7 +61,7 @@ class Heater:
     def returnCurrentTemp(self):
         return self.temp_sensor.cur_temp
                
-    def determinePinStatus(self):
+    def determinePinStatus(self, serial_instance):
         """ Looks at the current temperature and determines whether to set the pin
         to on/off.
         """
@@ -85,7 +83,7 @@ class Heater:
         
         if (pin_status != current_status):
             self.switch.changeSwitchStatus()
-            self.switch.sendStatusToArd(self.ser)
+            self.switch.sendStatusToArd(serial_instance)
             self.cur_status = pin_status
             
 class Pump:

@@ -27,11 +27,11 @@ from PID.PID import PID
      
 class CCBC_Brains:
 
-    def __init__(self, serial_port, t_sensors=[], heaters=[], baud_rate=9600, timeout=1):
+    def __init__(self, serial_instance, t_sensors=[], heaters=[]):
         """ Reads sensor values and runs functions to command hardware"""
         
         self.ard_dictionary = {}
-        self.ser = serial.Serial(serial_port, baud_rate, timeout=timeout)
+        self.ser = serial_instance
         self.t_sensors = t_sensors
         self.heaters = heaters
         
