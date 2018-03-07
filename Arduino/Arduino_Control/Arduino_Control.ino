@@ -18,7 +18,13 @@ OneWire oneWire(ONE_WIRE_PORT);
 DallasTemperature sensors(&oneWire);
 
 // Arrays to hold device addresses
-DeviceAddress T1, T2, T3, T4, T5, T6, T7, T8, T9;
+DeviceAddress T1, T2;
+
+// Array to hold device Addresses
+uint8_t *myTSensors[] = {
+  T1,
+  T2
+};
 
 // Strings used to send and receive through serial
 String readString;
@@ -38,49 +44,27 @@ void setup()
   // Setup the library
   sensors.begin();
   
+  // Get number of sensors
+  byte SensorCount = sensors.getDeviceCount();
+  
   // Print devices found and respective addresses
   Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.print(SensorCount);
   Serial.println(" devices.");
   
-  // search for devices on the bus and assign based on an index.
-  if (!sensors.getAddress(T1, 0)) Serial.println("Unable to find address for Device 0");   
-  if (!sensors.getAddress(T2, 1)) Serial.println("Unable to find address for Device 1");
-  if (!sensors.getAddress(T3, 2)) Serial.println("Unable to find address for Device 2");   
-  if (!sensors.getAddress(T4, 3)) Serial.println("Unable to find address for Device 3");   
-  if (!sensors.getAddress(T5, 4)) Serial.println("Unable to find address for Device 4");   
-  if (!sensors.getAddress(T6, 5)) Serial.println("Unable to find address for Device 5");   
-  if (!sensors.getAddress(T7, 6)) Serial.println("Unable to find address for Device 6");   
-  if (!sensors.getAddress(T8, 7)) Serial.println("Unable to find address for Device 7");   
-  if (!sensors.getAddress(T9, 8)) Serial.println("Unable to find address for Device 8");   
-
-  // show address for devices
-  Serial.print("Device 0 Address: ");
-  printAddress(T1);
-  Serial.println();
-  Serial.print("Device 1 Address: ");
-  printAddress(T2);
-  Serial.println();
-  Serial.print("Device 2 Address: ");
-  printAddress(T3);
-  Serial.println();
-  Serial.print("Device 3 Address: ");
-  printAddress(T4);
-  Serial.println();
-  Serial.print("Device 4 Address: ");
-  printAddress(T5);
-  Serial.println();
-  Serial.print("Device 5 Address: ");
-  printAddress(T6);
-  Serial.println();
-  Serial.print("Device 6 Address: ");
-  printAddress(T7);
-  Serial.println();
-  Serial.print("Device 7 Address: ");
-  printAddress(T8);
-  Serial.println();
-  Serial.print("Device 8 Address: ");
-  printAddress(T9);
+  // Assigning an address to each member of myTSensor array
+  for (int i = 0; i < sizeof(myTSensors) -1; i ++)
+  {
+    if (!sensors.getAddress(myTSensors[i], i)) Serial.println("Unable to find address for Device 0");   
+  }
+  
+  // Return all temperature sensor serials 
+  Serial.println("Printing addresses for all sensors");
+  for (int i = 0; i < sizeof(myTSensors) -1; i++)
+  {
+    printAddress(myTSensors[i]);
+    Serial.println();
+  }
   Serial.println();
 }
 
@@ -138,61 +122,17 @@ void loop()
      An example, using two temperature probes:
      name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
-  float tempC1 = sensors.getTempCByIndex(0);
-  float tempC2 = sensors.getTempCByIndex(1);
-  float tempC3 = sensors.getTempCByIndex(2);
-  float tempC4 = sensors.getTempCByIndex(3);
-  float tempC5 = sensors.getTempCByIndex(4);
-  float tempC6 = sensors.getTempCByIndex(5);
-  float tempC7 = sensors.getTempCByIndex(6);
-  float tempC8 = sensors.getTempCByIndex(7);
-  float tempC9 = sensors.getTempCByIndex(8);
-
-  Serial.print("name=Temp1,serial_num=");
-  printAddress(T1);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC1));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp2,serial_num=");
-  printAddress(T2);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC2));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp3,serial_num=");
-  printAddress(T3);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC3));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp4,serial_num=");
-  printAddress(T4);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC4));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp5,serial_num=");
-  printAddress(T5);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC5));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp6,serial_num=");
-  printAddress(T6);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC6));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp7,serial_num=");
-  printAddress(T7);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC7));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp8,serial_num=");
-  printAddress(T8);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC8));
-  Serial.print(",units=F#");
-  Serial.print("name=Temp9,serial_num=");
-  printAddress(T9);
-  Serial.print(",value=");
-  Serial.print(DallasTemperature::toFahrenheit(tempC9));
-  Serial.println(",units=F#");  
+  for (int i = 0; i < sizeof(myTSensors) -1; i++)
+  {
+    float tempF = sensors.getTempFByIndex(i);
+    Serial.print("name=Temp");
+    Serial.print(i);
+    Serial.print(",serial_num=");
+    printAddress(myTSensors[i]);
+    Serial.print(",value=");
+    Serial.print(tempF);
+    Serial.println(",units=F#");
+  }
 
   // A delay of 5 second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
