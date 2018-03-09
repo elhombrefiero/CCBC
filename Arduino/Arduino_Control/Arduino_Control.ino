@@ -18,13 +18,17 @@ OneWire oneWire(ONE_WIRE_PORT);
 DallasTemperature sensors(&oneWire);
 
 // Arrays to hold device addresses
-DeviceAddress T1, T2;
+DeviceAddress T1, T2, T3;
 
 // Array to hold device Addresses
 uint8_t *myTSensors[] = {
   T1,
-  T2
+  T2,
+  T3
 };
+
+// Declare number of sensors in global scope
+int numSensors = 3;
 
 // Strings used to send and receive through serial
 String readString;
@@ -48,22 +52,24 @@ void setup()
   byte SensorCount = sensors.getDeviceCount();
   
   // Print devices found and respective addresses
-  Serial.print("Found ");
-  Serial.print(SensorCount);
+  Serial.print("Assuming ");
+  Serial.print(numSensors);
   Serial.println(" devices.");
   
   // Assigning an address to each member of myTSensor array
-  for (int i = 0; i < sizeof(myTSensors) -1; i ++)
+  for (int i = 0; i < numSensors; i ++)
   {
-    if (!sensors.getAddress(myTSensors[i], i)) Serial.println("Unable to find address for Device 0");   
+    if (!sensors.getAddress(myTSensors[i], i)) Serial.println("Unable to find address for Device 0");
+    delay(50);   
   }
   
   // Return all temperature sensor serials 
   Serial.println("Printing addresses for all sensors");
-  for (int i = 0; i < sizeof(myTSensors) -1; i++)
+  for (int i = 0; i < numSensors; i++)
   {
     printAddress(myTSensors[i]);
     Serial.println();
+    delay(50); 
   }
   Serial.println();
 }
@@ -75,6 +81,7 @@ void printAddress(DeviceAddress deviceAddress)
   {
     if (deviceAddress[i] < 16) Serial.print("0");
     Serial.print(deviceAddress[i], HEX);
+    delay(50);
   }
 }
 
@@ -122,21 +129,27 @@ void loop()
      An example, using two temperature probes:
      name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
-  for (int i = 0; i < sizeof(myTSensors) -1; i++)
+  for (int i = 0; i < numSensors; i++)
   {
     float tempF = sensors.getTempFByIndex(i);
-    Serial.print("name=Temp");
-    Serial.print(i);
-    Serial.print(",serial_num=");
-    printAddress(myTSensors[i]);
-    Serial.print(",value=");
-    Serial.print(tempF);
-    Serial.println(",units=F#");
+    // Only include valid temperature readings
+    if (tempF > 32)
+    {
+      Serial.print("tempsensor:");
+      Serial.print("name=Temp");
+      Serial.print(i);
+      Serial.print(",serial_num=");
+      printAddress(myTSensors[i]);
+      Serial.print(",value=");
+      Serial.print(tempF);
+      Serial.println(",units=F");      
+    }
+    delay(50); // adding delay so sensors aren't cycled too quickly
   }
 
-  // A delay of 5 second works well for the interaction between Ard and rPi.
+  // A delay of 3 second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(5000); // in milliseconds
+  delay(3000); // in milliseconds
   
 }
 
