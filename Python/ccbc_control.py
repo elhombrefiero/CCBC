@@ -75,6 +75,7 @@ class CCBC_Brains:
         arduino_lines = []
         for line in self.ser.readlines():
             arduino_lines.append(line.strip().decode('utf-8'))
+            #print(line.strip().decode('utf-8'))
         if arduino_lines:
             for line in arduino_lines:
         
@@ -83,8 +84,11 @@ class CCBC_Brains:
                 
                 try:
                     # First entry is the type, the rest is the data
-                    type = serial_read_input_list[0]
+                    type_of_data = serial_read_input_list[0]
                     data = serial_read_input_list[1]
+                    """print("Type of data: {}\ndata: {}".format(type_of_data,
+                                                              data))
+                                                              """
                 except:
                     return
 
@@ -95,35 +99,32 @@ class CCBC_Brains:
                 try:
                     name = sensor_details[0].split('=')[1]
                 except:
+                    print("Ran into issue with this sensor_details {}".format(sensor_details))
                     return
                 
                 # Create dictionary for the type (e.g., tempsensor) and another within with the name
-                if self.ard_dictionary[type]:
-                    continue
-                else:
-                    self.ard_dictionary[type] = {}
-                if self.ard_dictionary[type][name]:
-                    continue
-                else:
-                    self.ard_dictionary[type][name] = {}
-                
+                if type_of_data not in self.ard_dictionary:
+                    self.ard_dictionary[type_of_data] = {}
+                if name not in self.ard_dictionary[type_of_data]:
+                    self.ard_dictionary[type_of_data][name] = {}
+
                 try:
                     # Each detail is a pair of name=value
                     for key_value in sensor_details:
                         split = key_value.split("=")
                         key = split[0]
                         value = split[1]
-                        # Create a dictionary that will be returned
-                        self.ard_dictionary[type][name][key] = value
-            except:
-                return
-            
+                        # Add the data to the ard dictionary
+                        self.ard_dictionary[type_of_data][name][key] = value
+
+                except:
+                    return
+
     def updateTempSensorValues(self):
         """ Cycle through the temperature sensors and update their values
         
         Basically, update the values to the ones in the dictionary.
         """
-        # TODO: Add logic to skip over bad info
         # Look through each temperature sensor
         for hw_sensor in self.t_sensors:
             # Grab the serial number for the sensor
@@ -133,13 +134,14 @@ class CCBC_Brains:
                 return
             # Look through the entries in the dictionary
             try:
-                for name, sensor_dict in self.ard_dictionary.items():
-                    # Within each entry, look at the name and value
-                    for attribute, value in sensor_dict.items():
-                        # If the serial number value matches the one in the 
-                        # hw_sensor, then update the hw_sensor value
-                        if value == sensor_serial:
-                            hw_sensor.updateTemp(sensor_dict['value']) 
+                for sensor_type, sensor_entries in self.ard_dictionary.items():
+                    for name, sensor_dict in sensor_entries.items():
+                        # Within each entry, look at the name and value
+                        for attribute, value in sensor_dict.items():
+                            # If the serial number value matches the one in the 
+                            # hw_sensor, then update the hw_sensor value
+                            if value == sensor_serial:
+                                hw_sensor.updateTemp(sensor_dict['value']) 
             except:
                 return
                 
@@ -177,7 +179,7 @@ class CCBC_Brains:
         """
         
         # Read in arduino data and update dictionary
-        self.readAndUpdateArduinoSerial()
+        self.readAndFormatArduinoSerial()
         
         # Update the sensors to match the values in the dictionary
         # TODO: Add pressure sensor get commands here       

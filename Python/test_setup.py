@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 import serial
 import time
 from ccbc_control import CCBC_Brains
@@ -9,7 +10,7 @@ from Controllers import Heater
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
 T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 998)
-H1 = Heater("Heater1", 7, "OFF", T1, 80.0)
+H1 = Heater("Heater1", 7, "OFF", T1, 73.0)
 
 
 if __name__ == "__main__":
@@ -21,4 +22,5 @@ if __name__ == "__main__":
         test_ccbc.updateAndExecute()
         test_ccbc.printTemperatureSensors()
         test_ccbc.printHeaterStatus()
+        #print(test_ccbc.returnArdDict())
         time.sleep(4)
