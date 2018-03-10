@@ -49,7 +49,7 @@ class CCBC_Brains:
         for heater in self.heaters:
             print("{} Status: {}".format(heater.display_name, heater.returnPinStatus()))
         
-    def readArduinoSerial(self):
+    def readAndFormatArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
 
         The python script reads in the data in (variablename=value) pairs.
@@ -72,40 +72,51 @@ class CCBC_Brains:
         After each variable, there will be one comma.
         """
 
-        arduino_text = ""
+        arduino_lines = []
         for line in self.ser.readlines():
-            arduino_text += line.strip().decode('utf-8')
-            #print(line.strip().decode('utf-8'))
-        if arduino_text:
-            return arduino_text
-
-    def returnFormattedDictionary(self, ArduinoText):
-        # Create an empty dictionary used to store all of the info coming from Arduino
-
-        data_from_arduino = {}
+            arduino_lines.append(line.strip().decode('utf-8'))
+        if arduino_lines:
+            for line in arduino_lines:
         
-        # First split the serial read text by pound sign
-        serial_read_input_list = ArduinoText.split("#")
+                # Split the serial read text by colons to get the type of data and the data itself
+                serial_read_input_list = line.split(":")
+                
+                try:
+                    # First entry is the type, the rest is the data
+                    type = serial_read_input_list[0]
+                    data = serial_read_input_list[1]
+                except:
+                    return
 
-        # Split the contents by ','. This gets each sensor input
-        for sensor_data in serial_read_input_list:
-            sensor_details = sensor_data.split(",")
-            # Take the first input, which is name=something, and start a dictionary with that
-            try:
-                name = sensor_details[0].split('=')[1]
-                data_from_arduino[name] = {}
-                # Each detail is a pair of name=value
-                for key_value in sensor_details:
-                    split = key_value.split("=")
-                    key = split[0]
-                    value = split[1]
-                    # Create a dictionary that will be returned
-                    data_from_arduino[name][key] = value
+                # Split the contents by ','. This gets each sensor input
+                sensor_details = data.split(",")
+                
+                # Take the first input, which is name=something, and start a dictionary with that
+                try:
+                    name = sensor_details[0].split('=')[1]
+                except:
+                    return
+                
+                # Create dictionary for the type (e.g., tempsensor) and another within with the name
+                if self.ard_dictionary[type]:
+                    continue
+                else:
+                    self.ard_dictionary[type] = {}
+                if self.ard_dictionary[type][name]:
+                    continue
+                else:
+                    self.ard_dictionary[type][name] = {}
+                
+                try:
+                    # Each detail is a pair of name=value
+                    for key_value in sensor_details:
+                        split = key_value.split("=")
+                        key = split[0]
+                        value = split[1]
+                        # Create a dictionary that will be returned
+                        self.ard_dictionary[type][name][key] = value
             except:
-                next
-                  
-        if data_from_arduino:
-            return data_from_arduino
+                return
             
     def updateTempSensorValues(self):
         """ Cycle through the temperature sensors and update their values
@@ -125,9 +136,6 @@ class CCBC_Brains:
                 for name, sensor_dict in self.ard_dictionary.items():
                     # Within each entry, look at the name and value
                     for attribute, value in sensor_dict.items():
-                        # Check for faulty number
-                        if (float(sensor_dict['value']) < 32 or float(sensor_dict['value']) > 250):
-                            return
                         # If the serial number value matches the one in the 
                         # hw_sensor, then update the hw_sensor value
                         if value == sensor_serial:
@@ -145,22 +153,7 @@ class CCBC_Brains:
                 heater.determinePinStatus(self.ser)
             except:
                 return
-
-    def updateArdDictionary(self):
-        # Read arduino info and update the dictionary, which houses
-        # all sensor data
-        
-        new_ard_data = self.readArduinoSerial()
-        
-        if new_ard_data:
-            new_ard_dict = self.returnFormattedDictionary(new_ard_data)
-        else:
-            return
-        try:
-            self.ard_dictionary.update(new_ard_dict)
-        except:
-            return
-        
+       
     def returnArdDict(self):
         return self.ard_dictionary
             
@@ -184,7 +177,7 @@ class CCBC_Brains:
         """
         
         # Read in arduino data and update dictionary
-        self.updateArdDictionary()
+        self.readAndUpdateArduinoSerial()
         
         # Update the sensors to match the values in the dictionary
         # TODO: Add pressure sensor get commands here       
