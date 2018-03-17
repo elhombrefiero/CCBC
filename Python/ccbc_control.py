@@ -47,7 +47,11 @@ class CCBC_Brains:
         """ Goes through the heaters in array and returns their name and status"""
         
         for heater in self.heaters:
-            print("{} Status: {}".format(heater.display_name, heater.returnPinStatus()))
+            print("{} Status: {}, {} Setpoint: {}F, Current Value: {}".format(heater.display_name, 
+                                                                              heater.returnPinStatus(),
+                                                                              heater.temp_sensor.name,
+                                                                              heater.returnSetpoint(),
+                                                                              heater.returnCurrentTemp()))
         
     def readAndFormatArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
