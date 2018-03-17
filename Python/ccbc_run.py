@@ -40,4 +40,4 @@ if __name__ == "__main__":
         test_ccbc.updateAndExecute()
         test_ccbc.printTemperatureSensors()
         test_ccbc.printHeaterStatus()
-        time.sleep(2)
+        time.sleep(0.25)

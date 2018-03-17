@@ -147,9 +147,9 @@ void loop()
     delay(50); // adding delay so sensors aren't cycled too quickly
   }
 
-  // A delay of 3 second works well for the interaction between Ard and rPi.
+  // A delay of half a second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(3000); // in milliseconds
+  delay(500); // in milliseconds
   
 }
 
