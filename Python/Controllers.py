@@ -15,6 +15,7 @@ class Heater:
                  cur_status,
                  temp_sensor,
                  temp_setpnt,
+                 maxovershoot = False,
                  P=1.2,
                  I=1,
                  D=0.001,
@@ -29,6 +30,8 @@ class Heater:
         self.cur_status = cur_status
         self.temp_sensor = temp_sensor
         self.temp_setpnt = temp_setpnt
+        self.maxovershoot = maxovershoot
+        self.max_temp = max_temp
         
         # Make a switch instance using the pin number
         self.switch = Switch(self.pin_num)
@@ -80,6 +83,20 @@ class Heater:
         if (self.pid.output > 0):
             pin_status = "ON"
         else:
+            pin_status = "OFF"
+            
+        # Override the pin status if the temperature is above the max overshoot value
+        if self.maxovershoot:
+            if (current_temp > self.temp_setpnt + self.maxovershoot):
+                pin_status = "OFF"
+                
+        # Override the pin status if the temperature is above the max temp value
+        if (current_temp > self.max_temp):
+            print("""WARNING! The current temperature {}F for {} is above the 
+            max temperature value {}. Setting pin {} to OFF.""".format(current_temp, 
+                                                                    self.display_name,
+                                                                    self.max_temp,
+                                                                    self.pin_num))
             pin_status = "OFF"
         
         if (pin_status != current_status):
