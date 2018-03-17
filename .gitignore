@@ -1,2 +1,5 @@
 # Ignore the notes folder
 Notes/
+
+# Ignore the __pycache__ folders
+*__pycache__
