@@ -20,7 +20,8 @@ if __name__ == "__main__":
     while 1:
 
         test_ccbc.updateAndExecute()
+        print(time.ctime())
         test_ccbc.printTemperatureSensors()
         test_ccbc.printHeaterStatus()
         #print(test_ccbc.returnArdDict())
-        time.sleep(4)
+        time.sleep(0.25)
