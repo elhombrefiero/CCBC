@@ -18,17 +18,16 @@ OneWire oneWire(ONE_WIRE_PORT);
 DallasTemperature sensors(&oneWire);
 
 // Arrays to hold device addresses
-DeviceAddress T1, T2, T3;
+DeviceAddress T1, T2;
 
 // Array to hold device Addresses
 uint8_t *myTSensors[] = {
   T1,
   T2,
-  T3
 };
 
 // Declare number of sensors in global scope
-int numSensors = 3;
+int numSensors = 2;
 
 // Strings used to send and receive through serial
 String readString;
@@ -149,7 +148,7 @@ void loop()
 
   // A delay of half a second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(500); // in milliseconds
+  delay(1000); // in milliseconds
   
 }
 

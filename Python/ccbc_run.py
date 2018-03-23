@@ -19,7 +19,7 @@ T9 = TemperatureSensor("Ambient Temp", "28FF437880160540", 999)
 #self.T10 = TemperatureSensor("Controller Temp", "TBD", 999)
 H1 = Heater("Heater 1", 5, "OFF", T1, 115)
 H2 = Heater("Heater 2", 4, "OFF", T8, 215, max_temp=215)
-H3 = Heater("Heater 3", 3, "OFF", T7, 115)
+H3 = Heater("Heater 3", 3, "OFF", T7, 115, maxovershoot=5)
 
 if __name__ == "__main__":
 
