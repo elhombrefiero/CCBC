@@ -58,8 +58,12 @@ void setup()
   // Assigning an address to each member of myTSensor array
   for (int i = 0; i < numSensors; i ++)
   {
-    if (!sensors.getAddress(myTSensors[i], i)) Serial.println("Unable to find address for Device 0");
-    delay(50);   
+    if (!sensors.getAddress(myTSensors[i], i)) 
+    {
+      Serial.print("Unable to find address for Device ");
+      Serial.println(i);
+    }
+    delay(10);   
   }
   
   // Return all temperature sensor serials 
@@ -68,7 +72,7 @@ void setup()
   {
     printAddress(myTSensors[i]);
     Serial.println();
-    delay(50); 
+    delay(10); 
   }
   Serial.println();
 }
@@ -80,7 +84,6 @@ void printAddress(DeviceAddress deviceAddress)
   {
     if (deviceAddress[i] < 16) Serial.print("0");
     Serial.print(deviceAddress[i], HEX);
-    delay(50);
   }
 }
 
@@ -143,12 +146,11 @@ void loop()
       Serial.print(tempF);
       Serial.println(",units=F");      
     }
-    delay(50); // adding delay so sensors aren't cycled too quickly
   }
 
   // A delay of half a second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(1000); // in milliseconds
+  delay(50); // in milliseconds
   
 }
 
