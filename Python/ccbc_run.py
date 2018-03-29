@@ -6,7 +6,7 @@ from Sensors import TemperatureSensor
 from Controllers import Heater
 
 #Ryan's Setup
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
 T1 = TemperatureSensor("Hot Water Tank", "28FF4A7780160477", 999)
 T2 = TemperatureSensor("Mash Tun Hi", "28FF98338016051A", 999)
 T3 = TemperatureSensor("Mash Tun Low", "28FF8495801604B9", 999)     

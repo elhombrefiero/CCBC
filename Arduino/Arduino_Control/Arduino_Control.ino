@@ -18,16 +18,23 @@ OneWire oneWire(ONE_WIRE_PORT);
 DallasTemperature sensors(&oneWire);
 
 // Arrays to hold device addresses
-DeviceAddress T1, T2;
+DeviceAddress T1, T2, T3, T4, T5, T6, T7, T8, T9;
 
 // Array to hold device Addresses
 uint8_t *myTSensors[] = {
   T1,
   T2,
+  T3,
+  T4,
+  T5,
+  T6,
+  T7,
+  T8,
+  T9,
 };
 
 // Declare number of sensors in global scope
-int numSensors = 2;
+int numSensors = 9;
 
 // Strings used to send and receive through serial
 String readString;
