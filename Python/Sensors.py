@@ -15,7 +15,8 @@ class TemperatureSensor:
         self.cur_temp = temp
         
     def getCurrentTemp(self):
-        return self.cur_temp
+        return "{:0.2f}".format(float(self.cur_temp))
+        #return self.cur_temp
         
     def returnSerial(self):
         return self.serial_num   

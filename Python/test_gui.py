@@ -195,7 +195,7 @@ class GUI:
 
         # This should be the last part of the setup!!!
         self.updateStaticText()
-        self.master.after(0, self.updateDynamicText)
+        self.master.after(50, self.updateDynamicText)
 
     def updateStaticText(self):
         # Updates the string variables during setup
@@ -204,22 +204,36 @@ class GUI:
             self.T1_textvariable.set(self.ccbc_brains.t_sensors[0].name)
             self.T2_textvariable.set(self.ccbc_brains.t_sensors[1].name)
             self.T3_textvariable.set(self.ccbc_brains.t_sensors[2].name)
+            self.T4_textvariable.set(self.ccbc_brains.t_sensors[3].name)
+            self.T5_textvariable.set(self.ccbc_brains.t_sensors[4].name)
+            self.T6_textvariable.set(self.ccbc_brains.t_sensors[5].name)
+            self.T7_textvariable.set(self.ccbc_brains.t_sensors[6].name)
+            self.T8_textvariable.set(self.ccbc_brains.t_sensors[7].name)
+            self.T9_textvariable.set(self.ccbc_brains.t_sensors[8].name)
+            self.T10_textvariable.set(self.ccbc_brains.t_sensors[9].name)
+            self.H1_textvariable.set(self.ccbc_brains.heaters[0].display_name)
+            self.H2_textvariable.set(self.ccbc_brains.heaters[1].display_name)
+            self.H3_textvariable.set(self.ccbc_brains.heaters[2].display_name)
+
         except:
-            print('Could not set all temperature variables')
+            print('Could not set all variables')
 
     def updateDynamicText(self):
         # Updates the string variables constantly
 
         self.ccbc_brains.updateAndExecute()
-        self.T1_valvariable.set(self.ccbc_brains.t_sensors[0].getCurrentTemp())
-        self.T2_valvariable.set(self.ccbc_brains.t_sensors[1].getCurrentTemp())
+        try:
+            self.T1_valvariable.set(self.ccbc_brains.t_sensors[0].getCurrentTemp())
+            self.T2_valvariable.set(self.ccbc_brains.t_sensors[1].getCurrentTemp())
+        except:
+            next
 
-        self.master.after(50, self.updateDynamicText)
+        self.master.after(1000, self.updateDynamicText)
 
 if __name__ == "__main__":
     """ Begin the brew journey """
 
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
     T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
     T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
     H1 = Heater("Heater 1", 7, "OFF", T1, 73.0)

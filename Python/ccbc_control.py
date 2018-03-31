@@ -78,7 +78,10 @@ class CCBC_Brains:
 
         arduino_lines = []
         for line in self.ser.readlines():
-            arduino_lines.append(line.strip().decode('utf-8'))
+            try:
+                arduino_lines.append(line.strip().decode('utf-8'))
+            except:
+                next
             #print(line.strip().decode('utf-8'))
         if arduino_lines:
             for line in arduino_lines:
