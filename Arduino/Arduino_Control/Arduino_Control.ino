@@ -70,7 +70,7 @@ void setup()
       Serial.print("Unable to find address for Device ");
       Serial.println(i);
     }
-    delay(10);   
+    delay(100);   
   }
   
   // Return all temperature sensor serials 
@@ -79,7 +79,7 @@ void setup()
   {
     printAddress(myTSensors[i]);
     Serial.println();
-    delay(10); 
+    delay(100); 
   }
   Serial.println();
 }
@@ -157,7 +157,7 @@ void loop()
 
   // A delay of half a second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(50); // in milliseconds
+  delay(500); // in milliseconds
   
 }
 
