@@ -200,23 +200,87 @@ class GUI:
     def updateStaticText(self):
         # Updates the string variables during setup
 
+        # TODO: Make this dictionary work with both the temperature sensors and
+        # the heaters
         try:
             self.T1_textvariable.set(self.ccbc_brains.t_sensors[0].name)
-            self.T2_textvariable.set(self.ccbc_brains.t_sensors[1].name)
-            self.T3_textvariable.set(self.ccbc_brains.t_sensors[2].name)
-            self.T4_textvariable.set(self.ccbc_brains.t_sensors[3].name)
-            self.T5_textvariable.set(self.ccbc_brains.t_sensors[4].name)
-            self.T6_textvariable.set(self.ccbc_brains.t_sensors[5].name)
-            self.T7_textvariable.set(self.ccbc_brains.t_sensors[6].name)
-            self.T8_textvariable.set(self.ccbc_brains.t_sensors[7].name)
-            self.T9_textvariable.set(self.ccbc_brains.t_sensors[8].name)
-            self.T10_textvariable.set(self.ccbc_brains.t_sensors[9].name)
-            self.H1_textvariable.set(self.ccbc_brains.heaters[0].display_name)
-            self.H2_textvariable.set(self.ccbc_brains.heaters[1].display_name)
-            self.H3_textvariable.set(self.ccbc_brains.heaters[2].display_name)
-
         except:
-            print('Could not set all variables')
+            print("Could not set T1")
+
+        try:
+            self.T2_textvariable.set(self.ccbc_brains.t_sensors[1].name)
+        except:
+            print("Could not set T2")
+
+        try:
+            self.T3_textvariable.set(self.ccbc_brains.t_sensors[2].name)
+        except:
+            print("Could not set T3")
+
+        try:
+            self.T4_textvariable.set(self.ccbc_brains.t_sensors[3].name)
+        except:
+            print("Could not set T4")
+
+        try:
+            self.T5_textvariable.set(self.ccbc_brains.t_sensors[4].name)
+        except:
+            print("Could not set T5")
+
+        try:
+            self.T6_textvariable.set(self.ccbc_brains.t_sensors[5].name)
+        except:
+            print("Could not set T6")
+
+        try:
+            self.T7_textvariable.set(self.ccbc_brains.t_sensors[6].name)
+        except:
+            print("Could not set T7")
+
+        try:
+            self.T8_textvariable.set(self.ccbc_brains.t_sensors[7].name)
+        except:
+            print("Could not set T8")
+
+        try:
+            self.T9_textvariable.set(self.ccbc_brains.t_sensors[8].name)
+        except:
+            print("Could not set T9")
+
+        try:
+            self.T10_textvariable.set(self.ccbc_brains.t_sensors[9].name)
+        except:
+            print("Could not set T10")
+
+        try:
+            self.H1_textvariable.set(self.ccbc_brains.heaters[0].display_name)
+        except:
+            print("Could not set H1 name")
+
+        try:
+            self.H2_textvariable.set(self.ccbc_brains.heaters[1].display_name)
+        except:
+            print("Could not set H2 name")
+
+        try:
+            self.H3_textvariable.set(self.ccbc_brains.heaters[2].display_name)
+        except:
+            print("Could not set H3 name")
+
+        try:
+            self.P1_textvariable.set(self.ccbc_brains.pumps[0].display_name)
+        except:
+            print("Could not set P1 name")
+
+        try:
+            self.P2_textvariable.set(self.ccbc_brains.pumps[1].display_name)
+        except:
+            print("Could not set P2 name")
+
+        try:
+            self.P3_textvariable.set(self.ccbc_brains.pumps[2].display_name)
+        except:
+            print("Could not set P3 name")
 
     def updateDynamicText(self):
         # Updates the string variables constantly
@@ -224,9 +288,68 @@ class GUI:
         self.ccbc_brains.updateAndExecute()
         try:
             self.T1_valvariable.set(self.ccbc_brains.t_sensors[0].getCurrentTemp())
+        except:
+            print("Could not set T1 value")
+        try:
             self.T2_valvariable.set(self.ccbc_brains.t_sensors[1].getCurrentTemp())
         except:
-            next
+            print("Could not set T2 value")
+        try:
+            self.T3_valvariable.set(self.ccbc_brains.t_sensors[2].getCurrentTemp())
+        except:
+            print("Could not set T3 value")
+        try:
+            self.T4_valvariable.set(self.ccbc_brains.t_sensors[3].getCurrentTemp())
+        except:
+            print("Could not set T4 value")
+        try:
+            self.T5_valvariable.set(self.ccbc_brains.t_sensors[4].getCurrentTemp())
+        except:
+            print("Could not set T5 value")
+        try:
+            self.T6_valvariable.set(self.ccbc_brains.t_sensors[5].getCurrentTemp())
+        except:
+            print("Could not set T6 value")
+        try:
+            self.T7_valvariable.set(self.ccbc_brains.t_sensors[6].getCurrentTemp())
+        except:
+            print("Could not set T7 value")
+        try:
+            self.T8_valvariable.set(self.ccbc_brains.t_sensors[7].getCurrentTemp())
+        except:
+            print("Could not set T8 value")
+        try:
+            self.T9_valvariable.set(self.ccbc_brains.t_sensors[8].getCurrentTemp())
+        except:
+            print("Could not set T9 value")
+        try:
+            self.T10_valvariable.set(self.ccbc_brains.t_sensors[9].getCurrentTemp())
+        except:
+            print("Could not set T10 value")
+        try:
+            self.H1_statusvariable.set(self.ccbc_brains.heaters[0].returnPinStatus())
+        except:
+            print("Could not set H1 status")
+        try:
+            self.H2_statusvariable.set(self.ccbc_brains.heaters[1].returnPinStatus())
+        except:
+            print("Could not set H2 status")
+        try:
+            self.H3_statusvariable.set(self.ccbc_brains.heaters[2].returnPinStatus())
+        except:
+            print("Could not set H3 status")
+        try:
+            self.P1_statusvariable.set(self.ccbc_brains.pumps[0].returnPinStatus())
+        except:
+            print("Could not set P1 status")
+        try:
+            self.P2_statusvariable.set(self.ccbc_brains.pumps[1].returnPinStatus())
+        except:
+            print("Could not set P2 status")
+        try:
+            self.P3_statusvariable.set(self.ccbc_brains.pumps[2].returnPinStatus())
+        except:
+            print("Could not set P3 status")
 
         self.master.after(1000, self.updateDynamicText)
 

@@ -126,7 +126,7 @@ void loop()
   // Send temperature information through serial
   /* IMPORTANT!!!
      The python script reads in the data in data pairs separated by an equal sign (=),
-     Each sensor will have all its attributes in this format, with a pound sign (#)
+     Each sensor will have all its attributes in this format, with a new line (\n)
      separating each sensor. 
      For temperatures, the python script uses serial number to map that to a specific 
      sensor.
@@ -136,7 +136,8 @@ void loop()
      Value of the parameter (e.g., value=108.5)
      Units of the parameter (e.g., units=F)
      An example, using two temperature probes:
-     name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
+     name=Temp1,serial_num=blahblah1,value=55.55,units=F
+     name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
   for (int i = 0; i < numSensors; i++)
   {
@@ -157,7 +158,7 @@ void loop()
 
   // A delay of half a second works well for the interaction between Ard and rPi.
   // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(500); // in milliseconds
+  delay(100); // in milliseconds
   
 }
 
