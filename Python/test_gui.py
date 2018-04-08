@@ -187,6 +187,8 @@ class GUI:
         self.P3_textlabel.grid(row=6, column=2)
         self.P3_statuslabel.grid(row=6, column=3)
 
+        # Create a 'Heater1' Tab
+
         # Put the notebook(s) together
         self.notebook.add(self.status_page, text="Status")
         
@@ -360,6 +362,7 @@ if __name__ == "__main__":
     T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
     T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
     H1 = Heater("Heater 1", 7, "OFF", T1, 73.0)
+    #P1 = Pump("Pump 1",slope=7.3453, intercept=-1.4691) 
     CCBC = CCBC_Brains(ser, t_sensors=[T1, T2], heaters=[H1])
     root = Tk()
     gui = GUI(root, CCBC)
