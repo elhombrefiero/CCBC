@@ -36,9 +36,9 @@ class GUI:
 
         # Add a tab for the main status
         self.status_page = Frame(self.notebook)
-        self.T1_textvariable = StringVar(self.status_page)
+        self.T1_textvariable = StringVar()
         self.T1_textlabel = Label(self.status_page, textvariable=self.T1_textvariable)
-        self.T1_valvariable = StringVar(self.status_page)
+        self.T1_valvariable = StringVar()
         self.T1_vallabel = Label(self.status_page,
                                  textvariable=self.T1_valvariable)
 
@@ -188,9 +188,45 @@ class GUI:
         self.P3_statuslabel.grid(row=6, column=3)
 
         # Create a 'Heater1' Tab
+        self.heater1_page = Frame(self.notebook)
+        
+        # Add temperature, setpoints, and buttons
+        self.H1_T1_textlabel = Label(self.heater1_page, textvariable=self.T1_textvariable)
+        self.H1_T1_vallabel = Label(self.heater1_page,
+                                    textvariable=self.T1_valvariable)
+
+        self.H1_textstatus = Label(self.heater1_page, text="Status")
+        self.H1_valstatus = Label(self.heater1_page,
+                                  textvariable=self.H1_statusvariable)
+        self.H1_TempSetpoint_label = Label(self.heater1_page, text="Setpoint")
+        self.H1_TempSetpoint_variable = StringVar()
+        self.H1_TempSetpoint_varlabel = Label(self.heater1_page,
+                                              textvariable=self.H1_TempSetpoint_variable)
+        self.H1_TempSetpoint_entry = Entry(self.heater1_page)
+        self.H1_TempSetpoint_button = Button(self.heater1_page, 
+                                             text="Update Heater1 Setpoint",
+                                             command=self.updateH1TempSetpoint)
+        self.H1_MaxTemp_label = Label(self.heater1_page, 
+                                      text="Max Temp Allowed")
+        self.H1_MaxTemp_variable = StringVar()
+        self.H1_MaxTemp_varlabel = Label(self.heater1_page,
+                                         textvariable=self.H1_MaxTemp_variable)
+
+        # Place Heater1 items on grid
+        self.H1_T1_textlabel.grid(row=1, column=1)
+        self.H1_T1_vallabel.grid(row=1, column=2)
+        self.H1_textstatus.grid(row=2, column=1)
+        self.H1_valstatus.grid(row=2,column=2)
+        self.H1_TempSetpoint_label.grid(row=3, column=1)
+        self.H1_TempSetpoint_varlabel.grid(row=3, column=2)
+        self.H1_TempSetpoint_entry.grid(row=3, column=3)
+        self.H1_TempSetpoint_button.grid(row=3, column=4)
+        self.H1_MaxTemp_label.grid(row=4, column=1)
+        self.H1_MaxTemp_varlabel.grid(row=4, column=2)
 
         # Put the notebook(s) together
         self.notebook.add(self.status_page, text="Status")
+        self.notebook.add(self.heater1_page, text="Heater1")
         
         # Put the notebook on the master grid
         self.notebook.grid()
@@ -352,8 +388,25 @@ class GUI:
             self.P3_statusvariable.set(self.ccbc_brains.pumps[2].returnPinStatus())
         except:
             print("Could not set P3 status")
+        try:
+            self.H1_TempSetpoint_variable.set(self.ccbc_brains.heaters[0].returnSetpoint())
+        except:
+            next
+        try:
+            self.H1_MaxTemp_variable.set(self.ccbc_brains.heaters[0].max_temp)
+        except:
+            next
 
         self.master.after(1000, self.updateDynamicText)
+
+    def updateH1TempSetpoint(self):
+        """ Changes the setpoint of Heater1"""
+
+        # Grab the value from the entry
+        new_setpoint = self.H1_TempSetpoint_entry.get()
+
+        if new_setpoint:
+            self.ccbc_brains.heaters[0].updateSetpoint(new_setpoint)
 
 if __name__ == "__main__":
     """ Begin the brew journey """
