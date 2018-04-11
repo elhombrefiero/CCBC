@@ -24,5 +24,44 @@ class TemperatureSensor:
     def printSensorInfo(self):
         print("Temperature Sensor {}\nSerial Num: {}\nCurrent Temperature: {}F".format(self.name,self.serial_num,self.cur_temp))
 
+
 class PressureSensor:
-    """ To be defined"""     
+    """ Pressure sensor
+
+    Pressure is calculated based on an analog voltage input.
+    """
+
+    def __init__(self, display_name, pin_num, slope=0, intercept=0, current_pressure = 0, units="psig"):
+        """ Initializes a pressure sensor with name, analog pin, and units"""
+
+        self.display_name = display_name
+        self.pin_num = pin_num
+        self.slope = slope
+        self.intercept = intercept
+        self.current_pressure = current_pressure
+        self.units = units
+
+    def update_pressure(self, new_pressure):
+        self.current_pressure = new_pressure
+
+    def return_pressure(self, voltage):
+
+        """
+        The pump uses an analog input voltage and converts that to a pressure
+        using the formula:
+
+        Pressure (gage) = Slope (pressure/volts) * volts + intercept (pressure)
+
+        The slope and intercept are determined by tuning
+        """
+
+        pressure = self.slope * voltage + self.intercept
+        self.update_pressure(pressure)
+
+        return pressure
+
+    def setSlope(self, new_slope):
+        self.slope = new_slope
+
+    def setIntercept(self, new_intercept):
+        self.intercept = new_intercept

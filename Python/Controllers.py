@@ -99,19 +99,22 @@ class Heater:
                                                                     self.pin_num))
             pin_status = "OFF"
 
+        # TODO: Change the if logic so that it only "sets" a value and doesn't change it
+        # It's fine if it sends new statuses constantly.
         if (pin_status != current_status):
             self.switch.changeSwitchStatus()
             self.switch.sendStatusToArd(serial_instance)
             self.cur_status = pin_status
 
+
 class Pump:
     """ Pump
+
 
     Controlled with a high/low setpoint and a pressure sensor.
     """
 
-    def __init__(self, display_name, pressure_sensor, output_pin_num, pin_status,
-                 slope=False, intercept=False):
+    def __init__(self, display_name, pressure_sensor, output_pin_num, pressure_setpoint, pin_status="OFF"):
         """ Defines the properties of the pump.
 
         Properties are:
@@ -133,8 +136,6 @@ class Pump:
         self.pressure_sensor = pressure_sensor
         self.output_pin_num = output_pin_num
         self.pin_status = pin_status
-        self.slope = slope
-        self.intercept = intercept
 
         # Make a switch instance using the pin number
         self.switch = Switch(self.output_pin_num)

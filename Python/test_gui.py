@@ -10,6 +10,10 @@ from Sensors import TemperatureSensor
 from Controllers import Heater
 from ccbc_control import CCBC_Brains
 
+from Python.Controllers import Pump
+from Python.Sensors import PressureSensor
+
+
 class GUI:
     """ GUI Used to contain all information from CCBC
 
@@ -236,10 +240,8 @@ class GUI:
         self.master.after(50, self.updateDynamicText)
 
     def updateStaticText(self):
-        # Updates the string variables during setup
+        """ Updates name variables upon setup"""
 
-        # TODO: Make this dictionary work with both the temperature sensors and
-        # the heaters
         try:
             self.T1_textvariable.set(self.ccbc_brains.t_sensors[0].name)
         except:
@@ -321,7 +323,7 @@ class GUI:
             print("Could not set P3 name")
 
     def updateDynamicText(self):
-        # Updates the string variables constantly
+        """ Updates the values dynamically"""
 
         self.ccbc_brains.updateAndExecute()
         try:
@@ -414,9 +416,10 @@ if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
     T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
     T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
+    Press1 = PressureSensor("Fake Pressure Sensor1", pin_num=0, slope=7.3453, intercept=-1.4691)
     H1 = Heater("Heater 1", 7, "OFF", T1, 73.0)
-    #P1 = Pump("Pump 1",slope=7.3453, intercept=-1.4691) 
-    CCBC = CCBC_Brains(ser, t_sensors=[T1, T2], heaters=[H1])
+    #Pump1 = Pump("Pump 1", Press1, 3, pin_status = "OFF")
+    CCBC = CCBC_Brains(ser, t_sensors=[T1, T2], p_sensors=[Press1], heaters=[H1])
     root = Tk()
     gui = GUI(root, CCBC)
     root.mainloop()
