@@ -34,8 +34,8 @@ class CCBC_Brains:
         self.TIMEOUT = 0.05
         self.ARD_RETURNALL = b'!'
         self.WRITETIMEOUT = 0.25
-        self.ser = serial.Serial(baudrate=BAUDRATE,
-                                 timeout=TIMEOUT,
+        self.ser = serial.Serial(baudrate=self.BAUDRATE,
+                                 timeout=self.TIMEOUT,
                                  write_timeout=self.WRITETIMEOUT)
         self.ard_dictionary = {}
         self.t_sensors = t_sensors
@@ -88,9 +88,8 @@ class CCBC_Brains:
             # First entry is the type, the rest is the data
             type_of_data = serial_read_input_list[0]
             data = serial_read_input_list[1]
-            """print("Type of data: {}\ndata: {}".format(type_of_data,
-                                                      data))
-                                                      """
+            #print("Type of data: {}\ndata: {}".format(type_of_data,
+            #                                          data))
         except:
             return
 
@@ -101,7 +100,6 @@ class CCBC_Brains:
         try:
             name = sensor_details[0].split('=')[1]
         except:
-            print("Ran into issue with this sensor_details {}".format(sensor_details))
             return
 
         # Create dictionary for the type (e.g., tempsensor) and another within with the name
@@ -148,14 +146,14 @@ class CCBC_Brains:
 
         arduino_lines = []
         self.requestArduinoData()
-        for line in self.ser.readlines():
-            try:
+        try:
+            for line in self.ser.readlines():
                 arduino_lines.append(line.strip().decode('utf-8'))
-            except:
-                next
+        except:
+            next
         if arduino_lines:
-            with Pool(processes=3) as pool:
-                pool.map(self.arduinoLineToDictionary, arduino_lines)
+            for line in arduino_lines:
+                self.arduinoLineToDictionary(line)
 
     def updateTempSensorValues(self):
         """ Cycle through the temperature sensors and update their values
@@ -189,15 +187,19 @@ class CCBC_Brains:
         for hw_sensor in self.p_sensors:
             # Grab the analog pin number for sensor
             try:
-                sensor_pin_num = hw_sensor.pin_num
+                sensor_pin_num = str(hw_sensor.pin_num)
             except:
                 return
             # Look through entries in dictionary and try to find a match
-            for sensor_type in self.ard_dictionary:
-                if sensor_type == "analogpin":
-                    for pin_num, value in sensor_type.items():
-                        if pin_num == sensor_pin_num:
-                            hw_sensor.update_voltage_and_pressure(sensor_type['value'])
+            try:
+                for sensor_type, sensor_entries in self.ard_dictionary.items():
+                    if sensor_type == "analogpin":
+                        for name, sensor_dict in sensor_entries.items():
+                            if sensor_dict['pin_num'] == sensor_pin_num:
+                                print('Found an entry for pressure sensor')
+                                hw_sensor.update_voltage_and_pressure(float(sensor_dict['value']))
+            except:
+                return
 
     def updateHeaterControllers(self):
         """ Make heaters send their commands, if applicable."""

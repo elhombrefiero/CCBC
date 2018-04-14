@@ -16,7 +16,7 @@ H1 = Heater("Heater1", 7, "OFF", T1, 73.0)
 
 if __name__ == "__main__":
 
-    test_ccbc = CCBC_Brains(ser, t_sensors=[T1, T2], p_sensors=[Press1], heaters=[H1])
+    test_ccbc = CCBC_Brains(t_sensors=[T1, T2], p_sensors=[Press1], heaters=[H1])
     test_ccbc.startSerial()
 
     while 1:
@@ -27,4 +27,5 @@ if __name__ == "__main__":
         test_ccbc.printPressSensors()
         test_ccbc.printHeaterStatus()
         #print(test_ccbc.returnArdDict())
+        time.sleep(2)
         print()
