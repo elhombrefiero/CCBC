@@ -44,7 +44,7 @@ class PressureSensor:
     def update_pressure(self, new_pressure):
         self.current_pressure = new_pressure
 
-    def return_pressure(self, voltage):
+    def update_voltage_and_pressure(self, voltage):
 
         """
         The pump uses an analog input voltage and converts that to a pressure
@@ -57,8 +57,6 @@ class PressureSensor:
 
         pressure = self.slope * voltage + self.intercept
         self.update_pressure(pressure)
-
-        return pressure
 
     def setSlope(self, new_slope):
         self.slope = new_slope

@@ -135,6 +135,7 @@ class Pump:
         self.display_name = display_name
         self.pressure_sensor = pressure_sensor
         self.output_pin_num = output_pin_num
+        self.pressure_setpoint = pressure_setpoint
         self.pin_status = pin_status
 
         # Make a switch instance using the pin number
@@ -143,20 +144,11 @@ class Pump:
     def returnDisplayName(self):
         return self.display_name
 
-    def returnPressurePinNum(self):
-        return self.input_pin_num
-
     def returnPumpPinNum(self):
         return self.output_pin_num
 
     def returnPinStatus(self):
         return self.pin_status
-
-    def updateSlope(self, new_slope):
-        self.slope = new_slope
-
-    def updateIntercept(self, new_intercept):
-        self.intercept = new_intercept
 
     def determinePinStatus(self, serial_instance):
         """ Determines whether to turn the pump on/off depending on calculated
