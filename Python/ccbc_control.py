@@ -17,23 +17,22 @@ CCB. Works in conjunction with an Arduino script to:
 # Import the python libraries needed
 import json
 import io
-import re
 import os
-import serial
 import time
-import random
-from simplePinControl import Switch
-from PID.PID import PID
-     
+from functools import lru_cache
+
+
 class CCBC_Brains:
 
-    def __init__(self, serial_instance, t_sensors=[], heaters=[]):
+    def __init__(self, serial_instance, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
         """ Reads sensor values and runs functions to command hardware"""
         
         self.ard_dictionary = {}
         self.ser = serial_instance
         self.t_sensors = t_sensors
+        self.p_sensors = p_sensors
         self.heaters = heaters
+        self.pumps = pumps
     
     def printTemperatureSensors(self):
         """ Goes through the sensors in the array and returns their 
@@ -52,7 +51,8 @@ class CCBC_Brains:
                                                                               heater.temp_sensor.name,
                                                                               heater.returnSetpoint(),
                                                                               heater.returnCurrentTemp()))
-        
+
+    @lru_cache
     def readAndFormatArduinoSerial(self):
         """ Read incoming serial data from Arduino serial and return string.
 

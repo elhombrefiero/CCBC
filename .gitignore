@@ -3,3 +3,6 @@ Notes/
 
 # Ignore the __pycache__ folders
 *__pycache__
+
+# Ignore Pycharm files
+*.idea
