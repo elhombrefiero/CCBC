@@ -106,6 +106,17 @@ void setPinStatus(String string) {
   setSwitchOnOff(pin_num, pinStatus);
 }
 
+void readAnalogPins() {
+  int val = 0;
+  for (int i=0; i < 6; i++) {
+    val = analogRead(i);
+    Serial.print("analogpin:");
+    Serial.print(i);
+    Serial.print(":value=");
+    Serial.println(val);
+  }
+}
+
 void returnAllInfo() {
   // Update the temperature readings
   sensors.requestTemperatures();
@@ -142,6 +153,7 @@ void returnAllInfo() {
       Serial.println(",units=F");      
       }
     }
+  readAnalogPins();
 }
 
 void loop() 
