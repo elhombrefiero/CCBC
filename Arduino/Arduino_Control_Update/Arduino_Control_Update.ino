@@ -111,7 +111,10 @@ void readAnalogPins() {
   for (int i=0; i < 6; i++) {
     val = analogRead(i);
     Serial.print("analogpin:");
-    Serial.print("pin_num=");
+    Serial.print("name=");
+    Serial.print("Pin");
+    Serial.print(i);
+    Serial.print(",pin_num=");
     Serial.print(i);
     Serial.print(",value=");
     Serial.println(val);
