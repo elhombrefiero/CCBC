@@ -146,6 +146,7 @@ class CCBC_Brains:
 
         arduino_lines = []
         self.requestArduinoData()
+        time.sleep(0.1)
         try:
             for line in self.ser.readlines():
                 arduino_lines.append(line.strip().decode('utf-8'))
@@ -236,30 +237,27 @@ class CCBC_Brains:
         3) Issues commands to the controllers to do something
         """
 
-        # First flush the input and output buffers
-        self.ser.reset_input_buffer()
-        self.ser.reset_output_buffer()
-
         # Read in arduino data and update dictionary
         self.readAndFormatArduinoSerial()
 
-        # Sleep for a millisecond
+        # Sleep for a hundred milliseconds
         time.sleep(0.1)
 
         # Update the sensors to match the values in the dictionary
         self.updatePresSensorValues()
         self.updateTempSensorValues()
 
-        # Sleep for a millisecond
+        # Sleep for a hundred milliseconds
         time.sleep(0.1)
 
-        # First flush the input and output buffers
+        # Make heaters do their thing
+        # TODO: Add pump command here
+        self.updateHeaterControllers()
+
+        # Flush the input and output buffers
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()       #
 
         # Sleep for a millisecond
         time.sleep(0.1)
 
-        # Make heaters do their thing
-        # TODO: Add pump command here
-        self.updateHeaterControllers()
