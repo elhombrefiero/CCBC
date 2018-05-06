@@ -2,7 +2,6 @@
 
 # GUI built for the test setup
 
-import serial
 import time
 from tkinter import *
 from tkinter.ttk import *
@@ -237,7 +236,8 @@ class GUI:
 
         # This should be the last part of the setup!!!
         self.updateStaticText()
-        self.master.after(50, self.updateDynamicText)
+        # TODO: Add a button to start the dynamic text reading
+        # self.master.after(50, self.updateDynamicText)
 
     def updateStaticText(self):
         """ Updates name variables upon setup"""
@@ -246,81 +246,152 @@ class GUI:
             self.T1_textvariable.set(self.ccbc_brains.t_sensors[0].name)
         except:
             print("Could not set T1")
+        try:
+            self.T1_valvariable.set(self.ccbc_brains.t_sensors[0].getCurrentTemp())
+        except:
+            print("Could not set T1 value")
 
         try:
             self.T2_textvariable.set(self.ccbc_brains.t_sensors[1].name)
         except:
             print("Could not set T2")
+        try:
+            self.T2_valvariable.set(self.ccbc_brains.t_sensors[1].getCurrentTemp())
+        except:
+            print("Could not set T2 value")
 
         try:
             self.T3_textvariable.set(self.ccbc_brains.t_sensors[2].name)
         except:
             print("Could not set T3")
-
+        try:
+            self.T3_valvariable.set(self.ccbc_brains.t_sensors[2].getCurrentTemp())
+        except:
+            print("Could not set T3 value")
         try:
             self.T4_textvariable.set(self.ccbc_brains.t_sensors[3].name)
         except:
             print("Could not set T4")
+        try:
+            self.T4_valvariable.set(self.ccbc_brains.t_sensors[3].getCurrentTemp())
+        except:
+            print("Could not set T4 value")
 
         try:
             self.T5_textvariable.set(self.ccbc_brains.t_sensors[4].name)
         except:
             print("Could not set T5")
+        try:
+            self.T5_valvariable.set(self.ccbc_brains.t_sensors[4].getCurrentTemp())
+        except:
+            print("Could not set T5 value")
 
         try:
             self.T6_textvariable.set(self.ccbc_brains.t_sensors[5].name)
         except:
             print("Could not set T6")
+        try:
+            self.T6_valvariable.set(self.ccbc_brains.t_sensors[5].getCurrentTemp())
+        except:
+            print("Could not set T6 value")
 
         try:
             self.T7_textvariable.set(self.ccbc_brains.t_sensors[6].name)
         except:
             print("Could not set T7")
+        try:
+            self.T7_valvariable.set(self.ccbc_brains.t_sensors[6].getCurrentTemp())
+        except:
+            print("Could not set T7 value")
 
         try:
             self.T8_textvariable.set(self.ccbc_brains.t_sensors[7].name)
         except:
             print("Could not set T8")
+        try:
+            self.T8_valvariable.set(self.ccbc_brains.t_sensors[7].getCurrentTemp())
+        except:
+            print("Could not set T8 value")
 
         try:
             self.T9_textvariable.set(self.ccbc_brains.t_sensors[8].name)
         except:
             print("Could not set T9")
+        try:
+            self.T9_valvariable.set(self.ccbc_brains.t_sensors[8].getCurrentTemp())
+        except:
+            print("Could not set T9 value")
 
         try:
             self.T10_textvariable.set(self.ccbc_brains.t_sensors[9].name)
         except:
             print("Could not set T10")
+        try:
+            self.T10_valvariable.set(self.ccbc_brains.t_sensors[9].getCurrentTemp())
+        except:
+            print("Could not set T10 value")
 
         try:
             self.H1_textvariable.set(self.ccbc_brains.heaters[0].display_name)
         except:
             print("Could not set H1 name")
+        try:
+            self.H1_statusvariable.set(self.ccbc_brains.heaters[0].returnPinStatus())
+        except:
+            print("Could not set H1 status")
 
         try:
             self.H2_textvariable.set(self.ccbc_brains.heaters[1].display_name)
         except:
             print("Could not set H2 name")
-
+        try:
+            self.H2_statusvariable.set(self.ccbc_brains.heaters[1].returnPinStatus())
+        except:
+            print("Could not set H2 status")
         try:
             self.H3_textvariable.set(self.ccbc_brains.heaters[2].display_name)
         except:
             print("Could not set H3 name")
 
         try:
+            self.H3_statusvariable.set(self.ccbc_brains.heaters[2].returnPinStatus())
+        except:
+            print("Could not set H3 status")
+
+        try:
             self.P1_textvariable.set(self.ccbc_brains.pumps[0].display_name)
         except:
             print("Could not set P1 name")
+        try:
+            self.P1_statusvariable.set(self.ccbc_brains.pumps[0].returnPinStatus())
+        except:
+            print("Could not set P1 status")
 
         try:
             self.P2_textvariable.set(self.ccbc_brains.pumps[1].display_name)
         except:
             print("Could not set P2 name")
-
+        try:
+            self.P2_statusvariable.set(self.ccbc_brains.pumps[1].returnPinStatus())
+        except:
+            print("Could not set P2 status")
         try:
             self.P3_textvariable.set(self.ccbc_brains.pumps[2].display_name)
         except:
             print("Could not set P3 name")
+        try:
+            self.P3_statusvariable.set(self.ccbc_brains.pumps[2].returnPinStatus())
+        except:
+            print("Could not set P3 status")
+
+        try:
+            self.H1_TempSetpoint_variable.set(self.ccbc_brains.heaters[0].returnSetpoint())
+        except:
+            next
+        try:
+            self.H1_MaxTemp_variable.set(self.ccbc_brains.heaters[0].max_temp)
+        except:
+            next
 
     def updateDynamicText(self):
         """ Updates the values dynamically"""
@@ -415,10 +486,17 @@ if __name__ == "__main__":
 
     T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
     T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
+    T3 = TemperatureSensor("Test Setup 3", "", 996)
+    T4 = TemperatureSensor("Test Setup 4", "", 995)
+    T5 = TemperatureSensor("Test Setup 5", "", 994)
+    T6 = TemperatureSensor("Test Setup 6", "", 993)
+    T7 = TemperatureSensor("Test Setup 7", "", 992)
+    T8 = TemperatureSensor("Test Setup 8", "", 991)
+    T9 = TemperatureSensor("Test Setup 9", "", 990)
     Press1 = PressureSensor("Fake Pressure Sensor1", pin_num=0, slope=7.3453, intercept=-1.4691)
     H1 = Heater("Heater 1", 7, "OFF", T1, 73.0)
     Pump1 = Pump("Fake Pump1", Press1, 3, 100, pin_status="OFF")
-    CCBC = CCBC_Brains(t_sensors=[T1, T2], p_sensors=[Press1], heaters=[H1], pumps=[Pump1])
+    CCBC = CCBC_Brains(t_sensors=[T1, T2, T3, T4, T5, T6, T7, T8, T9], p_sensors=[Press1], heaters=[H1], pumps=[Pump1])
     root = Tk()
     gui = GUI(root, CCBC)
     root.mainloop()

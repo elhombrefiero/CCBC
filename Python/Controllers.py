@@ -1,7 +1,28 @@
 #!/usr/bin/python3
 
-from PID.PID import PID
-from simplePinControl import Switch
+
+class Switch:
+
+    def __init__(self, PIN_NUM, status='OFF'):
+        self._PIN_NUM = PIN_NUM
+        self._status = status
+
+    @property
+    def pin_num(self):
+        return self._PIN_NUM
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, new_status):
+        self._status = new_status
+
+    def sendStatusToArd(self, serial):
+        string = str(self._PIN_NUM) + '=' + self._status.upper() + '#'
+        serial.write(string.encode())
+
 
 class Heater:
     """ Heater 
@@ -16,51 +37,72 @@ class Heater:
                  temp_sensor,
                  temp_setpnt,
                  maxovershoot = False,
-                 P=1.2,
-                 I=1,
-                 D=0.001,
                  max_temp = 185,
                  ):
         """ Initializes a heater.
 
         Display name, Pin Number, Current Status, TemperatureSensor, Temperature Setpoint"""
 
-        self.display_name = display_name
+        self._name = display_name
         self.pin_num = pin_num
-        self.cur_status = cur_status
+        self._cur_status = cur_status
         self.temp_sensor = temp_sensor
-        self.temp_setpnt = temp_setpnt
-        self.maxovershoot = maxovershoot
+        self._temperature_setpoint = temp_setpnt
+        self._maxovershoot = maxovershoot
         self.max_temp = max_temp
+        self.update_max_min_limits()
 
         # Make a switch instance using the pin number
         self.switch = Switch(self.pin_num)
 
-        # Create a PID controller
-        self.pid = PID(P,I,D)
-        self.pid.SetPoint = temp_setpnt
-        self.pid.setSampleTime(0.01)
+    def update_max_min_limits(self):
+        # Create an upper and lower band to control the temperature
+        if self.maxovershoot:
+            self._UPPER_LIMIT = self.maxovershoot
+        else:
+            self._UPPER_LIMIT = self._temperature_setpoint + 2
 
-    def updateSetpoint(self, new_setpoint):
-        self.pid.SetPoint = new_setpoint
+        self._LOWER_LIMIT = self._temperature_setpoint - 2
 
-    def updateP(self, new_p):
-        """ Uses built-in function of PID script to update P variable"""
-        self.pid.setKp(new_p)
+    @property
+    def name(self):
+        return self._name
 
-    def updateI(self, new_i):
-        """ Uses built-in function of PID script to update I variable"""
-        self.pid.setKi(new_i)
+    @property
+    def temperature_setpoint(self):
+        return self._temperature_setpoint
 
-    def updateD(self, new_d):
-        """ Uses built-in function of PID script to update D variable"""
-        self.pid.setKd(new_d)
+    @temperature_setpoint.setter
+    def temperature_setpoint(self, new_setpoint):
+        self._temperature_setpoint = new_setpoint
+
+    @property
+    def maxovershoot(self):
+        return self._maxovershoot
+
+    @maxovershoot.setter
+    def maxovershoot(self, new_max_overshoot):
+        self._maxovershoot = new_max_overshoot
+        self.update_max_min_limits()
+
+    @property
+    def upper_limit(self):
+        return self._UPPER_LIMIT
+
+    @upper_limit.setter
+    def upper_limit(self, new_upper):
+        self._UPPER_LIMIT = new_upper
+
+    @property
+    def lower_limit(self):
+        return self._LOWER_LIMIT
+
+    @lower_limit.setter
+    def lower_limit(self, new_lower):
+        self._LOWER_LIMIT = new_lower
 
     def returnPinStatus(self):
         return self.switch.status
-
-    def returnSetpoint(self):
-        return self.pid.SetPoint
 
     def returnCurrentTemp(self):
         return self.temp_sensor.cur_temp
@@ -70,41 +112,28 @@ class Heater:
         to on/off.
         """
 
+        pin_status = 'OFF'
         # Get current temperature
         current_temp = float(self.temp_sensor.getCurrentTemp())
 
-        # Get current status
-        current_status = self.cur_status
-
-        # Update the pid value
-        self.pid.update(current_temp)
-
-        # Use the pid output value to determine whether to turn a pin on or off
-        if (self.pid.output > 0):
-            pin_status = "ON"
-        else:
+        # Use the upper and lower limits to determine whether a pin should be on or off
+        if current_temp > self._UPPER_LIMIT:
             pin_status = "OFF"
-
-        # Override the pin status if the temperature is above the max overshoot value
-        if self.maxovershoot:
-            if (current_temp > self.temp_setpnt + self.maxovershoot):
-                pin_status = "OFF"
+        elif current_temp < self._LOWER_LIMIT:
+            pin_status = "ON"
 
         # Override the pin status if the temperature is above the max temp value
-        if (current_temp > self.max_temp):
+        if current_temp > self.max_temp:
             print("""WARNING! The current temperature {}F for {} is above the 
             max temperature value {}. Setting pin {} to OFF.""".format(current_temp, 
-                                                                    self.display_name,
-                                                                    self.max_temp,
-                                                                    self.pin_num))
+                                                                       self.name,
+                                                                       self.max_temp,
+                                                                       self.pin_num))
             pin_status = "OFF"
 
-        # TODO: Change the if logic so that it only "sets" a value and doesn't change it
         # It's fine if it sends new statuses constantly.
-        if (pin_status != current_status):
-            self.switch.changeSwitchStatus()
-            self.switch.sendStatusToArd(serial_instance)
-            self.cur_status = pin_status
+        self.switch._status = pin_status
+        self.switch.sendStatusToArd(serial_instance)
 
 
 class Pump:
@@ -132,23 +161,32 @@ class Pump:
             The slope and intercept are determined by tuning
 
         """
-        self.display_name = display_name
+        self._name = display_name
         self.pressure_sensor = pressure_sensor
-        self.output_pin_num = output_pin_num
-        self.pressure_setpoint = pressure_setpoint
-        self.pin_status = pin_status
+        self._pin_num = output_pin_num
+        self._pressure_setpoint = pressure_setpoint
 
         # Make a switch instance using the pin number
-        self.switch = Switch(self.output_pin_num)
+        self.switch = Switch(self._pin_num, pin_status)
 
-    def returnDisplayName(self):
-        return self.display_name
+    @property
+    def name(self):
+        return self._name
 
-    def returnPumpPinNum(self):
-        return self.output_pin_num
+    @property
+    def pressure_setpoint(self):
+        return self._pressure_setpoint
+
+    @pressure_setpoint.setter
+    def pressure_setpoint(self, new_pressure_setpoint):
+        self._pressure_setpoint = new_pressure_setpoint
+
+    @property
+    def pin_num(self):
+        return self._pin_num
 
     def returnPinStatus(self):
-        return self.pin_status
+        return self.switch.status
 
     def determinePinStatus(self, serial_instance):
         """ Determines whether to turn the pump on/off depending on calculated

@@ -5,24 +5,36 @@ class TemperatureSensor:
     
     def __init__(self, display_name, serial_num, initial_temp, units="F"):
         """ Initialize the probe with name, OneWire serial number, and value"""
-        self.name = display_name
+        self._name = display_name
         self.serial_num = serial_num
         self.initial_temp = initial_temp
-        self.cur_temp = initial_temp
+        self._cur_temp = initial_temp
         self.units = units
-        
-    def updateTemp(self, temp):
-        self.cur_temp = temp
-        
-    def getCurrentTemp(self):
-        return "{:0.2f}".format(float(self.cur_temp))
-        #return self.cur_temp
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def cur_temp(self):
+        return str(self._cur_temp)
+
+    @cur_temp.setter
+    def cur_temp(self, temp):
+        try:
+            temp = round(float(temp), 2)
+        except:
+            print("Passed a non-number, {}, to {}".format(temp, self.name))
+            raise
+        self._cur_temp = temp
         
     def returnSerial(self):
         return self.serial_num   
         
     def printSensorInfo(self):
-        print("Temperature Sensor {}\nSerial Num: {}\nCurrent Temperature: {}F".format(self.name,self.serial_num,self.cur_temp))
+        print("Temperature Sensor {}\nSerial Num: {}\nCurrent Temperature: {}F".format(self.name,
+                                                                                       self.serial_num,
+                                                                                       self.cur_temp))
 
 
 class PressureSensor:
@@ -31,18 +43,27 @@ class PressureSensor:
     Pressure is calculated based on an analog voltage input.
     """
 
-    def __init__(self, display_name, pin_num, slope=0, intercept=0, current_pressure = 0, units="psig"):
+    def __init__(self, name, pin_num, slope=0, intercept=0, current_pressure = 0.0, units="psig"):
         """ Initializes a pressure sensor with name, analog pin, and units"""
 
-        self.display_name = display_name
+        self._name = name
         self.pin_num = pin_num
-        self.slope = slope
-        self.intercept = intercept
-        self.current_pressure = current_pressure
+        self._slope = slope
+        self._intercept = intercept
+        self._current_pressure = current_pressure
         self.units = units
 
-    def update_pressure(self, new_pressure):
-        self.current_pressure = new_pressure
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def current_pressure(self):
+        return str(self._current_pressure)
+
+    @current_pressure.setter
+    def current_pressure(self, new_pressure):
+        self._current_pressure = new_pressure
 
     def update_voltage_and_pressure(self, voltage):
 
@@ -56,10 +77,20 @@ class PressureSensor:
         """
 
         pressure = self.slope * voltage + self.intercept
-        self.update_pressure(pressure)
+        self._current_pressure = pressure
 
-    def setSlope(self, new_slope):
-        self.slope = new_slope
+    @property
+    def slope(self):
+        return self._slope
 
-    def setIntercept(self, new_intercept):
-        self.intercept = new_intercept
+    @slope.setter
+    def slope(self, new_slope):
+        self._slope = new_slope
+
+    @property
+    def intercept(self):
+        return self._intercept
+
+    @intercept.setter
+    def intercept(self, new_intercept):
+        self._intercept = new_intercept

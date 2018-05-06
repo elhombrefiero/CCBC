@@ -12,31 +12,6 @@ from tkinter import ttk
 from tkinter import *
 from tkinter.ttk import *
 
-class Switch:
-
-    def __init__(self, PIN_NUM, status='OFF'):
-        self.PIN_NUM = PIN_NUM
-        self.status = status
-
-    def changeSwitchStatus(self):
-        if self.status == 'OFF':
-            self.status = 'ON'
-        elif self.status == 'ON':
-            self.status = 'OFF'
-            
-    def returnCurrentStatus(self):
-        return self.status
-    
-    def setToOn(self):
-        self.status = 'ON'
-        
-    def setToOff(self):
-        self.status = 'OFF'
-
-    def sendStatusToArd(self, serial):
-        string = str(self.PIN_NUM) + '=' + self.status + '#'
-        serial.write(string.encode()) 
-
 class CCBCGUI:
     """ Coulson Craft Brewery Control - Basic.
 
