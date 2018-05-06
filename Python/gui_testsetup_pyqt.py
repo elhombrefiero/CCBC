@@ -3,8 +3,10 @@
 # GUI built for the test setup
 
 import sys
+import time
 
 from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtCore import QTimer
 from theGUI import Ui_MainWindow
 from ccbc_control import CCBC_Brains
 from Sensors import TemperatureSensor, PressureSensor
@@ -16,8 +18,13 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ccbc = ccbc
+        self.Button_startSerial.clicked.connect(self.start_serial)
         self.update_static_labels()
+        self.timer = QTimer()
         self.show()
+
+        self.timer.timeout.connect(self.update_dynamic_labels)
+        self.timer.start(500)
 
     def update_static_labels(self):
         # Update the status page text variables
@@ -69,9 +76,39 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump2.setText(self.ccbc.pumps[1].returnPinStatus())
         self.VariablePump3.setText(self.ccbc.pumps[2].returnPinStatus())
 
+    def update_dynamic_labels(self):
+
+        self.ccbc.updateAndExecute()
+
+        self.VariableT1.setText(self.ccbc.t_sensors[0].cur_temp)
+        self.VariableT2.setText(self.ccbc.t_sensors[1].cur_temp)
+        self.VariableT3.setText(self.ccbc.t_sensors[2].cur_temp)
+        self.VariableT4.setText(self.ccbc.t_sensors[3].cur_temp)
+        self.VariableT5.setText(self.ccbc.t_sensors[4].cur_temp)
+        self.VariableT6.setText(self.ccbc.t_sensors[5].cur_temp)
+        self.VariableT7.setText(self.ccbc.t_sensors[6].cur_temp)
+        self.VariableT8.setText(self.ccbc.t_sensors[7].cur_temp)
+        self.VariableT9.setText(self.ccbc.t_sensors[8].cur_temp)
+
+        self.VariablePress1.setText(self.ccbc.p_sensors[0].current_pressure)
+        self.VariablePress2.setText(self.ccbc.p_sensors[1].current_pressure)
+        self.VariablePress3.setText(self.ccbc.p_sensors[2].current_pressure)
+        self.VariablePress4.setText(self.ccbc.p_sensors[3].current_pressure)
+
+        self.VariableH1.setText(self.ccbc.heaters[0].returnPinStatus())
+        self.VariableH2.setText(self.ccbc.heaters[1].returnPinStatus())
+        self.VariableH3.setText(self.ccbc.heaters[2].returnPinStatus())
+
+        self.VariablePump1.setText(self.ccbc.pumps[0].returnPinStatus())
+        self.VariablePump2.setText(self.ccbc.pumps[1].returnPinStatus())
+        self.VariablePump3.setText(self.ccbc.pumps[2].returnPinStatus())
 
     def start_serial(self):
-        pass
+        try:
+            self.ccbc.startSerial()
+            time.sleep(0.5)
+        except:
+            print("Could not start serial")
 
 if __name__ == "__main__":
     """ Begin the brew journey """
