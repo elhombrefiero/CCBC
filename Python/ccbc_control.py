@@ -54,22 +54,22 @@ class CCBC_Brains:
         """
         
         for temp_sensor in self.t_sensors:
-            print("{}: {}F".format(temp_sensor.name, temp_sensor.getCurrentTemp()))
+            print("{}: {}F".format(temp_sensor.name, temp_sensor.cur_temp))
 
     def printPressSensors(self):
         """ Goes through the pressure sensors in array and returns current value"""
         for press_sensor in self.p_sensors:
-            print("{}: {}psi".format(press_sensor.display_name,
+            print("{}: {}psi".format(press_sensor.name,
                                      press_sensor.current_pressure))
 
     def printHeaterStatus(self):
         """ Goes through the heaters in array and returns their name and status"""
         
         for heater in self.heaters:
-            print("{} Status: {}, {} Setpoint: {}F, Current Value: {}".format(heater.display_name, 
+            print("{} Status: {}, {} Setpoint: {}F, Current Value: {}".format(heater.name,
                                                                               heater.returnPinStatus(),
                                                                               heater.temp_sensor.name,
-                                                                              heater.returnSetpoint(),
+                                                                              heater.temperature_setpoint,
                                                                               heater.returnCurrentTemp()))
 
     def requestArduinoData(self):

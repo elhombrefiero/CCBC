@@ -26,6 +26,6 @@ if __name__ == "__main__":
         test_ccbc.printTemperatureSensors()
         test_ccbc.printPressSensors()
         test_ccbc.printHeaterStatus()
-        #print(test_ccbc.returnArdDict())
+        print(test_ccbc.returnArdDict())
         time.sleep(2)
         print()

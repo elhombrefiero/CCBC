@@ -114,7 +114,7 @@ class Heater:
 
         pin_status = 'OFF'
         # Get current temperature
-        current_temp = float(self.temp_sensor.getCurrentTemp())
+        current_temp = float(self.temp_sensor.cur_temp())
 
         # Use the upper and lower limits to determine whether a pin should be on or off
         if current_temp > self._UPPER_LIMIT:
