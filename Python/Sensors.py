@@ -17,7 +17,7 @@ class TemperatureSensor:
 
     @property
     def cur_temp(self):
-        return str(self._cur_temp)
+        return self._cur_temp
 
     @cur_temp.setter
     def cur_temp(self, temp):
@@ -59,7 +59,7 @@ class PressureSensor:
 
     @property
     def current_pressure(self):
-        return str(self._current_pressure)
+        return self._current_pressure
 
     @current_pressure.setter
     def current_pressure(self, new_pressure):
