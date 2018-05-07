@@ -70,7 +70,7 @@ class Heater:
 
     @property
     def temperature_setpoint(self):
-        return str(self._temperature_setpoint)
+        return self._temperature_setpoint
 
     @temperature_setpoint.setter
     def temperature_setpoint(self, new_setpoint):
