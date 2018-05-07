@@ -177,7 +177,7 @@ class CCBC_Brains:
                             # If the serial number value matches the one in the 
                             # hw_sensor, then update the hw_sensor value
                             if value == sensor_serial:
-                                hw_sensor.updateTemp(sensor_dict['value']) 
+                                hw_sensor.cur_temp(sensor_dict['value']) 
             except:
                 return
 
@@ -197,7 +197,6 @@ class CCBC_Brains:
                     if sensor_type == "analogpin":
                         for name, sensor_dict in sensor_entries.items():
                             if sensor_dict['pin_num'] == sensor_pin_num:
-                                print('Found an entry for pressure sensor')
                                 hw_sensor.update_voltage_and_pressure(float(sensor_dict['value']))
             except:
                 return
