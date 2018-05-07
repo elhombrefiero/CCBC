@@ -19,11 +19,39 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.ccbc = ccbc
         self.Button_startSerial.clicked.connect(self.start_everything)
+        self.ButtonUpdateHeater1Setpoint.clicked.connect(self.update_heater1_setpoint)
+        self.ButtonUpdateHeater2Setpoint.clicked.connect(self.update_heater2_setpoint)
+        self.ButtonUpdateHeater3Setpoint.clicked.connect(self.update_heater3_setpoint)
+        self.ButtonUpdateHeater1MaxTemp.clicked.connect(self.update_heater1_maxtemp)
+        self.ButtonUpdateHeater2MaxTemp.clicked.connect(self.update_heater2_maxtemp)
+        self.ButtonUpdateHeater3MaxTemp.clicked.connect(self.update_heater3_maxtemp)
         self.update_static_labels()
         self.timer = QTimer()
         self.show()
 
+    def update_heater1_setpoint(self):
+        setpoint = self.InputHeater1Setpoint.cut()
+        self.ccbc.heaters[0].temperature_setpoint = setpoint
 
+    def update_heater2_setpoint(self):
+        setpoint = self.InputHeater2Setpoint.cut()
+        self.ccbc.heaters[1].temperature_setpoint = setpoint
+
+    def update_heater3_setpoint(self):
+        setpoint = self.InputHeater3Setpoint.cut()
+        self.ccbc.heaters[2].temperature_setpoint = setpoint
+
+    def update_heater1_maxtemp(self):
+        setpoint = self.InputHeater1MaxTemp.cut()
+        self.ccbc.heaters[0].max_temp = setpoint
+
+    def update_heater2_maxtemp(self):
+        setpoint = self.InputHeater2MaxTemp.cut()
+        self.ccbc.heaters[1].max_temp = setpoint
+
+    def update_heater3_maxtemp(self):
+        setpoint = self.InputHeater3MaxTemp.cut()
+        self.ccbc.heaters[2].max_temp = setpoint
 
     def update_static_labels(self):
         # Update the status page text variables
@@ -79,6 +107,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
         self.ccbc.updateAndExecute()
 
+        # Status Page
         self.VariableT1.setText(self.ccbc.t_sensors[0].cur_temp)
         self.VariableT2.setText(self.ccbc.t_sensors[1].cur_temp)
         self.VariableT3.setText(self.ccbc.t_sensors[2].cur_temp)
@@ -101,6 +130,24 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump1.setText(self.ccbc.pumps[0].returnPinStatus())
         self.VariablePump2.setText(self.ccbc.pumps[1].returnPinStatus())
         self.VariablePump3.setText(self.ccbc.pumps[2].returnPinStatus())
+
+        # Heater 1 Page
+        self.VariableHeater1Temp.setText(self.ccbc.heaters[0].returnCurrentTemp())
+        self.VariableHeater1Status.setText(self.ccbc.heaters[0].returnPinStatus())
+        self.VariableHeater1Setpoint.setText(self.ccbc.heaters[0].temperature_setpoint)
+        self.VariableHeater1MaxTemp.setText(self.ccbc.heaters[0].max_temp)
+
+        # Heater 2 Page
+        self.VariableHeater2Temp.setText(self.ccbc.heaters[1].returnCurrentTemp())
+        self.VariableHeater2Status.setText(self.ccbc.heaters[1].returnPinStatus())
+        self.VariableHeater2Setpoint.setText(self.ccbc.heaters[1].temperature_setpoint)
+        self.VariableHeater2MaxTemp.setText(self.ccbc.heaters[1].max_temp)
+
+        # Heater 3 Page
+        self.VariableHeater3Temp.setText(self.ccbc.heaters[2].returnCurrentTemp())
+        self.VariableHeater3Status.setText(self.ccbc.heaters[2].returnPinStatus())
+        self.VariableHeater3Setpoint.setText(self.ccbc.heaters[2].temperature_setpoint)
+        self.VariableHeater3MaxTemp.setText(self.ccbc.heaters[2].max_temp)
 
     def start_everything(self):
         self.start_serial()
@@ -127,15 +174,15 @@ if __name__ == "__main__":
     T8 = TemperatureSensor("Test Setup 8", "", 991)
     T9 = TemperatureSensor("Test Setup 9", "", 990)
     Press1 = PressureSensor("Fake Pressure Sensor1", pin_num=0, slope=7.3453, intercept=-1.4691)
-    Press2 = PressureSensor("Fake Pressure Sensor2", pin_num=0, slope=7.3453, intercept=-1.4691)
-    Press3 = PressureSensor("Fake Pressure Sensor3", pin_num=0, slope=7.3453, intercept=-1.4691)
-    Press4 = PressureSensor("Fake Pressure Sensor4", pin_num=0, slope=7.3453, intercept=-1.4691)
+    Press2 = PressureSensor("Fake Pressure Sensor2", pin_num=1, slope=7.3453, intercept=-1.4691)
+    Press3 = PressureSensor("Fake Pressure Sensor3", pin_num=2, slope=7.3453, intercept=-1.4691)
+    Press4 = PressureSensor("Fake Pressure Sensor4", pin_num=3, slope=7.3453, intercept=-1.4691)
     H1 = Heater("Heater 1", 7, "OFF", T1, 73.0)
-    H2 = Heater("Heater 2", 7, "OFF", T6, 73.0)
-    H3 = Heater("Heater 3", 7, "OFF", T8, 73.0)
-    Pump1 = Pump("Fake Pump1", Press1, 3, 100, pin_status="OFF")
+    H2 = Heater("Heater 2", 6, "OFF", T6, 73.0)
+    H3 = Heater("Heater 3", 5, "OFF", T8, 73.0)
+    Pump1 = Pump("Fake Pump1", Press1, 4, 100, pin_status="OFF")
     Pump2 = Pump("Fake Pump2", Press2, 3, 100, pin_status="OFF")
-    Pump3 = Pump("Fake Pump3", Press3, 3, 100, pin_status="OFF")
+    Pump3 = Pump("Fake Pump3", Press3, 2, 100, pin_status="OFF")
     CCBC = CCBC_Brains(t_sensors=[T1, T2, T3, T4,
                                   T5, T6, T7, T8, T9],
                        p_sensors=[Press1, Press2, Press3, Press4],

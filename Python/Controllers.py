@@ -49,7 +49,7 @@ class Heater:
         self.temp_sensor = temp_sensor
         self._temperature_setpoint = temp_setpnt
         self._maxovershoot = maxovershoot
-        self.max_temp = max_temp
+        self._max_temp = max_temp
         self.update_max_min_limits()
 
         # Make a switch instance using the pin number
@@ -75,6 +75,7 @@ class Heater:
     @temperature_setpoint.setter
     def temperature_setpoint(self, new_setpoint):
         self._temperature_setpoint = new_setpoint
+        self.update_max_min_limits()
 
     @property
     def maxovershoot(self):
@@ -100,6 +101,14 @@ class Heater:
     @lower_limit.setter
     def lower_limit(self, new_lower):
         self._LOWER_LIMIT = new_lower
+
+    @property
+    def max_temp(self):
+        return self._max_temp
+
+    @max_temp.setter
+    def max_temp(self, new_max_temp):
+        self._max_temp = new_max_temp
 
     def returnPinStatus(self):
         return self.switch.status
