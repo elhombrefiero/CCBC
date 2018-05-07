@@ -112,14 +112,14 @@ class Heater:
         to on/off.
         """
 
-        pin_status = 'OFF'
         # Get current temperature
-        current_temp = float(self.temp_sensor.cur_temp())
+        current_temp = float(self.temp_sensor.cur_temp)
 
         # Use the upper and lower limits to determine whether a pin should be on or off
         if current_temp > self._UPPER_LIMIT:
             pin_status = "OFF"
-        elif current_temp < self._LOWER_LIMIT:
+
+        if current_temp < self._LOWER_LIMIT:
             pin_status = "ON"
 
         # Override the pin status if the temperature is above the max temp value
@@ -132,7 +132,7 @@ class Heater:
             pin_status = "OFF"
 
         # It's fine if it sends new statuses constantly.
-        self.switch._status = pin_status
+        self.switch.status = pin_status
         self.switch.sendStatusToArd(serial_instance)
 
 

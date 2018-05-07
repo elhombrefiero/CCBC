@@ -177,7 +177,7 @@ class CCBC_Brains:
                             # If the serial number value matches the one in the 
                             # hw_sensor, then update the hw_sensor value
                             if value == sensor_serial:
-                                hw_sensor.cur_temp(sensor_dict['value']) 
+                                hw_sensor.cur_temp = sensor_dict['value']
             except:
                 return
 
