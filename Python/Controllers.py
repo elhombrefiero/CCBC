@@ -70,7 +70,7 @@ class Heater:
 
     @property
     def temperature_setpoint(self):
-        return self._temperature_setpoint
+        return str(self._temperature_setpoint)
 
     @temperature_setpoint.setter
     def temperature_setpoint(self, new_setpoint):
@@ -114,7 +114,7 @@ class Heater:
         return self.switch.status
 
     def returnCurrentTemp(self):
-        return self.temp_sensor.cur_temp
+        return str(self.temp_sensor.cur_temp)
 
     def determinePinStatus(self, serial_instance):
         """ Looks at the current temperature and determines whether to set the pin

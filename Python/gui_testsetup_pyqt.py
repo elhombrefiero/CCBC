@@ -103,6 +103,24 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump2.setText(self.ccbc.pumps[1].returnPinStatus())
         self.VariablePump3.setText(self.ccbc.pumps[2].returnPinStatus())
 
+        # Heater 1 Page
+        self.VariableHeater1Temp.setText(self.ccbc.heaters[0].returnCurrentTemp())
+        self.VariableHeater1Status.setText(self.ccbc.heaters[0].returnPinStatus())
+        self.VariableHeater1Setpoint.setText(self.ccbc.heaters[0].temperature_setpoint)
+        self.VariableHeater1MaxTemp.setText(self.ccbc.heaters[0].max_temp)
+
+        # Heater 2 Page
+        self.VariableHeater2Temp.setText(self.ccbc.heaters[1].returnCurrentTemp())
+        self.VariableHeater2Status.setText(self.ccbc.heaters[1].returnPinStatus())
+        self.VariableHeater2Setpoint.setText(self.ccbc.heaters[1].temperature_setpoint)
+        self.VariableHeater2MaxTemp.setText(self.ccbc.heaters[1].max_temp)
+
+        # Heater 3 Page
+        self.VariableHeater3Temp.setText(self.ccbc.heaters[2].returnCurrentTemp())
+        self.VariableHeater3Status.setText(self.ccbc.heaters[2].returnPinStatus())
+        self.VariableHeater3Setpoint.setText(self.ccbc.heaters[2].temperature_setpoint)
+        self.VariableHeater3MaxTemp.setText(self.ccbc.heaters[2].max_temp)
+
     def update_dynamic_labels(self):
 
         self.ccbc.updateAndExecute()
