@@ -18,13 +18,12 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ccbc = ccbc
-        self.Button_startSerial.clicked.connect(self.start_serial)
+        self.Button_startSerial.clicked.connect(self.start_everything)
         self.update_static_labels()
         self.timer = QTimer()
         self.show()
 
-        self.timer.timeout.connect(self.update_dynamic_labels)
-        self.timer.start(500)
+
 
     def update_static_labels(self):
         # Update the status page text variables
@@ -102,6 +101,11 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump1.setText(self.ccbc.pumps[0].returnPinStatus())
         self.VariablePump2.setText(self.ccbc.pumps[1].returnPinStatus())
         self.VariablePump3.setText(self.ccbc.pumps[2].returnPinStatus())
+
+    def start_everything(self):
+        self.start_serial()
+        self.timer.timeout.connect(self.update_dynamic_labels)
+        self.timer.start(500)
 
     def start_serial(self):
         try:
