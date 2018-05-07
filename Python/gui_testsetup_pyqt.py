@@ -30,28 +30,34 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.show()
 
     def update_heater1_setpoint(self):
-        setpoint = self.InputHeater1Setpoint.cut()
-        self.ccbc.heaters[0].temperature_setpoint = setpoint
+        setpoint = self.InputHeater1Setpoint.toPlainText()
+        self.ccbc.heaters[0].temperature_setpoint = float(setpoint)
+        self.InputHeater1Setpoint.clear()
 
     def update_heater2_setpoint(self):
-        setpoint = self.InputHeater2Setpoint.cut()
+        setpoint = self.InputHeater2Setpoint.toPlainText()
         self.ccbc.heaters[1].temperature_setpoint = setpoint
+        self.InputHeater2Setpoint.clear()
 
     def update_heater3_setpoint(self):
-        setpoint = self.InputHeater3Setpoint.cut()
+        setpoint = self.InputHeater3Setpoint.toPlainText()
         self.ccbc.heaters[2].temperature_setpoint = setpoint
+        self.InputHeater3Setpoint.clear()
 
     def update_heater1_maxtemp(self):
-        setpoint = self.InputHeater1MaxTemp.cut()
+        setpoint = self.InputHeater1MaxTemp.toPlainText()
         self.ccbc.heaters[0].max_temp = setpoint
+        self.InputHeater1MaxTemp.clear()
 
     def update_heater2_maxtemp(self):
-        setpoint = self.InputHeater2MaxTemp.cut()
+        setpoint = self.InputHeater2MaxTemp.toPlainText()
         self.ccbc.heaters[1].max_temp = setpoint
+        self.InputHeater2MaxTemp.clear()
 
     def update_heater3_maxtemp(self):
-        setpoint = self.InputHeater3MaxTemp.cut()
+        setpoint = self.InputHeater3MaxTemp.toPlainText()
         self.ccbc.heaters[2].max_temp = setpoint
+        self.InputHeater3MaxTemp.clear()
 
     def update_static_labels(self):
         # Update the status page text variables
@@ -152,19 +158,19 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         # Heater 1 Page
         self.VariableHeater1Temp.setText(self.ccbc.heaters[0].returnCurrentTemp())
         self.VariableHeater1Status.setText(self.ccbc.heaters[0].returnPinStatus())
-        self.VariableHeater1Setpoint.setText(self.ccbc.heaters[0].temperature_setpoint)
+        self.VariableHeater1Setpoint.setText(str(self.ccbc.heaters[0].temperature_setpoint))
         self.VariableHeater1MaxTemp.setText(str(self.ccbc.heaters[0].max_temp))
 
         # Heater 2 Page
         self.VariableHeater2Temp.setText(self.ccbc.heaters[1].returnCurrentTemp())
         self.VariableHeater2Status.setText(self.ccbc.heaters[1].returnPinStatus())
-        self.VariableHeater2Setpoint.setText(self.ccbc.heaters[1].temperature_setpoint)
+        self.VariableHeater2Setpoint.setText(str(self.ccbc.heaters[1].temperature_setpoint))
         self.VariableHeater2MaxTemp.setText(str(self.ccbc.heaters[1].max_temp))
 
         # Heater 3 Page
         self.VariableHeater3Temp.setText(self.ccbc.heaters[2].returnCurrentTemp())
         self.VariableHeater3Status.setText(self.ccbc.heaters[2].returnPinStatus())
-        self.VariableHeater3Setpoint.setText(self.ccbc.heaters[2].temperature_setpoint)
+        self.VariableHeater3Setpoint.setText(str(self.ccbc.heaters[2].temperature_setpoint))
         self.VariableHeater3MaxTemp.setText(str(self.ccbc.heaters[2].max_temp))
 
     def start_everything(self):

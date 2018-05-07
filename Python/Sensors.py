@@ -63,7 +63,12 @@ class PressureSensor:
 
     @current_pressure.setter
     def current_pressure(self, new_pressure):
-        self._current_pressure = new_pressure
+        try:
+            press = round(float(new_pressure), 2)
+        except:
+            print("Passed a non-number, {}, to {}".format(new_pressure, self.name))
+            raise
+        self._current_pressure = press
 
     def update_voltage_and_pressure(self, voltage):
 
