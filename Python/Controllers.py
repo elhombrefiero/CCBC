@@ -74,7 +74,7 @@ class Heater:
 
     @temperature_setpoint.setter
     def temperature_setpoint(self, new_setpoint):
-        self._temperature_setpoint = new_setpoint
+        self._temperature_setpoint = float(new_setpoint)
         self.update_max_min_limits()
 
     @property
@@ -83,7 +83,7 @@ class Heater:
 
     @maxovershoot.setter
     def maxovershoot(self, new_max_overshoot):
-        self._maxovershoot = new_max_overshoot
+        self._maxovershoot = float(new_max_overshoot)
         self.update_max_min_limits()
 
     @property

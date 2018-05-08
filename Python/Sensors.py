@@ -59,7 +59,7 @@ class PressureSensor:
 
     @property
     def current_pressure(self):
-        return self._current_pressure
+        return round(float(self._current_pressure), 2)
 
     @current_pressure.setter
     def current_pressure(self, new_pressure):
