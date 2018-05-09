@@ -11,7 +11,6 @@ CCB. Works in conjunction with an Arduino script to:
     4) Create a json file used by the CCBC webpage to
        display the status visually
 
-    More to come.
     """
 
 # Import the python libraries needed
@@ -206,14 +205,18 @@ class CCBC_Brains:
         
         for heater in self.heaters:
             try:
-                # TODO: Change heater logic to output whether to change stuff
-                #       Then change the pin value here
                 heater.determinePinStatus(self.ser)
             except:
                 return
 
     def updatePumpControllers(self):
-        """ TBD"""
+        """ Make pumps send their commands, if applicable."""
+
+        for pump in self.pumps:
+            try:
+                pump.determinePinStatus(self.ser)
+            except:
+                return
        
     def returnArdDict(self):
         return self.ard_dictionary
@@ -250,12 +253,12 @@ class CCBC_Brains:
         time.sleep(0.1)
 
         # Make heaters do their thing
-        # TODO: Add pump command here
+        self.updatePumpControllers()
         self.updateHeaterControllers()
 
         # Flush the input and output buffers
         self.ser.reset_input_buffer()
-        self.ser.reset_output_buffer()       #
+        self.ser.reset_output_buffer()
 
         # Sleep for a millisecond
         time.sleep(0.1)

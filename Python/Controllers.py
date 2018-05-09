@@ -132,11 +132,11 @@ class Heater:
             pin_status = "ON"
 
         # Override the pin status if the temperature is above the max temp value
-        if current_temp > self.max_temp:
+        if current_temp > self._max_temp:
             print("""WARNING! The current temperature {}F for {} is above the 
             max temperature value {}. Setting pin {} to OFF.""".format(current_temp, 
-                                                                       self.name,
-                                                                       self.max_temp,
+                                                                       self._name,
+                                                                       self._max_temp,
                                                                        self.pin_num))
             pin_status = "OFF"
 
