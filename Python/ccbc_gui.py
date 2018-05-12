@@ -17,8 +17,11 @@ class MyThread(QThread):
         self.timer = QTimer()
 
     def run(self):
-        self.timer.timeout.connect(self.ccbc.updateAndExecute())
-        self.timer.start(250)
+        self.timer.timeout.connect(self.update_and_execute)
+        self.timer.start(500)
+
+    def update_and_execute(self):
+        self.ccbc.updateAndExecute()
 
 class ccbcGUI(QMainWindow, Ui_MainWindow):
 
@@ -184,7 +187,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
     def start_everything(self):
         self.start_serial()
-        self.SerThread.run()
+        self.SerThread.start()
         self.timer.timeout.connect(self.update_dynamic_labels)
         self.timer.start(500)
 
