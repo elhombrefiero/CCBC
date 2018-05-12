@@ -4,7 +4,21 @@ import sys
 from PyQt5.QtCore import QThread, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from theGUI import Ui_MainWindow
-from ccbc_control import CCBC_Brains
+
+
+class MyThread(QThread):
+    """ Keeps the serial communication on a separate thread
+
+
+    """
+    def __init__(self,  ccbc, parent=None):
+        super(MyThread, self).__init__(parent)
+        self.ccbc = ccbc
+        self.timer = QTimer()
+
+    def run(self):
+        self.timer.timeout.connect(self.ccbc.updateAndExecute())
+        self.timer.start(250)
 
 class ccbcGUI(QMainWindow, Ui_MainWindow):
 
@@ -12,6 +26,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ccbc = ccbc
+        self.SerThread = MyThread(self.ccbc)
         self.Button_startSerial.clicked.connect(self.start_everything)
         self.ButtonUpdateHeater1Setpoint.clicked.connect(self.update_heater1_setpoint)
         self.ButtonUpdateHeater2Setpoint.clicked.connect(self.update_heater2_setpoint)
@@ -123,7 +138,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
     def update_dynamic_labels(self):
 
-        self.ccbc.updateAndExecute()
+        # self.ccbc.updateAndExecute()
 
         # Status Page
         self.VariableT1.setText(str(self.ccbc.t_sensors[0].cur_temp))
@@ -169,6 +184,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
     def start_everything(self):
         self.start_serial()
+        self.SerThread.run()
         self.timer.timeout.connect(self.update_dynamic_labels)
         self.timer.start(500)
 
