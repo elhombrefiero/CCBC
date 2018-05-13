@@ -1,40 +1,28 @@
 #!/usr/bin/env Python3
 import sys
 import time
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtCore import QThread, QTimer
+from PyQt5.QtWidgets import QMainWindow
 from theGUI import Ui_MainWindow
 
 
-class VariablesThread(QThread):
-    """ Thread class used to update the dynamic labels in the GUI"""
-    temp1Signal = pyqtSignal(float)
-    temp2Signal = pyqtSignal(float)
-    temp3Signal = pyqtSignal(float)
-    temp4Signal = pyqtSignal(float)
-    temp5Signal = pyqtSignal(float)
-    temp6Signal = pyqtSignal(float)
-    temp7Signal = pyqtSignal(float)
-    temp8Signal = pyqtSignal(float)
-    temp9Signal = pyqtSignal(float)
+class SerialThread(QThread):
+    """ Thread that controls the reading of the Arduino Serial"""
 
     def __init__(self, ccbc, parent=None):
-        super(VariablesThread, self).__init__(parent)
+        super(SerialThread, self).__init__(parent)
         self.ccbc = ccbc
+        self.timer = QTimer()
+
+    def __del__(self):
+        self.wait()
 
     def run(self):
-        while True:
-            self.temp1Signal.emit(self.ccbc.t_sensors[0].cur_temp)
-            self.temp2Signal.emit(self.ccbc_t_sensors[1].cur_temp)
-            self.temp3Signal.emit(self.ccbc_t_sensors[2].cur_temp)
-            self.temp4Signal.emit(self.ccbc_t_sensors[3].cur_temp)
-            self.temp5Signal.emit(self.ccbc_t_sensors[4].cur_temp)
-            self.temp6Signal.emit(self.ccbc_t_sensors[5].cur_temp)
-            self.temp7Signal.emit(self.ccbc_t_sensors[6].cur_temp)
-            self.temp8Signal.emit(self.ccbc_t_sensors[7].cur_temp)
-            self.temp9Signal.emit(self.ccbc_t_sensors[8].cur_temp)
-            self.sleep(1)
+        self.timer.timeout.connect(self.update_and_execute)
+        self.timer.start(500)
 
+    def update_and_execute(self):
+        self.ccbc.updateAndExecute()
 
 
 class ccbcGUI(QMainWindow, Ui_MainWindow):
@@ -43,17 +31,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ccbc = ccbc
-        self.VariablesThread = VariablesThread(self.ccbc)
-        self.VariablesThread.temp1Signal.connect(self.updateTemp1)
-        self.VariablesThread.temp2Signal.connect(self.updateTemp2)
-        self.VariablesThread.temp3Signal.connect(self.updateTemp3)
-        self.VariablesThread.temp4Signal.connect(self.updateTemp4)
-        self.VariablesThread.temp5Signal.connect(self.updateTemp5)
-        self.VariablesThread.temp6Signal.connect(self.updateTemp6)
-        self.VariablesThread.temp7Signal.connect(self.updateTemp7)
-        self.VariablesThread.temp8Signal.connect(self.updateTemp8)
-        self.VariablesThread.temp9Signal.connect(self.updateTemp9)
-        self.VariablesThread.start()
+        self.serial_thread = SerialThread(self.ccbc)
         self.Button_startSerial.clicked.connect(self.start_everything)
         self.ButtonUpdateHeater1Setpoint.clicked.connect(self.update_heater1_setpoint)
         self.ButtonUpdateHeater2Setpoint.clicked.connect(self.update_heater2_setpoint)
@@ -62,6 +40,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.ButtonUpdateHeater2MaxTemp.clicked.connect(self.update_heater2_maxtemp)
         self.ButtonUpdateHeater3MaxTemp.clicked.connect(self.update_heater3_maxtemp)
         self.update_static_labels()
+        self.update_labels()
         self.timer = QTimer()
         self.show()
 
@@ -182,6 +161,16 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
 
+        self.VariableT1.setText(str(self.ccbc.t_sensors[0].cur_temp))
+        self.VariableT2.setText(str(self.ccbc.t_sensors[1].cur_temp))
+        self.VariableT3.setText(str(self.ccbc.t_sensors[2].cur_temp))
+        self.VariableT4.setText(str(self.ccbc.t_sensors[3].cur_temp))
+        self.VariableT5.setText(str(self.ccbc.t_sensors[4].cur_temp))
+        self.VariableT6.setText(str(self.ccbc.t_sensors[5].cur_temp))
+        self.VariableT7.setText(str(self.ccbc.t_sensors[6].cur_temp))
+        self.VariableT8.setText(str(self.ccbc.t_sensors[7].cur_temp))
+        self.VariableT9.setText(str(self.ccbc.t_sensors[8].cur_temp))
+
         self.VariablePress1.setText(str(self.ccbc.p_sensors[0].current_pressure))
         self.VariablePress2.setText(str(self.ccbc.p_sensors[1].current_pressure))
         self.VariablePress3.setText(str(self.ccbc.p_sensors[2].current_pressure))
@@ -215,7 +204,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
 
     def start_everything(self):
         self.start_serial()
-        self.timer.timeout.connect(self.ccbc.updateAndExecute)
+        self.serial_thread.start()
+        self.timer.timeout.connect(self.update_labels)
         self.timer.start(500)
 
     def start_serial(self):
