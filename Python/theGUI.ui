@@ -1,0 +1,929 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>917</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="TabWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>861</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>3</number>
+    </property>
+    <widget class="QWidget" name="TabStatus">
+     <attribute name="title">
+      <string>Status</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>19</y>
+        <width>571</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="2" column="5">
+        <widget class="QLabel" name="LabelH2">
+         <property name="text">
+          <string>LabelH2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="4">
+        <widget class="QLabel" name="VariablePress4">
+         <property name="text">
+          <string>VariablePress4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QLabel" name="LabelPress3">
+         <property name="text">
+          <string>LabelPress3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QLabel" name="LabelH1">
+         <property name="text">
+          <string>LabelH1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QLabel" name="LabelPress4">
+         <property name="text">
+          <string>LabelPress4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="LabelPress1">
+         <property name="text">
+          <string>LabelPress1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="LabelT2">
+         <property name="text">
+          <string>LabelT2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3" colspan="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderPressure">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="text">
+          <string>Pressures</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QLabel" name="VariablePress2">
+         <property name="text">
+          <string>VariablePress2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="5">
+        <widget class="QLabel" name="LabelPump3">
+         <property name="text">
+          <string>LabelPump3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="5">
+        <widget class="QLabel" name="LabelPump2">
+         <property name="text">
+          <string>LabelPump2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="VariableT3">
+         <property name="text">
+          <string>VariableT3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderTemperature">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="text">
+          <string>Temperatures (F)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="VariablePress1">
+         <property name="text">
+          <string>VariablePress1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="VariableT1">
+         <property name="text">
+          <string>VariableT1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="LabelT1">
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>LabelT1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="5">
+        <widget class="QLabel" name="LabelPump1">
+         <property name="text">
+          <string>LabelPump1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="LabelT3">
+         <property name="text">
+          <string>LabelT3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QLabel" name="LabelT9">
+         <property name="text">
+          <string>LabelT9</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="5">
+        <widget class="QLabel" name="LabelH3">
+         <property name="text">
+          <string>LabelH3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLabel" name="LabelPress2">
+         <property name="text">
+          <string>LabelPress2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QLabel" name="VariableT8">
+         <property name="text">
+          <string>VariableT8</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="LabelT6">
+         <property name="text">
+          <string>LabelT6</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLabel" name="LabelT7">
+         <property name="text">
+          <string>LabelT7</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QLabel" name="VariableT6">
+         <property name="text">
+          <string>VariableT6</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="LabelT8">
+         <property name="text">
+          <string>LabelT8</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QLabel" name="VariableT7">
+         <property name="text">
+          <string>VariableT7</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="VariableT2">
+         <property name="text">
+          <string>VariableT2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="LabelT4">
+         <property name="text">
+          <string>LabelT4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QLabel" name="VariableT9">
+         <property name="text">
+          <string>VariableT9</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLabel" name="VariableT4">
+         <property name="text">
+          <string>VariableT4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4">
+        <widget class="QLabel" name="VariablePress3">
+         <property name="text">
+          <string>VariablePress3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="LabelT5">
+         <property name="text">
+          <string>LabelT5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QLabel" name="VariableT5">
+         <property name="text">
+          <string>VariableT5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QLabel" name="VariableH1">
+         <property name="text">
+          <string>VariableH1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5" colspan="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderController">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Controller Statuses</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="6">
+        <widget class="QLabel" name="VariableH2">
+         <property name="text">
+          <string>VariableH2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="6">
+        <widget class="QLabel" name="VariableH3">
+         <property name="text">
+          <string>VariableH3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="6">
+        <widget class="QLabel" name="VariablePump1">
+         <property name="text">
+          <string>VariablePump1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="6">
+        <widget class="QLabel" name="VariablePump2">
+         <property name="text">
+          <string>VaraiblePump2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="6">
+        <widget class="QLabel" name="VariablePump3">
+         <property name="text">
+          <string>VariablePump3</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TabHeater1">
+     <attribute name="title">
+      <string>Heater 1</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>531</width>
+        <height>232</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelHeaterStatus">
+         <property name="text">
+          <string>Heater Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelHeater1Temp">
+         <property name="text">
+          <string>Temperature</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="VariableHeater1Temp">
+         <property name="text">
+          <string>VariableHeater1Temp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="VariableHeater1Status">
+         <property name="text">
+          <string>VariableHeater1Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater1Setpoint">
+         <property name="text">
+          <string>Update Heater 
+1 Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="VariableHeater1Setpoint">
+         <property name="text">
+          <string>VaraibleHeater1Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelHeater1MaxTemp">
+         <property name="text">
+          <string>Max Temperature Allowed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="VariableHeater1MaxTemp">
+         <property name="text">
+          <string>VariableHeater1MaxTemp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LabelHeaterSetpointName">
+         <property name="text">
+          <string>Heater Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater1MaxTemp"/>
+       </item>
+       <item row="0" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderDesiredValue">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Desired Value 
+(input)</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater1MaxTemp">
+         <property name="text">
+          <string>Update Max 
+Temp Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater1Setpoint"/>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="HeaderDesiredValue_2">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Push Button</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TabHeater2">
+     <attribute name="title">
+      <string>Heater 2</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>531</width>
+        <height>232</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelHeater2Status">
+         <property name="text">
+          <string>Heater Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelHeater2Temp">
+         <property name="text">
+          <string>Temperature</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="VariableHeater2Temp">
+         <property name="text">
+          <string>VariableHeater2Temp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="VariableHeater2Status">
+         <property name="text">
+          <string>VariableHeater2Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater2Setpoint">
+         <property name="text">
+          <string>Update Heater 
+2 Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="VariableHeater2Setpoint">
+         <property name="text">
+          <string>VaraibleHeater2Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelHeater2MaxTemp">
+         <property name="text">
+          <string>Max Temperature Allowed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="VariableHeater2MaxTemp">
+         <property name="text">
+          <string>VariableHeater2MaxTemp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LabelHeater2SetpointName">
+         <property name="text">
+          <string>Heater Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater2MaxTemp"/>
+       </item>
+       <item row="0" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderDesiredValue_3">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Desired Value 
+(input)</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater2MaxTemp">
+         <property name="text">
+          <string>Update Max 
+Temp Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater2Setpoint"/>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="HeaderDesiredValue_4">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Push Button</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TabHeater3">
+     <attribute name="title">
+      <string>Heater 3</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>531</width>
+        <height>232</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelHeater3Status">
+         <property name="text">
+          <string>Heater Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelHeater3Temp">
+         <property name="text">
+          <string>Temperature</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="VariableHeater3Temp">
+         <property name="text">
+          <string>VariableHeater3Temp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="VariableHeater3Status">
+         <property name="text">
+          <string>VariableHeater3Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater3Setpoint">
+         <property name="text">
+          <string>Update Heater 
+3 Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="VariableHeater3Setpoint">
+         <property name="text">
+          <string>VaraibleHeater3Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelHeater3MaxTemp">
+         <property name="text">
+          <string>Max Temperature Allowed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="VariableHeater3MaxTemp">
+         <property name="text">
+          <string>VariableHeater3MaxTemp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LabelHeater3SetpointName">
+         <property name="text">
+          <string>Heater Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater3MaxTemp"/>
+       </item>
+       <item row="0" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QLabel" name="HeaderDesiredValue_5">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Desired Value 
+(input)</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater3MaxTemp">
+         <property name="text">
+          <string>Update Max 
+Temp Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater3Setpoint"/>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="HeaderDesiredValue_6">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Push Button</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TabPump1">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="accessibleName">
+      <string/>
+     </property>
+     <attribute name="title">
+      <string>Pump1</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="TabPump2">
+     <attribute name="title">
+      <string>Pump2</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="serialLabel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>202</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SerialLabel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_startSerial">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>20</y>
+      <width>409</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Push to Start Serial Connection</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>917</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuWelcome_to_the_CCBC_Brewery">
+    <property name="title">
+     <string>Welcome to the CCBC Brewery!</string>
+    </property>
+   </widget>
+   <addaction name="menuWelcome_to_the_CCBC_Brewery"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>Button_startSerial</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>334</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater1Setpoint</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater1MaxTemp</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater2Setpoint</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater2MaxTemp</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater3Setpoint</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonUpdateHeater3MaxTemp</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
