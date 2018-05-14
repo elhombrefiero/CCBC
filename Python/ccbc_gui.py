@@ -45,11 +45,12 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.ButtonUpdateHeater3MaxTemp.clicked.connect(self.update_heater3_maxtemp)
         self.update_static_labels()
         self.update_labels()
-        self.timer = QTimer()
+        self.serial_timer = QTimer()
+        self.label_timer = QTimer()
         self.show()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
-     def update_heater1_setpoint(self):
+    def update_heater1_setpoint(self):
         setpoint = self.InputHeater1Setpoint.toPlainText()
         self.ccbc.heaters[0].temperature_setpoint = float(setpoint)
         self.InputHeater1Setpoint.clear()
