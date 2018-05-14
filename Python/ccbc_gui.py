@@ -1,28 +1,32 @@
 #!/usr/bin/env Python3
 import sys
 import time
-from PyQt5.QtCore import QThread, QTimer
+from PyQt5.QtCore import QThread, QTimer, QRunnable, pyqtSlot, QThreadPool
 from PyQt5.QtWidgets import QMainWindow
 from theGUI import Ui_MainWindow
 
 
-class SerialThread(QThread):
-    """ Thread that controls the reading of the Arduino Serial"""
+class Worker(QRunnable):
+    """ Worker thread
 
-    def __init__(self, ccbc, parent=None):
-        super(SerialThread, self).__init__(parent)
-        self.ccbc = ccbc
-        self.timer = QTimer()
+    Inherits from QRunnable to handle worker thread setup, signals and wrap-up.
 
-    def __del__(self):
-        self.wait()
+    :param callback: The function callback to run on this worker thread. Supplied args
+                     and kwargs will be passed to the runner.
+    :type callback: function
+    :param args: Arguments to make availale to the run code
+    :param kwargs: Keywords arguments to make available to the run code
+    """
 
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @pyqtSlot()
     def run(self):
-        self.timer.timeout.connect(self.update_and_execute)
-        self.timer.start(500)
-
-    def update_and_execute(self):
-        self.ccbc.updateAndExecute()
+        self.fn(*self.args, **self.kwargs)
 
 
 class ccbcGUI(QMainWindow, Ui_MainWindow):
@@ -31,7 +35,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ccbc = ccbc
-        self.serial_thread = SerialThread(self.ccbc)
+        self.threadpool = QThreadPool()
         self.Button_startSerial.clicked.connect(self.start_everything)
         self.ButtonUpdateHeater1Setpoint.clicked.connect(self.update_heater1_setpoint)
         self.ButtonUpdateHeater2Setpoint.clicked.connect(self.update_heater2_setpoint)
@@ -43,35 +47,9 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.update_labels()
         self.timer = QTimer()
         self.show()
+        print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
-    def updateTemp1(self, temp):
-        self.VariableT1.setText(str(temp))
-
-    def updateTemp2(self, temp):
-        self.VariableT2.setText(str(temp))
-
-    def updateTemp3(self, temp):
-        self.VariableT3.setText(str(temp))
-
-    def updateTemp4(self, temp):
-        self.VariableT4.setText(str(temp))
-
-    def updateTemp5(self, temp):
-        self.VariableT5.setText(str(temp))
-
-    def updateTemp6(self, temp):
-        self.VariableT6.setText(str(temp))
-
-    def updateTemp7(self, temp):
-        self.VariableT7.setText(str(temp))
-
-    def updateTemp8(self, temp):
-        self.VariableT8.setText(str(temp))
-
-    def updateTemp9(self, temp):
-        self.VariableT9.setText(str(temp))
-
-    def update_heater1_setpoint(self):
+     def update_heater1_setpoint(self):
         setpoint = self.InputHeater1Setpoint.toPlainText()
         self.ccbc.heaters[0].temperature_setpoint = float(setpoint)
         self.InputHeater1Setpoint.clear()
@@ -202,15 +180,28 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableHeater3Setpoint.setText(str(self.ccbc.heaters[2].temperature_setpoint))
         self.VariableHeater3MaxTemp.setText(str(self.ccbc.heaters[2].max_temp))
 
+    def refresh_dynamic_labels(self):
+        worker = Worker(self.update_labels)
+        self.threadpool.start(worker)
+
+    def update_serial(self):
+        worker = Worker(self.ccbc.updateAndExecute)
+        self.threadpool.start(worker)
+
     def start_everything(self):
         self.start_serial()
-        self.serial_thread.start()
-        self.timer.timeout.connect(self.update_labels)
-        self.timer.start(500)
+        self.serial_timer.timeout.connect(self.update_serial)
+        self.serial_timer.start(500)
+        self.label_timer.timeout.connect(self.refresh_dynamic_labels)
+        self.label_timer.start(1000)
 
     def start_serial(self):
         try:
             self.ccbc.startSerial()
         except:
             print("Could not start serial")
-        time.sleep(0.5)
+        print("Waiting a few seconds to initialize")
+        time.sleep(2)
+        self.ccbc.ser.reset_input_buffer()
+        self.ccbc.ser.reset_input_buffer()
+
