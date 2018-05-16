@@ -70,16 +70,19 @@ void setup()
       Serial.print("Unable to find address for Device ");
       Serial.println(i);
     }
-    delay(100);   
+    delay(10);   
   }
   
   // Return all temperature sensor serials 
   Serial.println("Printing addresses for all sensors");
   for (int i = 0; i < numSensors; i++)
   {
+    Serial.print("TSensor ");
+    Serial.print(i);
+    Serial.print(": ");
     printAddress(myTSensors[i]);
     Serial.println();
-    delay(100); 
+    delay(10); 
   }
   Serial.println();
 }
@@ -111,6 +114,21 @@ void readAnalogPins() {
   for (int i=0; i < 6; i++) {
     val = analogRead(i);
     Serial.print("analogpin:");
+    Serial.print("name=");
+    Serial.print("Pin");
+    Serial.print(i);
+    Serial.print(",pin_num=");
+    Serial.print(i);
+    Serial.print(",value=");
+    Serial.println(val);
+  }
+}
+
+void readDigitalPins() {
+  int val = 0;
+  for (int i=2; i < 10; i++) {
+    val = digitalRead(i);
+    Serial.print("digitalpin:");
     Serial.print("name=");
     Serial.print("Pin");
     Serial.print(i);
@@ -158,6 +176,7 @@ void returnAllInfo() {
       }
     }
   readAnalogPins();
+  readDigitalPins();
 }
 
 void loop() 

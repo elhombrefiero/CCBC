@@ -70,16 +70,19 @@ void setup()
       Serial.print("Unable to find address for Device ");
       Serial.println(i);
     }
-    delay(100);   
+    delay(10);   
   }
   
   // Return all temperature sensor serials 
   Serial.println("Printing addresses for all sensors");
   for (int i = 0; i < numSensors; i++)
   {
+    Serial.print("TSensor ");
+    Serial.print(i);
+    Serial.print(": ");
     printAddress(myTSensors[i]);
     Serial.println();
-    delay(100); 
+    delay(10); 
   }
   Serial.println();
 }
@@ -94,35 +97,52 @@ void printAddress(DeviceAddress deviceAddress)
   }
 }
 
-void loop() 
-{
-  // Listens for an input from the USB port
-  if (Serial.available())
-  {
-    // Read the input from Python, which is
-    // in the format 
-    // X=OFF or X=ON
-    // where X is the pin number
-    char ch = Serial.read();
-    readString += ch;
-      // The character # is used to stop reading from serial
-      if (ch == '#')
-      {
-        // Find the index of the equals sign
-        int equalssign_index = readString.indexOf("=");
-        // Pin number is everything before that
-        String pinNum = readString.substring(0, equalssign_index);
-        int pin_num = pinNum.toInt();
-        // Status is the string after = and before #
-        int poundsign_index = readString.indexOf("#");
-        String pinStatus = readString.substring(equalssign_index + 1, poundsign_index); 
-        setSwitchOnOff(pin_num, pinStatus);
-        readString="";
-      }
+void setPinStatus(String string) {
+  // Find the index of the equals sign
+  int equalssign_index = readString.indexOf("=");
+  // Pin number is everything before that
+  String pinNum = readString.substring(0, equalssign_index);
+  int pin_num = pinNum.toInt();
+  // Status is the string after = and before #
+  int poundsign_index = readString.indexOf("#");
+  String pinStatus = readString.substring(equalssign_index + 1, poundsign_index); 
+  setSwitchOnOff(pin_num, pinStatus);
+}
+
+void readAnalogPins() {
+  int val = 0;
+  for (int i=0; i < 6; i++) {
+    val = analogRead(i);
+    Serial.print("analogpin:");
+    Serial.print("name=");
+    Serial.print("Pin");
+    Serial.print(i);
+    Serial.print(",pin_num=");
+    Serial.print(i);
+    Serial.print(",value=");
+    Serial.println(val);
   }
-  // Send the temperature reading through serial
+}
+
+void readDigitalPins() {
+  int val = 0;
+  for (int i=2; i < 10; i++) {
+    val = digitalRead(i);
+    Serial.print("digitalpin:");
+    Serial.print("name=");
+    Serial.print("Pin");
+    Serial.print(i);
+    Serial.print(",pin_num=");
+    Serial.print(i);
+    Serial.print(",value=");
+    Serial.println(val);
+  }
+}
+
+void returnAllInfo() {
+  // Update the temperature readings
   sensors.requestTemperatures();
-  
+    
   // Send temperature information through serial
   /* IMPORTANT!!!
      The python script reads in the data in data pairs separated by an equal sign (=),
@@ -140,11 +160,11 @@ void loop()
      name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
   for (int i = 0; i < numSensors; i++)
-  {
+    {
     float tempF = sensors.getTempFByIndex(i);
     // Only include valid temperature readings
     if (tempF > 32)
-    {
+      {
       Serial.print("tempsensor:");
       Serial.print("name=Temp");
       Serial.print(i);
@@ -153,29 +173,52 @@ void loop()
       Serial.print(",value=");
       Serial.print(tempF);
       Serial.println(",units=F");      
+      }
     }
-  }
-
-  // A delay of half a second works well for the interaction between Ard and rPi.
-  // A faster time results in the rPi hanging (likely due to too much being sent through serial at once)
-  delay(100); // in milliseconds
-  
+  readAnalogPins();
+  readDigitalPins();
 }
+
+void loop() 
+{
+  while(!Serial.available()) {}
+  // serial read section
+  while(Serial.available())
+  {
+    // Listens for an input from the USB port
+    if (Serial.available() > 0) 
+      {
+      // Read the input from Python, which are
+      // in the following format:
+      // Switching pin statuses
+      //   X=OFF or X=ON
+      // where X is the pin number
+      // Returning all information
+      //   !
+      char ch = Serial.read();
+      readString += ch;
+      // The character # is used to stop reading from serial
+      if (ch == '!') 
+        {
+        returnAllInfo();
+        readString="";
+        }     
+      if (ch == '#')
+        {
+          setPinStatus(readString);
+          readString="";
+        }
+      }
+  }
+}
+
 
 void setSwitchOnOff(int pin, String status_of_pin)
 {
   if (status_of_pin == "ON") {
     digitalWrite(pin, HIGH);
-    //Serial.print("Pin ");
-    //Serial.print(pin);
-    //Serial.print(" set to high");
-    //Serial.println();
   }
   else {
     digitalWrite(pin, LOW);
-    //Serial.print("Pin ");
-    //Serial.print(pin);
-    //Serial.print(" set to low");
-    //Serial.println();
   }
 }
