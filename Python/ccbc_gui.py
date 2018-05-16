@@ -194,7 +194,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.serial_timer.timeout.connect(self.update_serial)
         self.serial_timer.start(500)
         self.label_timer.timeout.connect(self.refresh_dynamic_labels)
-        self.label_timer.start(1000)
+        self.label_timer.start(500)
 
     def start_serial(self):
         try:
