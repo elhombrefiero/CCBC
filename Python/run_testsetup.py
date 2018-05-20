@@ -2,8 +2,8 @@
 import serial
 import time
 from ccbc_control import CCBC_Brains
-from Sensors import TemperatureSensor
-from Controllers import Heater
+from Sensors import TemperatureSensor, PressureSensor
+from Controllers import Heater, Pump
 
 T1 = TemperatureSensor("Test Setup 1", "28FFAC378217045A", 999)
 T2 = TemperatureSensor("Test Setup 2", "28FF6AB585160484", 999)
@@ -44,6 +44,6 @@ if __name__ == "__main__":
     while 1:
 
         print(time.ctime())
-        test_ccbc.printTemperatureSensors()
-        test_ccbc.printHeaterStatus()
-        time.sleep(0.25)
+        CCBC.printTemperatureSensors()
+        CCBC.printHeaterStatus()
+        time.sleep(2)

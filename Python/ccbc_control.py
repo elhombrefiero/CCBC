@@ -234,10 +234,9 @@ class CCBC_Brains:
     def update_with_pool(self):
         """ Uses a pool object to put the updating on a separate processor"""
 
-        pool = Pool(processes=1, target=self.updateAndExecute)
-        pool.start()
+        pool = Pool(processes=1)
+        pool.apply_async(self.updateAndExecute)
 
-        
     def updateAndExecute(self):
         """ This function does everything in one go. 
         
