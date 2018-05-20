@@ -230,6 +230,13 @@ class CCBC_Brains:
                               separators=(',', ': '), ensure_ascii=False)
             outfile.write(to_unicode(str_))
         return str_
+
+    def update_with_pool(self):
+        """ Uses a pool object to put the updating on a separate processor"""
+
+        pool = Pool(processes=1, target=self.updateAndExecute)
+        pool.start()
+
         
     def updateAndExecute(self):
         """ This function does everything in one go. 
@@ -262,4 +269,7 @@ class CCBC_Brains:
 
         # Sleep for a millisecond
         time.sleep(0.1)
+
+        # Repeat
+        self.updateAndExecute()
 
