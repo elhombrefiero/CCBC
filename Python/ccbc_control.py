@@ -28,6 +28,16 @@ class CCBC_Brains:
     def __init__(self, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
         """ Reads sensor values and runs functions to command hardware"""
 
+        # TODO: Have the init create a "skeleton" of the ard_dict. For example:
+        # ard_dict = {'temp sensors': {temp_sensors[0].name: { 'name': temp_sensor[0].name, 'value', serial, etc.} } }
+        # TODO: Make the ard_dictionary a multiprocessing Manager.dict
+        # TODO: Research whether there needs to be a 'lock' on the serial port during read/write
+        # Have 2 mp Pools, one reading the serial and writing to the ard_dictionary and writing values to the
+        #   sensor objects, the other should convert the ard_dictionary to a json file for the website
+        # Have an input dictionary with two levels of mp.manager.dict(), which the user can use to send
+        # new setpoints to the objects. Make sure the logic will pick up on those
+        # TODO: Add logic to determine whether the child process died and to revive it
+
         self.SERIAL_PORT = '/dev/ttyACM0'
         self.BAUDRATE = 9600
         self.TIMEOUT = 0.05

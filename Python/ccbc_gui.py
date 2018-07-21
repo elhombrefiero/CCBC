@@ -1,9 +1,12 @@
 #!/usr/bin/env Python3
+
 import sys
 import time
 from PyQt5.QtCore import QThread, QTimer, QRunnable, pyqtSlot, QThreadPool
 from PyQt5.QtWidgets import QMainWindow
 from theGUI import Ui_MainWindow
+
+# TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
 
 
 class Worker(QRunnable):
