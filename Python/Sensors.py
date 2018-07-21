@@ -47,7 +47,7 @@ class PressureSensor:
         """ Initializes a pressure sensor with name, analog pin, and units"""
 
         self._name = name
-        self.pin_num = pin_num
+        self._pin_num = pin_num
         self._slope = slope
         self._intercept = intercept
         self._current_pressure = current_pressure
@@ -56,6 +56,10 @@ class PressureSensor:
     @property
     def name(self):
         return self._name
+
+    @property
+    def pin_num(self):
+        return self._pin_num
 
     @property
     def current_pressure(self):

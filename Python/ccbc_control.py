@@ -18,7 +18,7 @@ import json
 import io
 import os
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 
 import serial
 
@@ -28,9 +28,6 @@ class CCBC_Brains:
     def __init__(self, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
         """ Reads sensor values and runs functions to command hardware"""
 
-        # TODO: Have the init create a "skeleton" of the ard_dict. For example:
-        # ard_dict = {'temp sensors': {temp_sensors[0].name: { 'name': temp_sensor[0].name, 'value', serial, etc.} } }
-        # TODO: Make the ard_dictionary a multiprocessing Manager.dict
         # TODO: Research whether there needs to be a 'lock' on the serial port during read/write
         # Have 2 mp Pools, one reading the serial and writing to the ard_dictionary and writing values to the
         #   sensor objects, the other should convert the ard_dictionary to a json file for the website
@@ -46,11 +43,69 @@ class CCBC_Brains:
         self.ser = serial.Serial(baudrate=self.BAUDRATE,
                                  timeout=self.TIMEOUT,
                                  write_timeout=self.WRITETIMEOUT)
-        self.ard_dictionary = {}
+        self.ard_data_manager = Manager()
+        self.ard_dictionary = self.ard_data_manager.dict()
+        self.ard_commands = self.ard_data_manager.dict()
         self.t_sensors = t_sensors
         self.p_sensors = p_sensors
         self.heaters = heaters
         self.pumps = pumps
+        self.setup_ard_dictionary()
+
+    def setup_ard_dictionary(self):
+        """ Pre-populates the ard_dictionary with data
+
+        Dictionary will look like the following:
+
+        ard_dictionary[sensor/controller][name][property: value]
+        """
+
+        # Create the first level of the dictionary
+        for first_level in ['tsensors', 'presssensors', 'pumps', 'heaters']:
+            self.ard_dictionary[first_level] = self.ard_data_manager.dict()
+
+        # Second level for the temperature sensors will start with the name
+        for t in self.t_sensors:
+            self.ard_dictionary['tsensors'][t.name] = self.ard_data_manager.dict()
+
+            # Third level for the temperature sensors will be name, serial number, units, and current value
+            self.ard_dictionary['tsensors'][t.name]['value'] = t.cur_temp
+            self.ard_dictionary['tsensors'][t.name]['name'] = t.name
+            self.ard_dictionary['tsensors'][t.name]['units'] = t.units
+            self.ard_dictionary['tsensors'][t.name]['serial_num'] = t.serial_num
+
+        # Second level for the pressure sensors will start with the names
+        for p in self.p_sensors:
+            self.ard_dictionary['presssensors'][p.name] = self.ard_data_manager.dict()
+
+            # Third level for the pressure sensors will be name, analog pin number, and current value
+            self.ard_dictionary['presssensors'][p.name]['name'] = p.name
+            self.ard_dictionary['presssensors'][p.name]['value'] = p.current_pressure
+            self.ard_dictionary['presssensors'][p.name]['pin_num'] = p.pin_num
+            self.ard_dictionary['presssensors'][p.name]['units'] = p.units
+
+        # Second level for the heaters will start with the name
+        for heater in self.heaters:
+            self.ard_dictionary['heaters'][heater.name] = self.ard_data_manager.dict()
+
+            # Third level for the heaters will have the name, pin number, status,
+            # name of temperature sensor, setpoint, upper temperature limit and the lower temperature limit
+            self.ard_dictionary['heaters'][heater.name]['name'] = heater.name
+            self.ard_dictionary['heaters'][heater.name]['pin_num'] = heater.pin_num
+            self.ard_dictionary['heaters'][heater.name]['status'] = heater.returnPinStatus()
+            self.ard_dictionary['heaters'][heater.name]['tsensor_name'] = heater.temp_sensor.name
+            self.ard_dictionary['heaters'][heater.name]['setpoint'] = heater.temperature_setpoint
+            self.ard_dictionary['heaters'][heater.name]['upper limit'] = heater.upper_limit
+            self.ard_dictionary['heaters'][heater.name]['lower limit'] = heater.lower_limit
+
+        for pump in self.pumps:
+            self.ard_dictionary['pumps'][pump.name] = self.ard_data_manager.dict()
+
+            # Third level for the pumps are the name, pressure sensor name, pin number, and setpoint
+            self.ard_dictionary['pumps'][pump.name]['name'] = pump.name
+            self.ard_dictionary['pumps'][pump.name]['psensor_name'] = pump.pressure_sensor.name
+            self.ard_dictionary['pumps'][pump.name]['pin_num'] = pump.pin_num
+            self.ard_dictionary['pumps'][pump.name]['setpoint'] = pump.pressure_setpoint
 
     def startSerial(self):
         """ Opens the serial port to the Arduino"""
