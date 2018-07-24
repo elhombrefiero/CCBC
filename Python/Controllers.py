@@ -117,6 +117,7 @@ class Heater:
         return str(self.temp_sensor.cur_temp)
 
     def determinePinStatus(self, serial_instance):
+        # TODO: Change this to look at the ard_dictionary instead of the serial port
         """ Looks at the current temperature and determines whether to set the pin
         to on/off.
         """

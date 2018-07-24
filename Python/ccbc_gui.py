@@ -55,6 +55,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.update_labels()
         self.label_timer = QTimer()
         self.show()
+        self.start_everything()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
     # TODO: Update these setpoint updates to use the ard_dictionary
@@ -111,13 +112,13 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePress3.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[2]]['value']))
         self.VariablePress4.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[3]]['value']))
 
-        self.LabelH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]['name']])
-        self.LabelH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]['name']])
-        self.LabelH3.setText(self.ard_dictionary['heaters'][self.heater_names[2]['name']])
+        self.LabelH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['name'])
+        self.LabelH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['name'])
+        self.LabelH3.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['name'])
 
-        self.VariableH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]['status']])
-        self.VariableH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]['status']])
-        self.VariableH3.setText(self.ard_dictionary['heaters'][self.heater_names[2]['status']])
+        self.VariableH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
+        self.VariableH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
+        self.VariableH3.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
 
         self.LabelPump1.setText(self.ard_dictionary['pumps'][self.pump_names[0]]['name'])
         self.LabelPump2.setText(self.ard_dictionary['pumps'][self.pump_names[1]]['name'])
@@ -128,22 +129,22 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump3.setText(self.ard_dictionary['pumps'][self.pump_names[2]]['status'])
 
         # Heater 1 Page
-        self.VariableHeater1Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[0]['tsensor_name']]]['value']))
+        self.VariableHeater1Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
         self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
 
         # Heater 2 Page
-        self.VariableHeater2Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[1]['tsensor_name']]]['value']))
+        self.VariableHeater2Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
         self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
 
         # Heater 3 Page
-        self.VariableHeater3Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[2]['tsensor_name']]]['value']))
+        self.VariableHeater3Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
         self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
@@ -176,22 +177,22 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump3.setText(self.ard_dictionary['pumps'][self.pump_names[2]]['status'])
 
         # Heater 1 Page
-        self.VariableHeater1Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[0]['tsensor_name']]]['value']))
+        self.VariableHeater1Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
         self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
 
         # Heater 2 Page
-        self.VariableHeater2Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[1]['tsensor_name']]]['value']))
+        self.VariableHeater2Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
         self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
 
         # Heater 3 Page
-        self.VariableHeater3Temp.setText((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
-                                         [self.heater_names[2]['tsensor_name']]]['value']))
+        self.VariableHeater3Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
+                                         [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
         self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))

@@ -23,7 +23,7 @@ H3 = Heater("Heater 3", 3, "OFF", T7, 213, max_temp=215, maxovershoot=2)
 
 if __name__ == "__main__":
 
-    test_ccbc = CCBC_Brains(ser,t_sensors=[T1,
+    test_ccbc = CCBC_Brains(ser, t_sensors=[T1,
                                            T2,
                                            T3,
                                            T4,
