@@ -60,7 +60,7 @@ class Heater:
         if self.maxovershoot:
             self._UPPER_LIMIT = self.maxovershoot
         else:
-            self._UPPER_LIMIT = self._temperature_setpoint + 2
+            self._UPPER_LIMIT = self._temperature_setpoint + 0.25
 
         self._LOWER_LIMIT = self._temperature_setpoint - 2
 

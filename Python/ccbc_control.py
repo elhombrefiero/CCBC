@@ -30,6 +30,7 @@ class ArdControl(Process):
         self.SERIAL_PORT = serial_port
         self.BAUDRATE = 9600
         self.TIMEOUT = 0.05
+        self.ARD_RETURNALL = b'!'
         self.ard_data = ard_data
         self.ard_commands = ard_commands
         self.digital_pin_status = {}
@@ -165,6 +166,9 @@ class ArdControl(Process):
         if int(value) == 1:
             status = "ON"
 
+        # Store the status of the d pins in a dictionary
+        self.digital_pin_status[pin_num] = status
+
         for heater in self.ard_data['heaters'].keys():
             if self.ard_data['heaters'][heater]['pin_num'] == pin_num:
                 self.ard_data['heaters'][heater]['status'] = status
@@ -174,10 +178,50 @@ class ArdControl(Process):
                 self.ard_data['pumps'][pump]['status'] = status
 
     def check_setpoints(self):
-        pass
+        # TODO: Can possibly put this in the CCBC Brains
+        """ Looks at each heater and attached temperature sensor and determines pin status."""
+        for heater in self.ard_data['heaters'].keys():
+            upper = self.ard_data['heaters'][heater]['upper limit']
+            lower = self.ard_data['heaters'][heater]['lower limit']
+            current_temp = self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value']
+            max_temp = self.ard_data['heaters'][heater]['maxtemp']
+
+            if current_temp > upper:
+                pin_status = 'OFF'
+
+            if current_temp < lower:
+                pin_status = 'ON'
+
+            if current_temp >= max_temp:
+                pin_status = 'OFF'
+
+            self.ard_data['heaters'][heater]['status'] = pin_status
+
+        # TODO: Address the pump controller setpoints (e.g., does it go by pressure or voltage?) Also,
+        # Where would the pressure get calculated?
+        """for pump in self.ard_data['pumps'].keys():
+            pin_status = 'OFF'
+            """
 
     def check_pins(self):
-        pass
+        # Read the status of every digital pin input in ard_data
+        for heater in self.ard_data['heaters'].keys():
+            pin_num = int(self.ard_data['heaters'][heater]['pin_num'])
+            status = self.ard_data['heaters'][heater]['status']
+            # Check against the value in the digital pin status dict
+            if self.digital_pin_status[pin_num] != status:
+                # Issue a command to be what is in the ard_data dict
+                msg = "{}={}#".format(pin_num, status)
+                self.ser.write(msg.encode())
+
+        for pump in self.ard_data['pumps'].keys():
+            pin_num = int(self.ard_data['heaters'][pump]['pin_num'])
+            status = self.ard_data['heaters'][pump]['status']
+            # Check against the value in the digital pin status dict
+            if self.digital_pin_status[pin_num] != status:
+                # Issue a command to be what is in the ard_data dict
+                msg = "{}={}#".format(pin_num, status)
+                self.ser.write(msg.encode())
 
     def run(self):
         """ Opens the serial port and begins reading the arduino data"""

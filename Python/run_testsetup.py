@@ -118,8 +118,8 @@ if __name__ == "__main__":
     gui_process.start()
 
     while True:
-        print("Changing the Mash tun Low value.")
-        ard_dict['tempsensors']['Test Setup 2']['value'] = random.randint(100, 200)
+        print("Changing the Test Setup 5 value.")
+        ard_dict['tempsensors']['Test Setup 5']['value'] = random.randint(100, 200)
         try:
             for key in ard_dict.keys():
                 print("Key: {}".format(key))
