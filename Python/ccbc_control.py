@@ -19,7 +19,7 @@ import io
 import os
 import time
 import serial
-from multiprocessing import Pool, Manager, Process
+from multiprocessing import Process
 
 
 class ArdControl(Process):
@@ -31,12 +31,28 @@ class ArdControl(Process):
         self.BAUDRATE = 9600
         self.TIMEOUT = 0.05
         self.ARD_RETURNALL = b'!'
+        self.WRITETIMEOUT = 0.25
+
         self.ard_data = ard_data
         self.ard_commands = ard_commands
         self.digital_pin_status = {}
+        self.update_digital_pin_dict()
         self.ser = serial.Serial(baudrate=self.BAUDRATE,
                                  timeout=self.TIMEOUT,
                                  write_timeout=self.WRITETIMEOUT)
+
+    def update_digital_pin_dict(self):
+        """ Parses through the heaters and pumps and assigns the key/value pairs to the dict"""
+
+        for heater in self.ard_data['heaters'].keys():
+            pin_num = self.ard_data['heaters'][heater]['pin_num']
+            status = self.ard_data['heaters'][heater]['status']
+            self.digital_pin_status[pin_num] = status
+
+        for pump in self.ard_data['pumps'].keys():
+            pin_num = self.ard_data['pumps'][pump]['pin_num']
+            status = self.ard_data['pumps'][pump]['status']
+            self.digital_pin_status[pin_num] = status
 
     def startSerial(self):
         """ Opens the serial port to the Arduino"""
@@ -158,7 +174,7 @@ class ArdControl(Process):
         """ Processes a digital output line from the Arduino"""
 
         # Digital outputs have the following syntax:
-        # name=PinX,pin_num=X,value=val
+        # name=PinX,pin_num=X,value=val, where val is 0/1 for OFF/ON
         sensor_details = data.split(',')
         pin_num = sensor_details[1].split('=')[1]
         value = sensor_details[2].split('=')[1]
@@ -167,13 +183,16 @@ class ArdControl(Process):
             status = "ON"
 
         # Store the status of the d pins in a dictionary
-        self.digital_pin_status[pin_num] = status
+        try:
+            self.digital_pin_status[pin_num] = status
+        except KeyError as e:
+            print("Failed with Key Error: {}".format(e))
 
         for heater in self.ard_data['heaters'].keys():
             if self.ard_data['heaters'][heater]['pin_num'] == pin_num:
                 self.ard_data['heaters'][heater]['status'] = status
 
-        for pump in self.ard_dict['pumps'].keys():
+        for pump in self.ard_data['pumps'].keys():
             if self.ard_data['pumps'][pump]['pin_num'] == pin_num:
                 self.ard_data['pumps'][pump]['status'] = status
 
@@ -262,7 +281,6 @@ class CCBC_Brains:
         self.p_sensors = p_sensors
         self.heaters = heaters
         self.pumps = pumps
-        #self.setup_ard_dictionary()
 
     @staticmethod
     def setup_ard_dictionary(ard_dict, ard_data_manager, t_sensors, p_sensors, heaters, pumps):
@@ -424,39 +442,3 @@ class CCBC_Brains:
                               separators=(',', ': '), ensure_ascii=False)
             outfile.write(to_unicode(str_))
         return str_
-
-    def updateAndExecute(self):
-        """ This function does everything in one go. 
-        
-        1) Reads in Arduino data and updates the dictionary of current values
-        2) Updates the sensors to match the values in the dictionary
-        3) Issues commands to the controllers to do something
-        """
-
-        # Read in arduino data and update dictionary
-        self.readAndFormatArduinoSerial()
-
-        # Sleep for a hundred milliseconds
-        time.sleep(0.1)
-
-        # Update the sensors to match the values in the dictionary
-        self.updatePresSensorValues()
-        self.updateTempSensorValues()
-
-        # Sleep for a hundred milliseconds
-        time.sleep(0.1)
-
-        # Make heaters do their thing
-        self.updatePumpControllers()
-        self.updateHeaterControllers()
-
-        # Flush the input and output buffers
-        self.ser.reset_input_buffer()
-        self.ser.reset_output_buffer()
-
-        # Sleep for a millisecond
-        time.sleep(0.1)
-
-        # Repeat
-        self.updateAndExecute()
-

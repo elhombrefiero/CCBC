@@ -103,10 +103,10 @@ if __name__ == "__main__":
                        heaters=heaters,
                        pumps=pumps)
 
-    """print("Starting the serial reading")
-    ard_process = ArdControl(ard_data_dict, ard_command_dict)
+    print("Starting the serial reading")
+    ard_process = ArdControl(ard_dict, ard_command_dict)
     ard_process.start()
-    """
+
     tsensor_names = [t.name for t in t_sensors]
     print("tsensor_names: {}".format(tsensor_names))
     psensor_names = [p.name for p in p_sensors]
@@ -118,14 +118,10 @@ if __name__ == "__main__":
     gui_process.start()
 
     while True:
-        print("Changing the Test Setup 5 value.")
+        print("Checking to see if the processes are alive")
+        if not ard_process.isalive():
+            ard_process.start()
+        if not gui_process.is_alive():
+            gui_process.start()
         ard_dict['tempsensors']['Test Setup 5']['value'] = random.randint(100, 200)
-        try:
-            for key in ard_dict.keys():
-                print("Key: {}".format(key))
-                for second_level in ard_dict[key].keys():
-                    for item, attribute in ard_dict[key][second_level].items():
-                        print("{}: {}".format(item, attribute))
-        except KeyError as e:
-            print("Key error! {}".format(e))
         time.sleep(5)
