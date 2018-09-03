@@ -48,7 +48,6 @@ if __name__ == "__main__":
     pumps = [Pump1, Pump2, Pump3]
     # Pre-populate the ard_dictionary
     # Create the first level of the dictionary
-    for first_level in ['tempsensors', 'presssensors', 'pumps', 'heaters']:
         ard_dict[first_level] = ard_data_manager.dict()
 
     # Second level for the temperature sensors will start with the name
@@ -105,7 +104,7 @@ if __name__ == "__main__":
 
     print("Starting the serial reading")
     ard_process = ArdControl(ard_dict, ard_command_dict)
-    ard_process.start()
+    #ard_process.start()
 
     tsensor_names = [t.name for t in t_sensors]
     print("tsensor_names: {}".format(tsensor_names))
@@ -119,9 +118,15 @@ if __name__ == "__main__":
 
     while True:
         print("Checking to see if the processes are alive")
-        if not ard_process.isalive():
-            ard_process.start()
+        # if not ard_process.isalive():
+            # ard_process.start()
         if not gui_process.is_alive():
-            gui_process.start()
+            try:
+                gui_process = Process(target=process_gui, args=(ard_dict, ard_command_dict, tsensor_names,
+                                                                psensor_names, heater_names, pump_names))
+                gui_process.start()
+            except:
+                print("Could not restart the gui process!")
         ard_dict['tempsensors']['Test Setup 5']['value'] = random.randint(100, 200)
         time.sleep(5)
+

@@ -32,7 +32,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="TabStatus">
      <attribute name="title">
@@ -373,9 +373,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
-        <width>547</width>
-        <height>341</height>
+        <y>30</y>
+        <width>667</width>
+        <height>491</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -388,6 +388,12 @@
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="LabelHeaterStatus">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Heater Status</string>
          </property>
@@ -395,32 +401,36 @@
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="LabelHeaterSetpointName">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Heater Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater1Setpoint">
-         <property name="text">
-          <string>Update Heater 
-1 Setpoint</string>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="1">
         <widget class="QLabel" name="VariableHeater1Setpoint">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>VaraibleHeater1Setpoint</string>
+          <string>VariableHeater1Setpoint</string>
          </property>
         </widget>
        </item>
        <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
         <widget class="QTextEdit" name="InputHeater1Setpoint">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
-           <verstretch>1</verstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
@@ -431,14 +441,20 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>8777207</height>
+           <width>80</width>
+           <height>40</height>
           </size>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="LabelHeater1Temp">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Temperature</string>
          </property>
@@ -446,6 +462,12 @@
        </item>
        <item row="0" column="2" alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="HeaderDesiredValue">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <weight>75</weight>
@@ -463,6 +485,12 @@
        </item>
        <item row="6" column="0">
         <widget class="QLabel" name="LabelHeater1MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Max Temperature Allowed</string>
          </property>
@@ -470,6 +498,12 @@
        </item>
        <item row="6" column="1">
         <widget class="QLabel" name="VariableHeater1MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater1MaxTemp</string>
          </property>
@@ -477,6 +511,12 @@
        </item>
        <item row="2" column="1">
         <widget class="QLabel" name="VariableHeater1Status">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater1Status</string>
          </property>
@@ -484,6 +524,12 @@
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="VariableHeater1Temp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater1Temp</string>
          </property>
@@ -499,14 +545,20 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>8777215</height>
+           <width>80</width>
+           <height>40</height>
           </size>
          </property>
         </widget>
        </item>
        <item row="0" column="3">
         <widget class="QLabel" name="HeaderDesiredValue_2">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <weight>75</weight>
@@ -523,6 +575,12 @@
        </item>
        <item row="6" column="3">
         <widget class="QPushButton" name="ButtonUpdateHeater1MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update Max 
 Temp Setpoint</string>
@@ -531,6 +589,12 @@ Temp Setpoint</string>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="LabelHeater1Lower">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>Heater 1 Lower</string>
          </property>
@@ -538,6 +602,12 @@ Temp Setpoint</string>
        </item>
        <item row="4" column="1">
         <widget class="QLabel" name="VariableHeater1Upper">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater1Upper</string>
          </property>
@@ -545,36 +615,69 @@ Temp Setpoint</string>
        </item>
        <item row="5" column="1">
         <widget class="QLabel" name="VariableHeater1Lower">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater1Lower</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
+       <item row="4" column="2" alignment="Qt::AlignHCenter">
         <widget class="QTextEdit" name="InputHeater1Upper">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
         </widget>
        </item>
-       <item row="5" column="2">
+       <item row="5" column="2" alignment="Qt::AlignHCenter">
         <widget class="QTextEdit" name="InputHeater1Lower">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater1Upper">
+       <item row="3" column="3" rowspan="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater1Setpoints">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Update Heater
-1 Upper Limit</string>
+          <string>Update Heater 
+1 Setpoints</string>
          </property>
         </widget>
        </item>
@@ -589,28 +692,20 @@ Temp Setpoint</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
-        <width>531</width>
-        <height>232</height>
+        <y>30</y>
+        <width>671</width>
+        <height>491</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="2" column="0">
-        <widget class="QLabel" name="LabelHeater2Status">
-         <property name="text">
-          <string>Heater Status</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="LabelHeater2Temp">
-         <property name="text">
-          <string>Temperature</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QLabel" name="VariableHeater2Temp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater2Temp</string>
          </property>
@@ -618,52 +713,149 @@ Temp Setpoint</string>
        </item>
        <item row="2" column="1">
         <widget class="QLabel" name="VariableHeater2Status">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater2Status</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater2Setpoint">
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelHeater2Status">
+         <property name="maximumSize">
+          <size>
+           <width>151</width>
+           <height>16</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Update Heater 
-2 Setpoint</string>
+          <string>Heater Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelHeater2Temp">
+         <property name="maximumSize">
+          <size>
+           <width>151</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Temperature</string>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
         <widget class="QLabel" name="VariableHeater2Setpoint">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>VaraibleHeater2Setpoint</string>
+          <string>VariableHeater2Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="LabelHeater2MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>151</width>
+           <height>71</height>
+          </size>
+         </property>
          <property name="text">
           <string>Max Temperature Allowed</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="6" column="1">
         <widget class="QLabel" name="VariableHeater2MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater2MaxTemp</string>
          </property>
         </widget>
        </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="HeaderDesiredValue_4">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Push Button</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater2MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="LabelHeater2SetpointName">
+         <property name="maximumSize">
+          <size>
+           <width>151</width>
+           <height>71</height>
+          </size>
+         </property>
          <property name="text">
           <string>Heater Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-        <widget class="QTextEdit" name="InputHeater2MaxTemp"/>
+       <item row="6" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater2MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Update Max 
+Temp Setpoint</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="2" alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="HeaderDesiredValue_3">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <weight>75</weight>
@@ -679,30 +871,99 @@ Temp Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater2MaxTemp">
-         <property name="text">
-          <string>Update Max 
-Temp Setpoint</string>
+       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater2Setpoint">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
          </property>
         </widget>
        </item>
-       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-        <widget class="QTextEdit" name="InputHeater2Setpoint"/>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="HeaderDesiredValue_4">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelHeater2UpperName">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
          </property>
          <property name="text">
-          <string>Push Button</string>
+          <string>Heater 2 Upper</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="LabelHeater2LowerName">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Heater 2 Lower</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="VariableHeater2Upper">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater2Upper</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="VariableHeater2Lower">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater2Lower</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QTextEdit" name="InputHeater2Upper">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QTextEdit" name="InputHeater2Lower">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" rowspan="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater2Setpoints">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Update Heater 
+2 Setpoints</string>
          </property>
         </widget>
        </item>
@@ -717,64 +978,73 @@ Temp Setpoint</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
-        <width>531</width>
-        <height>232</height>
+        <y>30</y>
+        <width>671</width>
+        <height>491</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="2" column="0">
-        <widget class="QLabel" name="LabelHeater3Status">
+       <item row="6" column="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater3MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Heater Status</string>
+          <string>Update Max 
+Temp Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="LabelHeater3Temp">
-         <property name="text">
-          <string>Temperature</string>
+       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater3Setpoint">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="VariableHeater3Temp">
-         <property name="text">
-          <string>VariableHeater3Temp</string>
+       <item row="0" column="3">
+        <widget class="QLabel" name="HeaderDesiredValue_6">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="VariableHeater3Status">
          <property name="text">
-          <string>VariableHeater3Status</string>
+          <string>Push Button</string>
          </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater3Setpoint">
-         <property name="text">
-          <string>Update Heater 
-3 Setpoint</string>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
         <widget class="QLabel" name="VariableHeater3Setpoint">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
          <property name="text">
-          <string>VaraibleHeater3Setpoint</string>
+          <string>VariableHeater3Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="LabelHeater3MaxTemp">
-         <property name="text">
-          <string>Max Temperature Allowed</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
+       <item row="6" column="1">
         <widget class="QLabel" name="VariableHeater3MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
          <property name="text">
           <string>VariableHeater3MaxTemp</string>
          </property>
@@ -782,13 +1052,91 @@ Temp Setpoint</string>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="LabelHeater3SetpointName">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
          <property name="text">
           <string>Heater Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-        <widget class="QTextEdit" name="InputHeater3MaxTemp"/>
+       <item row="2" column="0">
+        <widget class="QLabel" name="LabelHeater3Status">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Heater Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="LabelHeater3Temp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Temperature</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="VariableHeater3Temp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater3Temp</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="LabelHeater3MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Max Temperature Allowed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="VariableHeater3Status">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater3Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+        <widget class="QTextEdit" name="InputHeater3MaxTemp">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item row="0" column="2" alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="HeaderDesiredValue_5">
@@ -807,30 +1155,95 @@ Temp Setpoint</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QPushButton" name="ButtonUpdateHeater3MaxTemp">
+       <item row="4" column="0">
+        <widget class="QLabel" name="LabelHeater3Upper">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Update Max 
-Temp Setpoint</string>
+          <string>Heater 3 Upper</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-        <widget class="QTextEdit" name="InputHeater3Setpoint"/>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="HeaderDesiredValue_6">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
+       <item row="5" column="0">
+        <widget class="QLabel" name="LabelHeater3Lower">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
          </property>
          <property name="text">
-          <string>Push Button</string>
+          <string>Heater 3 Lower</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="VariableHeater3Upper">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater3Upper</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="VariableHeater3Lower">
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>VariableHeater3Lower</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QTextEdit" name="InputHeater3Upper">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QTextEdit" name="InputHeater3Lower">
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" rowspan="3">
+        <widget class="QPushButton" name="ButtonUpdateHeater3Setpoints">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>500</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Update Heater 
+3 Setpoints</string>
          </property>
         </widget>
        </item>
@@ -918,7 +1331,7 @@ Temp Setpoint</string>
    </hints>
   </connection>
   <connection>
-   <sender>ButtonUpdateHeater1Setpoint</sender>
+   <sender>ButtonUpdateHeater1Setpoints</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>update()</slot>
@@ -950,7 +1363,7 @@ Temp Setpoint</string>
    </hints>
   </connection>
   <connection>
-   <sender>ButtonUpdateHeater2Setpoint</sender>
+   <sender>ButtonUpdateHeater2Setpoints</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>update()</slot>
@@ -974,22 +1387,6 @@ Temp Setpoint</string>
     <hint type="sourcelabel">
      <x>505</x>
      <y>320</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>494</x>
-     <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ButtonUpdateHeater3Setpoint</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>505</x>
-     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>494</x>

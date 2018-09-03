@@ -45,9 +45,9 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.pump_names = pump_names
         self.threadpool = QThreadPool()
         self.Button_startSerial.clicked.connect(self.start_everything)
-        self.ButtonUpdateHeater1Setpoint.clicked.connect(self.update_heater1_setpoint)
-        self.ButtonUpdateHeater2Setpoint.clicked.connect(self.update_heater2_setpoint)
-        self.ButtonUpdateHeater3Setpoint.clicked.connect(self.update_heater3_setpoint)
+        self.ButtonUpdateHeater1Setpoints.clicked.connect(self.update_heater1_setpoint)
+        self.ButtonUpdateHeater2Setpoints.clicked.connect(self.update_heater2_setpoint)
+        self.ButtonUpdateHeater3Setpoints.clicked.connect(self.update_heater3_setpoint)
         self.ButtonUpdateHeater1MaxTemp.clicked.connect(self.update_heater1_maxtemp)
         self.ButtonUpdateHeater2MaxTemp.clicked.connect(self.update_heater2_maxtemp)
         self.ButtonUpdateHeater3MaxTemp.clicked.connect(self.update_heater3_maxtemp)
@@ -58,21 +58,69 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.start_everything()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
-    # TODO: Update these setpoint updates to use the ard_dictionary
+    def update_heater_setpoint(self, setpoint_input_text, upper_input_text, lower_input_text, heater_name):
+        """ Changes the setpoint of a heater"""
+
+        # Grab the values inside of the input boxes
+        setpoint = setpoint_input_text.toPlainText()
+        upper_limit = upper_input_text.toPlainText()
+        lower_limit = lower_input_text.toPlainText()
+
+        # Backfill the old setpoint values if none were entered
+        if setpoint == "":
+            setpoint = self.ard_dictionary['heaters'][heater_name]['setpoint']
+        else:
+            setpoint = float(setpoint)
+        if upper_limit == "":
+            upper_limit = self.ard_dictionary['heaters'][heater_name]['upper limit']
+        else:
+            upper_limit = float(upper_limit)
+        if lower_limit == "":
+            lower_limit = self.ard_dictionary['heaters'][heater_name]['lower limit']
+        else:
+            lower_limit = float(lower_limit)
+
+        # Check the inputs
+        setpoint, upper_limit, lower_limit = self.check_heater_setpoints(heater_name, setpoint,
+                                                                         upper_limit, lower_limit)
+
+        # Set the values in the ard_dictionary
+        self.ard_dictionary['heaters'][heater_name]['setpoint'] = float(setpoint)
+        self.ard_dictionary['heaters'][heater_name]['upper limit'] = float(upper_limit)
+        self.ard_dictionary['heaters'][heater_name]['lower limit'] = float(lower_limit)
+
+        # Clear the inputs
+        for setpoint_input in [setpoint_input_text, upper_input_text, lower_input_text]:
+            setpoint_input.clear()
+
+    def check_heater_setpoints(self, heater_name, setpoint, upper, lower):
+        """ Does a simple check of the heater inputs"""
+
+        # Check to make sure that the new upper value is above the setpoint
+        if upper < setpoint:
+            print(("Upper limit {} for {} is lower than the setpoint {}.\n"
+                   "Changing upper to be 1 degree above setpoint").format(upper, heater_name, setpoint))
+            upper = setpoint + 1.0
+
+        # Check to make sure that the new lower value is less than the setpoint
+        if lower > setpoint:
+            print(("Lower limit {} for {} is higher than the setpoint {}.\n"
+                  "Changing lower limit to be 1 degree below setpoint").format(lower, heater_name, setpoint))
+            lower = setpoint - 1.0
+
+        return setpoint, upper, lower
+
     def update_heater1_setpoint(self):
-        setpoint = self.InputHeater1Setpoint.toPlainText()
-        self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint'] = float(setpoint)
-        self.InputHeater1Setpoint.clear()
+        self.update_heater_setpoint(self.InputHeater1Setpoint, self.InputHeater1Upper,
+                                    self.InputHeater1Lower, self.heater_names[0])
 
     def update_heater2_setpoint(self):
-        setpoint = self.InputHeater2Setpoint.toPlainText()
-        self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint'] = float(setpoint)
-        self.InputHeater2Setpoint.clear()
+        self.update_heater_setpoint(self.InputHeater2Setpoint, self.InputHeater2Upper,
+                                    self.InputHeater2Lower, self.heater_names[1])
 
     def update_heater3_setpoint(self):
-        setpoint = self.InputHeater3Setpoint.toPlainText()
-        self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint'] = float(setpoint)
-        self.InputHeater3Setpoint.clear()
+        self.update_heater_setpoint(self.InputHeater3Setpoint, self.InputHeater3Upper,
+                                    self.InputHeater3Lower, self.heater_names[2])
 
     def update_heater1_maxtemp(self):
         setpoint = self.InputHeater1MaxTemp.toPlainText()
@@ -133,6 +181,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
         self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
+        self.VariableHeater1Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
+        self.VariableHeater1Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['lower limit']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
 
         # Heater 2 Page
@@ -140,6 +190,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
         self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
+        self.VariableHeater2Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
+        self.VariableHeater2Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['lower limit']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
 
         # Heater 3 Page
@@ -147,6 +199,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
         self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
+        self.VariableHeater3Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
+        self.VariableHeater3Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['lower limit']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
 
     def update_labels(self):
@@ -181,6 +235,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
         self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
+        self.VariableHeater1Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
+        self.VariableHeater1Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['lower limit']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
 
         # Heater 2 Page
@@ -188,6 +244,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
         self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
+        self.VariableHeater2Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
+        self.VariableHeater2Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['lower limit']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
 
         # Heater 3 Page
@@ -195,6 +253,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
                                          [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
         self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
+        self.VariableHeater3Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
+        self.VariableHeater3Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['lower limit']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
 
     def refresh_dynamic_labels(self):

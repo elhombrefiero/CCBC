@@ -234,8 +234,8 @@ class ArdControl(Process):
                 self.ser.write(msg.encode())
 
         for pump in self.ard_data['pumps'].keys():
-            pin_num = int(self.ard_data['heaters'][pump]['pin_num'])
-            status = self.ard_data['heaters'][pump]['status']
+            pin_num = int(self.ard_data['pumps'][pump]['pin_num'])
+            status = self.ard_data['pumps'][pump]['status']
             # Check against the value in the digital pin status dict
             if self.digital_pin_status[pin_num] != status:
                 # Issue a command to be what is in the ard_data dict
