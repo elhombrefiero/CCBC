@@ -95,7 +95,7 @@ class ArdControl(Process):
             for line in self.ser.readlines():
                 arduino_lines.append(line.strip().decode('utf-8'))
         except:
-            next
+            return
         if arduino_lines:
             for line in arduino_lines:
                 self.arduinoLineToDictionary(line)
@@ -204,6 +204,9 @@ class ArdControl(Process):
             lower = self.ard_data['heaters'][heater]['lower limit']
             current_temp = self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value']
             max_temp = self.ard_data['heaters'][heater]['maxtemp']
+
+            # Assign the pin_status the previous value from the previous iteration
+            pin_status = self.ard_data['heaters'][heater]['status']
 
             if current_temp > upper:
                 pin_status = 'OFF'
