@@ -200,10 +200,10 @@ class ArdControl(Process):
         # TODO: Can possibly put this in the CCBC Brains
         """ Looks at each heater and attached temperature sensor and determines pin status."""
         for heater in self.ard_data['heaters'].keys():
-            upper = self.ard_data['heaters'][heater]['upper limit']
-            lower = self.ard_data['heaters'][heater]['lower limit']
-            current_temp = self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value']
-            max_temp = self.ard_data['heaters'][heater]['maxtemp']
+            upper = float(self.ard_data['heaters'][heater]['upper limit'])
+            lower = float(self.ard_data['heaters'][heater]['lower limit'])
+            current_temp = float(self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value'])
+            max_temp = float(self.ard_data['heaters'][heater]['maxtemp'])
 
             # Assign the pin_status the previous value from the previous iteration
             pin_status = self.ard_data['heaters'][heater]['status']
