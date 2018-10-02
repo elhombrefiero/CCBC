@@ -19,11 +19,21 @@ import io
 import os
 import time
 import serial
+from threading import Thread, Lock
 from multiprocessing import Process
+from multiprocessing.pool import ThreadPool
+
+
+class Worker(Thread):
+    def __init__(self, t, *args):
+        Thread.__init__(self, target=t, args=args)
+        self.start()
 
 
 class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when requested"""
+
+    # TODO: Make use of threading or use the ser.inWaiting() to wait until it's ready to accept data
 
     def __init__(self, ard_data, ard_commands, serial_port='/dev/ttyACM0'):
         Process.__init__(self)
@@ -32,6 +42,7 @@ class ArdControl(Process):
         self.TIMEOUT = 0.05
         self.ARD_RETURNALL = b'!'
         self.WRITETIMEOUT = 0.25
+        self.lock = Lock()
 
         self.ard_data = ard_data
         self.ard_commands = ard_commands
@@ -59,11 +70,21 @@ class ArdControl(Process):
         self.ser.setPort(self.SERIAL_PORT)
         self.ser.open()
 
-    def requestArduinoData(self):
+    def return_serial_lines(self):
+        ard_lines = []
+
+        with self.lock:
+            for line in self.ser.readlines():
+                ard_lines.append(line.strip().decode('utf-8'))
+
+        return ard_lines
+
+    def request_arduino_data(self):
         """ Sends a command to the Arduino to provide all data"""
 
         # Send a command to request arduino data
-        self.ser.write(self.ARD_RETURNALL)
+        with self.lock:
+            self.ser.write(self.ARD_RETURNALL)
 
     def read_arduino_data_and_format_dictionary(self):
         """ Read incoming serial data from Arduino serial and return string.
@@ -88,14 +109,12 @@ class ArdControl(Process):
         After each variable, there will be one comma.
         """
 
-        arduino_lines = []
-        self.requestArduinoData()
-        time.sleep(0.1)
-        try:
-            for line in self.ser.readlines():
-                arduino_lines.append(line.strip().decode('utf-8'))
-        except:
-            return
+        # Use a thread to issue command to the serial port
+        Worker(self.request_arduino_data)
+
+        # Use another thread to receive all of the serial data
+        arduino_lines = self.return_serial_lines()
+
         if arduino_lines:
             for line in arduino_lines:
                 self.arduinoLineToDictionary(line)
@@ -234,7 +253,7 @@ class ArdControl(Process):
             if self.digital_pin_status[pin_num] != status:
                 # Issue a command to be what is in the ard_data dict
                 msg = "{}={}#".format(pin_num, status)
-                self.ser.write(msg.encode())
+                w = Worker(self.ser.write, msg.encode())
 
         for pump in self.ard_data['pumps'].keys():
             pin_num = int(self.ard_data['pumps'][pump]['pin_num'])
@@ -243,7 +262,7 @@ class ArdControl(Process):
             if self.digital_pin_status[pin_num] != status:
                 # Issue a command to be what is in the ard_data dict
                 msg = "{}={}#".format(pin_num, status)
-                self.ser.write(msg.encode())
+                w = Worker(self.ser.write, msg.encode())
 
     def run(self):
         """ Opens the serial port and begins reading the arduino data"""
@@ -259,6 +278,12 @@ class ArdControl(Process):
 
             # Receive the latest Arduino data and process into dictionary
             self.read_arduino_data_and_format_dictionary()
+
+            # Clean all of the arduino stuff to avoid incorrect inputs
+            with self.lock:
+                self.ser.reset_output_buffer()
+            with self.lock:
+                self.ser.reset_input_buffer()
 
             # Sleep for a quarter of a second
             time.sleep(0.25)
