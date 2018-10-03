@@ -195,25 +195,14 @@ class ArdControl(Process):
         # Digital outputs have the following syntax:
         # name=PinX,pin_num=X,value=val, where val is 0/1 for OFF/ON
         sensor_details = data.split(',')
-        pin_num = sensor_details[1].split('=')[1]
+        pin_num = int(sensor_details[1].split('=')[1])
         value = sensor_details[2].split('=')[1]
         status = "OFF"
         if int(value) == 1:
             status = "ON"
 
         # Store the status of the d pins in a dictionary
-        try:
-            self.digital_pin_status[pin_num] = status
-        except KeyError as e:
-            print("Failed with Key Error: {}".format(e))
-
-        for heater in self.ard_data['heaters'].keys():
-            if self.ard_data['heaters'][heater]['pin_num'] == pin_num:
-                self.ard_data['heaters'][heater]['status'] = status
-
-        for pump in self.ard_data['pumps'].keys():
-            if self.ard_data['pumps'][pump]['pin_num'] == pin_num:
-                self.ard_data['pumps'][pump]['status'] = status
+        self.digital_pin_status[pin_num] = status
 
     def check_setpoints(self):
         # TODO: Can possibly put this in the CCBC Brains
