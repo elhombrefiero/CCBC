@@ -35,16 +35,16 @@ if __name__ == "__main__":
     T8 = TemperatureSensor("Wort Out", "28FF59A08516052E", 999)
     T9 = TemperatureSensor("Ambient Temp", "28FF437880160540", 999)
     # self.T10 = TemperatureSensor("Controller Temp", "TBD", 999)
-    Press1 = PressureSensor("Pressure Sensor1", pin_num=0, slope=7.3453, intercept=-1.4691)
-    Press2 = PressureSensor("Pressure Sensor2", pin_num=1, slope=7.3453, intercept=-1.4691)
-    Press3 = PressureSensor("Pressure Sensor3", pin_num=2, slope=7.3453, intercept=-1.4691)
-    Press4 = PressureSensor("Pressure Sensor4", pin_num=3, slope=7.3453, intercept=-1.4691)
+    Press1 = PressureSensor("Pressure Sensor1", pin_num=0, slope=0.3298, intercept=-0.772)
+    Press2 = PressureSensor("Pressure Sensor2", pin_num=1, slope=0.3298, intercept=-0.772)
+    Press3 = PressureSensor("Pressure Sensor3", pin_num=2, slope=0.3298, intercept=-0.772)
+    Press4 = PressureSensor("Pressure Sensor4", pin_num=3, slope=0.3298, intercept=-0.772)
     H1 = Heater("Heater 1", 5, "OFF", T1, 168)
     H2 = Heater("Heater 2", 4, "OFF", T4, 153, max_temp=155, maxovershoot=1)
     H3 = Heater("Heater 3", 3, "OFF", T7, 213, max_temp=215, maxovershoot=2)
-    Pump1 = Pump("Fake Pump1", Press1, 9, 100, pin_status="OFF")
-    Pump2 = Pump("Fake Pump2", Press2, 8, 100, pin_status="OFF")
-    Pump3 = Pump("Fake Pump3", Press3, 7, 100, pin_status="OFF")
+    Pump1 = Pump("Pump1", Press1, 9, 100, pin_status="OFF")
+    Pump2 = Pump("Pump2", Press2, 8, 100, pin_status="OFF")
+    Pump3 = Pump("Pump3", Press3, 7, 100, pin_status="OFF")
 
     ard_data_manager = Manager()
     ard_dict = ard_data_manager.dict()
@@ -78,7 +78,10 @@ if __name__ == "__main__":
 
         # Third level for the pressure sensors will be name, analog pin number, and current value
         ard_dict['presssensors'][p.name]['name'] = p.name
-        ard_dict['presssensors'][p.name]['value'] = p.current_pressure
+        ard_dict['presssensors'][p.name]['voltage'] = 0.0
+        ard_dict['presssensors'][p.name]['pressure'] = p.current_pressure
+        ard_dict['presssensors'][p.name]['volts_to_pressure_slope'] = p.slope
+        ard_dict['presssensors'][p.name]['volts_to_pressure_intercept'] = p.intercept
         ard_dict['presssensors'][p.name]['pin_num'] = p.pin_num
         ard_dict['presssensors'][p.name]['units'] = p.units
 
@@ -103,6 +106,8 @@ if __name__ == "__main__":
         # Third level for the pumps are the name, pressure sensor name, pin number, and setpoint
         ard_dict['pumps'][pump.name]['name'] = pump.name
         ard_dict['pumps'][pump.name]['psensor_name'] = pump.pressure_sensor.name
+        ard_dict['pumps'][pump.name]['psi_to_gal_slope'] = 1.0
+        ard_dict['pumps'][pump.name]['psi_to_gal_intercept'] = 1.0
         ard_dict['pumps'][pump.name]['pin_num'] = pump.pin_num
         ard_dict['pumps'][pump.name]['setpoint'] = pump.pressure_setpoint
         ard_dict['pumps'][pump.name]['status'] = pump.returnPinStatus()
@@ -130,13 +135,13 @@ if __name__ == "__main__":
 
     while True:
         print("Checking to see if the processes are still alive...")
-        if not ard_process.isalive():
-            print("Arduino process is down. Trying to restart.")
-            try:
-                ard_process = ArdControl(ard_dict, ard_command_dict)
-                ard_process.start()
-            except:
-                print("Could not restart Arduino process")
+        #if not ard_process.isalive():
+        #    print("Arduino process is down. Trying to restart.")
+        #    try:
+        #        ard_process = ArdControl(ard_dict, ard_command_dict)
+        #        ard_process.start()
+        #    except:
+        #        print("Could not restart Arduino process")
         if not gui_process.is_alive():
             print("GUI is down. Attempting to restart")
             try:
