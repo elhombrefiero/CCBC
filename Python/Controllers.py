@@ -148,7 +148,7 @@ class Pump:
     Controlled with a high/low setpoint and a pressure sensor.
     """
 
-    def __init__(self, display_name, pressure_sensor, output_pin_num, pressure_setpoint, pin_status="OFF"):
+    def __init__(self, display_name, pressure_sensor, output_pin_num, gallon_setpoint, pin_status="OFF"):
         """ Defines the properties of the pump.
 
         Properties are:
@@ -169,7 +169,7 @@ class Pump:
         self._name = display_name
         self.pressure_sensor = pressure_sensor
         self._pin_num = output_pin_num
-        self._pressure_setpoint = pressure_setpoint
+        self._gallon_setpoint = gallon_setpoint
 
         # Make a switch instance using the pin number
         self.switch = Switch(self._pin_num, pin_status)
@@ -179,12 +179,12 @@ class Pump:
         return self._name
 
     @property
-    def pressure_setpoint(self):
-        return self._pressure_setpoint
+    def gallon_setpoint(self):
+        return self._gallon_setpoint
 
-    @pressure_setpoint.setter
-    def pressure_setpoint(self, new_pressure_setpoint):
-        self._pressure_setpoint = new_pressure_setpoint
+    @gallon_setpoint.setter
+    def gallon_setpoint(self, new_gallon_setpoint):
+        self._gallon_setpoint = new_gallon_setpoint
 
     @property
     def pin_num(self):

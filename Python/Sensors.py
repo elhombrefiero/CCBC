@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 class TemperatureSensor:
     """ OneWire temperature sensor"""
     
@@ -43,7 +44,7 @@ class PressureSensor:
     Pressure is calculated based on an analog voltage input.
     """
 
-    def __init__(self, name, pin_num, slope=0, intercept=0, current_pressure = 0.0, units="psig"):
+    def __init__(self, name, pin_num, slope=0, intercept=0, current_pressure=0.0, units="psig"):
         """ Initializes a pressure sensor with name, analog pin, and units"""
 
         self._name = name

@@ -2,11 +2,66 @@
 
 import sys
 import time
-from PyQt5.QtCore import QThread, QTimer, QRunnable, pyqtSlot, QThreadPool
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import QThread, QTime, QTimer, QRunnable, pyqtSlot, QThreadPool, QDateTime
+from PyQt5.QtWidgets import QMainWindow, QLCDNumber
 from theGUI import Ui_MainWindow
 
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
+# TODO: Create a universal brew time to work with the tables. Include ability to pause
+# TODO: A time to start the brewery. For example: when current time is less than time_to_brew, start brewery
+
+
+class Clock(QtWidgets.QLCDNumber):
+
+    def __init__(self, digits=8, parent=None):
+        super(Clock, self).__init__(parent)
+        self.setDigitCount(digits)
+        self.setWindowTitle("Digital Clock")
+        # Timer
+        self.timer = QTimer()
+        # Connect timer
+        self.timer.timeout.connect(self._update)
+        # Start
+        self.timer.start(1000)
+
+    def _update(self):
+        """ Update display every second"""
+        hours_minutes, am_pm = QTime.currentTime().toString('hh:mm ap').upper().split(' ')
+        self.display(hours_minutes)
+
+
+class BrewingTime(QtWidgets.QLCDNumber):
+    """ Displays the current brewing process time. Also, used to determine set points.
+
+    """
+    def __init__(self, digits=8, parent=None):
+        super(BrewingTime, self).__init__(parent)
+        self.setDigitCount(digits)
+        self.setWindowTitle("Brewing Time")
+        # Initialize the status to be paused
+        self.active = False
+        self.brew_time = 0
+        # Timer
+        self.timer = QTimer()
+        # Connect timer
+        self.timer.timeout.connect(self._update)
+        # Start
+        self.timer.start(1000)
+
+    def _update(self):
+        # If the brewing has started, update the time every second and update display
+        if self.active:
+            self.brew_time += 1
+        self.display(self.brew_time)
+
+    def change_status(self):
+        # If the status is currently true, set to false
+        if self.active:
+            self.active = False
+        # If it was false, set to true
+        else:
+            self.active = True
 
 
 class Worker(QRunnable):
@@ -43,7 +98,20 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.psensor_names = psensor_names
         self.heater_names = heater_names
         self.pump_names = pump_names
+        self.thread = QThread()
         self.threadpool = QThreadPool()
+        self.CBHeater1TSensor.addItems(tsensor_names)
+        self.CBHeater2TSensor.addItems(tsensor_names)
+        self.CBHeater3TSensor.addItems(tsensor_names)
+        self.CBHeater1TSensor.currentIndexChanged.connect(self.update_heater1_tsensor)
+        self.CBHeater2TSensor.currentIndexChanged.connect(self.update_heater2_tsensor)
+        self.CBHeater3TSensor.currentIndexChanged.connect(self.update_heater3_tsensor)
+        self.LabelHeater1TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][heater_names[0]]['tsensor_name']))
+        self.LabelHeater2TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][heater_names[1]]['tsensor_name']))
+        self.LabelHeater3TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][heater_names[2]]['tsensor_name']))
         self.Button_startSerial.clicked.connect(self.start_everything)
         self.ButtonUpdateHeater1Setpoints.clicked.connect(self.update_heater1_setpoint)
         self.ButtonUpdateHeater2Setpoints.clicked.connect(self.update_heater2_setpoint)
@@ -54,23 +122,47 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.update_static_labels()
         self.update_labels()
         self.label_timer = QTimer()
+        self.Clock = Clock(parent=self.centralwidget)
+        self.Clock.setGeometry(QtCore.QRect(840, 10, 161, 61))
+        self.Clock.setObjectName("Clock")
+        self.BrewingTime = BrewingTime(parent=self.centralwidget)
+        self.BrewingTime.setGeometry(QtCore.QRect(840, 60, 161, 61))
+        self.BrewingTimeWidget.setObjectName("BrewingTime")
+        self.start_time_edit.setDateTime(QDateTime.currentDateTime())
+        self.PausePushButton.clicked.connect(self.pause_or_resume_brew_time)
+        self.StartNowButton.clicked.connect(self.start_brew_time)
         self.show()
         self.start_everything()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
-    def update_heater_setpoint(self, setpoint_input_text, upper_input_text, lower_input_text, heater_name):
+    def check_table_setpoints(self):
+        """ This routine looks up the setpoint tables and updates the values accordingly
+        """
+        pass
+
+    def update_heater1_tsensor(self, i):
+        """ Updates the heater 1 setpoint to be the name given in the drop down menu"""
+
+        self.ard_dictionary['heaters'][self.heater_names[0]]['tsensor_name'] = self.CBHeater1TSensor.currentText()
+
+    def update_heater2_tsensor(self, i):
+        """ Updates the heater 2 setpoint to be the name given in the drop down menu"""
+
+        self.ard_dictionary['heaters'][self.heater_names[1]]['tsensor_name'] = self.CBHeater2TSensor.currentText()
+
+    def update_heater3_tsensor(self, i):
+        """ Updates the heater 3 setpoint to be the name given in the drop down menu"""
+
+        self.ard_dictionary['heaters'][self.heater_names[2]]['tsensor_name'] = self.CBHeater3TSensor.currentText()
+
+    def update_heater_setpoint(self, upper_input_text, lower_input_text, heater_name):
         """ Changes the setpoint of a heater"""
 
         # Grab the values inside of the input boxes
-        setpoint = setpoint_input_text.toPlainText()
         upper_limit = upper_input_text.toPlainText()
         lower_limit = lower_input_text.toPlainText()
 
         # Backfill the old setpoint values if none were entered
-        if setpoint == "":
-            setpoint = self.ard_dictionary['heaters'][heater_name]['setpoint']
-        else:
-            setpoint = float(setpoint)
         if upper_limit == "":
             upper_limit = self.ard_dictionary['heaters'][heater_name]['upper limit']
         else:
@@ -81,46 +173,48 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
             lower_limit = float(lower_limit)
 
         # Check the inputs
-        setpoint, upper_limit, lower_limit = self.check_heater_setpoints(heater_name, setpoint,
-                                                                         upper_limit, lower_limit)
+        upper_limit, lower_limit = self.check_heater_setpoints(heater_name,
+                                                               upper_limit, lower_limit)
 
         # Set the values in the ard_dictionary
-        self.ard_dictionary['heaters'][heater_name]['setpoint'] = float(setpoint)
         self.ard_dictionary['heaters'][heater_name]['upper limit'] = float(upper_limit)
         self.ard_dictionary['heaters'][heater_name]['lower limit'] = float(lower_limit)
 
         # Clear the inputs
-        for setpoint_input in [setpoint_input_text, upper_input_text, lower_input_text]:
+        for setpoint_input in [upper_input_text, lower_input_text]:
             setpoint_input.clear()
 
-    def check_heater_setpoints(self, heater_name, setpoint, upper, lower):
+    def check_heater_setpoints(self, heater_name, upper, lower):
         """ Does a simple check of the heater inputs"""
 
-        # Check to make sure that the new upper value is above the setpoint
-        if upper < setpoint:
-            print(("Upper limit {} for {} is lower than the setpoint {}.\n"
-                   "Changing upper to be 1 degree above setpoint").format(upper, heater_name, setpoint))
-            upper = setpoint + 1.0
+        # Check to make sure that the new upper value is above the lower setpoint
+        if upper < lower:
+            print(("Upper limit {} for {} is lower than the lower setpoint {}.\n"
+                   "Changing upper to be 1 degree above setpoint").format(upper, heater_name, lower))
+            upper = lower + 1.0
 
-        # Check to make sure that the new lower value is less than the setpoint
-        if lower > setpoint:
+        # Check to make sure that the new lower value is less than the upper setpoint
+        if lower > upper:
             print(("Lower limit {} for {} is higher than the setpoint {}.\n"
                   "Changing lower limit to be 1 degree below setpoint").format(lower, heater_name, setpoint))
-            lower = setpoint - 1.0
+            lower = upper - 1.0
 
-        return setpoint, upper, lower
+        return upper, lower
 
     def update_heater1_setpoint(self):
-        self.update_heater_setpoint(self.InputHeater1Setpoint, self.InputHeater1Upper,
-                                    self.InputHeater1Lower, self.heater_names[0])
+        worker = Worker(self.update_heater_setpoint, self.InputHeater1Upper,
+                        self.InputHeater1Lower, self.heater_names[0])
+        worker.run()
 
     def update_heater2_setpoint(self):
-        self.update_heater_setpoint(self.InputHeater2Setpoint, self.InputHeater2Upper,
-                                    self.InputHeater2Lower, self.heater_names[1])
+        worker = Worker(self.update_heater_setpoint, self.InputHeater2Upper,
+                        self.InputHeater2Lower, self.heater_names[1])
+        worker.run()
 
     def update_heater3_setpoint(self):
-        self.update_heater_setpoint(self.InputHeater3Setpoint, self.InputHeater3Upper,
-                                    self.InputHeater3Lower, self.heater_names[2])
+        worker = Worker(self.update_heater_setpoint, self.InputHeater3Upper,
+                        self.InputHeater3Lower, self.heater_names[2])
+        worker.run()
 
     def update_heater1_maxtemp(self):
         setpoint = self.InputHeater1MaxTemp.toPlainText()
@@ -155,10 +249,10 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.LabelPress3.setText(self.ard_dictionary['presssensors'][self.psensor_names[2]]['name'])
         self.LabelPress4.setText(self.ard_dictionary['presssensors'][self.psensor_names[3]]['name'])
 
-        self.VariablePress1.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[0]]['value']))
-        self.VariablePress2.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[1]]['value']))
-        self.VariablePress3.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[2]]['value']))
-        self.VariablePress4.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[3]]['value']))
+        self.VariablePress1.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[0]]['pressure']))
+        self.VariablePress2.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[1]]['pressure']))
+        self.VariablePress3.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[2]]['pressure']))
+        self.VariablePress4.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[3]]['pressure']))
 
         self.LabelH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['name'])
         self.LabelH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['name'])
@@ -176,11 +270,14 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump2.setText(self.ard_dictionary['pumps'][self.pump_names[1]]['status'])
         self.VariablePump3.setText(self.ard_dictionary['pumps'][self.pump_names[2]]['status'])
 
+        self.VariableH1SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
+        self.VariableH2SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
+        self.VariableH3SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
+
         # Heater 1 Page
         self.VariableHeater1Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
-        self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
         self.VariableHeater1Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
         self.VariableHeater1Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['lower limit']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
@@ -189,7 +286,6 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableHeater2Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
-        self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
         self.VariableHeater2Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
         self.VariableHeater2Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['lower limit']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
@@ -198,7 +294,6 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableHeater3Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
-        self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
         self.VariableHeater3Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
         self.VariableHeater3Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['lower limit']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
@@ -217,10 +312,10 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableT8.setText(str(self.ard_dictionary['tempsensors'][self.tsensor_names[7]]['value']))
         self.VariableT9.setText(str(self.ard_dictionary['tempsensors'][self.tsensor_names[8]]['value']))
 
-        self.VariablePress1.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[0]]['value']))
-        self.VariablePress2.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[1]]['value']))
-        self.VariablePress3.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[2]]['value']))
-        self.VariablePress4.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[3]]['value']))
+        self.VariablePress1.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[0]]['pressure']))
+        self.VariablePress2.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[1]]['pressure']))
+        self.VariablePress3.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[2]]['pressure']))
+        self.VariablePress4.setText(str(self.ard_dictionary['presssensors'][self.psensor_names[3]]['pressure']))
 
         self.VariableH1.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
         self.VariableH2.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
@@ -230,32 +325,56 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariablePump2.setText(self.ard_dictionary['pumps'][self.pump_names[1]]['status'])
         self.VariablePump3.setText(self.ard_dictionary['pumps'][self.pump_names[2]]['status'])
 
+        self.VariableH1SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
+        self.VariableH2SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
+        self.VariableH3SetPoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
+
         # Heater 1 Page
         self.VariableHeater1Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[0]]['tsensor_name']]['value']))))
         self.VariableHeater1Status.setText(self.ard_dictionary['heaters'][self.heater_names[0]]['status'])
-        self.VariableHeater1Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['setpoint']))
         self.VariableHeater1Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['upper limit']))
         self.VariableHeater1Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['lower limit']))
         self.VariableHeater1MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[0]]['maxtemp']))
+        self.LabelHeater1TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][self.heater_names[0]]['tsensor_name']))
 
         # Heater 2 Page
         self.VariableHeater2Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[1]]['tsensor_name']]['value']))))
         self.VariableHeater2Status.setText(self.ard_dictionary['heaters'][self.heater_names[1]]['status'])
-        self.VariableHeater2Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['setpoint']))
         self.VariableHeater2Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['upper limit']))
         self.VariableHeater2Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['lower limit']))
         self.VariableHeater2MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[1]]['maxtemp']))
+        self.LabelHeater2TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][self.heater_names[1]]['tsensor_name']))
 
         # Heater 3 Page
         self.VariableHeater3Temp.setText(str(((self.ard_dictionary['tempsensors'][self.ard_dictionary['heaters']
                                          [self.heater_names[2]]['tsensor_name']]['value']))))
         self.VariableHeater3Status.setText(self.ard_dictionary['heaters'][self.heater_names[2]]['status'])
-        self.VariableHeater3Setpoint.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['setpoint']))
         self.VariableHeater3Upper.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['upper limit']))
         self.VariableHeater3Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['lower limit']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
+        self.LabelHeater3TSensor.setText('Controlling Temperature Sensor: {}'.format(
+            self.ard_dictionary['heaters'][self.heater_names[2]]['tsensor_name']))
+
+    def start_brew_time(self):
+        self.BrewingTime.brew_time = 0
+        self.BrewingTime.active = True
+
+    def pause_or_resume_brew_time(self):
+        # Brewing is currently going. After pressing button, brewing pauses and button should say resume
+        if self.BrewingTime.active:
+            self.BrewingTime.change_status()
+            self.PausePushButton.setText("Resume")
+        else:
+            # Brewing is paused. After pressing the button, brewing continues and the button should say pause
+            self.BrewingTime.change_status()
+            self.PausePushButton.setText("Pause")
+
+    def heater1_table_setpoint(self):
+        pass
 
     def refresh_dynamic_labels(self):
         worker = Worker(self.update_labels)
