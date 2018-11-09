@@ -33,8 +33,6 @@ class Worker(Thread):
 class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when requested"""
 
-    # TODO: Make use of threading or use the ser.inWaiting() to wait until it's ready to accept data
-
     def __init__(self, ard_data, ard_commands, serial_port='/dev/ttyACM0'):
         Process.__init__(self)
         self.SERIAL_PORT = serial_port
@@ -43,7 +41,6 @@ class ArdControl(Process):
         self.ARD_RETURNALL = b'!'
         self.WRITETIMEOUT = 0.25
         self.lock = Lock()
-
         self.ard_data = ard_data
         self.ard_commands = ard_commands
         self.digital_pin_status = {}
@@ -180,14 +177,18 @@ class ArdControl(Process):
         # name=PinX,pin_num=X,value=val
         sensor_details = data.split(',')
         pin_num = sensor_details[1].split('=')[1]
-        value = sensor_details[2].split('=')[1]
+        voltage = sensor_details[2].split('=')[1]
 
         # ard data has the following syntax:
-        # self.ard_data['presssensors'][pname][
+        # self.ard_data['presssensors'][pname]
 
         for pname in self.ard_data['presssensors'].keys():
             if self.ard_data['presssensors'][pname]['pin_num'] == pin_num:
-                self.ard_data['presssensors'][pname]['value'] = value
+                # Use the pressure sensor slope and intercept to calculate psi
+                pressure = (voltage * self.ard_data['presssensors'][pname]['volts_to_pressure_slope'] +
+                            self.ard_data['presssensors'][pname]['volts_to_pressure_intercept'])
+                self.ard_data['presssensors'][pname]['voltage'] = voltage
+                self.ard_data['presssensors'][pname]['pressure'] = pressure
 
     def process_heater_pump_data(self, data):
         """ Processes a digital output line from the Arduino"""
@@ -208,30 +209,40 @@ class ArdControl(Process):
         # TODO: Can possibly put this in the CCBC Brains
         """ Looks at each heater and attached temperature sensor and determines pin status."""
         for heater in self.ard_data['heaters'].keys():
-            upper = float(self.ard_data['heaters'][heater]['upper limit'])
-            lower = float(self.ard_data['heaters'][heater]['lower limit'])
             current_temp = float(self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value'])
-            max_temp = float(self.ard_data['heaters'][heater]['maxtemp'])
 
             # Assign the pin_status the previous value from the previous iteration
             pin_status = self.ard_data['heaters'][heater]['status']
 
-            if current_temp > upper:
+            if current_temp > self.ard_data['heaters'][heater]['upper limit']:
                 pin_status = 'OFF'
 
-            if current_temp < lower:
+            if current_temp < self.ard_data['heaters'][heater]['lower limit']:
                 pin_status = 'ON'
 
-            if current_temp >= max_temp:
+            if current_temp >= self.ard_data['heaters'][heater]['maxtemp']:
                 pin_status = 'OFF'
 
             self.ard_data['heaters'][heater]['status'] = pin_status
 
-        # TODO: Address the pump controller setpoints (e.g., does it go by pressure or voltage?) Also,
-        # Where would the pressure get calculated?
-        """for pump in self.ard_data['pumps'].keys():
-            pin_status = 'OFF'
-            """
+        for pump in self.ard_data['pumps'].keys():
+            pressure = float(self.ard_data['presssensors'][self.ard_data['pumps'][pump]['psensor_name']]['pressure'])
+            gallons = float(pressure * self.ard_data['pumps'][pump]['psi_to_gal_slope'] +
+                            self.ard_data['pumps'][pump]['psi_to_gal_intercept'])
+            self.ard_data['pumps'][pump]['gallons'] = gallons
+
+            # Assign the pin status the previous value from the previous cycle
+            pin_status = self.ard_data['pumps'][pump]['status']
+
+            if gallons > self.ard_data['pumps'][pump]['upper limit']:
+                # Turn the pump off when the setpoint is above the setpoint
+                pin_status = 'OFF'
+                # TODO: Account for solenoid valve control when available
+
+            if gallons < self.ard_data['pumps'][pump]['lower limit']:
+                pin_status = 'ON'
+
+            self.ard_data['pumps'][pump]['status'] = pin_status
 
     def check_pins(self):
         # Read the status of every digital pin input in ard_data
@@ -242,7 +253,8 @@ class ArdControl(Process):
             if self.digital_pin_status[pin_num] != status:
                 # Issue a command to be what is in the ard_data dict
                 msg = "{}={}#".format(pin_num, status)
-                w = Worker(self.ser.write, msg.encode())
+                with self.lock:
+                    self.ser.write(msg.encode())
 
         for pump in self.ard_data['pumps'].keys():
             pin_num = int(self.ard_data['pumps'][pump]['pin_num'])
@@ -251,7 +263,8 @@ class ArdControl(Process):
             if self.digital_pin_status[pin_num] != status:
                 # Issue a command to be what is in the ard_data dict
                 msg = "{}={}#".format(pin_num, status)
-                w = Worker(self.ser.write, msg.encode())
+                with self.lock:
+                    self.ser.write(msg.encode())
 
     def run(self):
         """ Opens the serial port and begins reading the arduino data"""
@@ -274,16 +287,12 @@ class ArdControl(Process):
             with self.lock:
                 self.ser.reset_input_buffer()
 
-            # Sleep for a quarter of a second
-            time.sleep(0.25)
-
 
 class CCBC_Brains:
 
     def __init__(self, ard_dictionary, ard_commands, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
         """ Reads sensor values and runs functions to command hardware"""
 
-        # TODO: Research whether there needs to be a 'lock' on the serial port during read/write
         # Have 2 mp Pools, one reading the serial and writing to the ard_dictionary and writing values to the
         #   sensor objects, the other should convert the ard_dictionary to a json file for the website
         # Have an input dictionary with two levels of mp.manager.dict(), which the user can use to send
