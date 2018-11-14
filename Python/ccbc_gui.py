@@ -106,6 +106,12 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.CBHeater1TSensor.currentIndexChanged.connect(self.update_heater1_tsensor)
         self.CBHeater2TSensor.currentIndexChanged.connect(self.update_heater2_tsensor)
         self.CBHeater3TSensor.currentIndexChanged.connect(self.update_heater3_tsensor)
+        self.CBPump1PSensor.addItems(psensor_names)
+        self.CBPump2PSensor.addItems(psensor_names)
+        self.CBPump3PSensor.addItems(psensor_names)
+        self.CBPump1PSensor.currentIndexChanged.connect(self.update_pump1_psensor)
+        self.CBPump2PSensor.currentIndexChanged.connect(self.update_pump2_psensor)
+        self.CBPump3PSensor.currentIndexChanged.connect(self.update_pump3_psensor)
         self.LabelHeater1TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][heater_names[0]]['tsensor_name']))
         self.LabelHeater2TSensor.setText('Controlling Temperature Sensor: {}'.format(
@@ -119,6 +125,12 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.ButtonUpdateHeater1MaxTemp.clicked.connect(self.update_heater1_maxtemp)
         self.ButtonUpdateHeater2MaxTemp.clicked.connect(self.update_heater2_maxtemp)
         self.ButtonUpdateHeater3MaxTemp.clicked.connect(self.update_heater3_maxtemp)
+        self.ButtonUpdatePump1Setpoints.clicked.connect(self.update_pump1_setpoint)
+        self.ButtonUpdatePump2Setpoints.clicked.connect(self.update_pump2_setpoint)
+        self.ButtonUpdatePump3Setpoints.clicked.connect(self.update_pump3_setpoint)
+        self.ButtonUpdatePump1VolCalcInputs.clicked.connect(self.update_pump1_vol_calc_inputs)
+        self.ButtonUpdatePump2VolCalcInputs.clicked.connect(self.update_pump2_vol_calc_inputs)
+        self.ButtonUpdatePump3VolCalcInputs.clicked.connect(self.update_pump3_vol_calc_inputs)
         self.update_static_labels()
         self.update_labels()
         self.label_timer = QTimer()
@@ -141,22 +153,117 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         pass
 
     def update_heater1_tsensor(self, i):
-        """ Updates the heater 1 setpoint to be the name given in the drop down menu"""
+        """ Updates the heater 1 sensor to be the name given in the drop down menu"""
 
         self.ard_dictionary['heaters'][self.heater_names[0]]['tsensor_name'] = self.CBHeater1TSensor.currentText()
 
     def update_heater2_tsensor(self, i):
-        """ Updates the heater 2 setpoint to be the name given in the drop down menu"""
+        """ Updates the heater 2 sensor to be the name given in the drop down menu"""
 
         self.ard_dictionary['heaters'][self.heater_names[1]]['tsensor_name'] = self.CBHeater2TSensor.currentText()
 
     def update_heater3_tsensor(self, i):
-        """ Updates the heater 3 setpoint to be the name given in the drop down menu"""
+        """ Updates the heater 3 sensor to be the name given in the drop down menu"""
 
         self.ard_dictionary['heaters'][self.heater_names[2]]['tsensor_name'] = self.CBHeater3TSensor.currentText()
 
+    def update_pump1_psensor(self, i):
+        """ Updates the pump1 sensor to be the one in the drop down menu"""
+
+        self.ard_dictionary['pumps'][self.pump_names[0]]['psensor_name'] = self.CBPump1PSensor.currentText()
+
+    def update_pump2_psensor(self, i):
+        """ Updates the pump1 sensor to be the one in the drop down menu"""
+
+        self.ard_dictionary['pumps'][self.pump_names[1]]['psensor_name'] = self.CBPump2PSensor.currentText()
+
+    def update_pump3_psensor(self, i):
+        """ Updates the pump1 sensor to be the one in the drop down menu"""
+
+        self.ard_dictionary['pumps'][self.pump_names[2]]['psensor_name'] = self.CBPump3PSensor.currentText()
+
+    def update_pump_setpoint(self, upper_input_text, lower_input_text, pump_name):
+        """ Changes the setpoints of a pump"""
+
+        # Grab the values inside of the input boxes
+        upper_limit = upper_input_text.text()
+        lower_limit = lower_input_text.text()
+
+        # Backfill the old setpoint values if none were entered
+        if upper_limit == "":
+            upper_limit = self.ard_dictionary['pumps'][pump_name]['upper limit']
+        else:
+            upper_limit = float(upper_limit)
+        if lower_limit == "":
+            lower_limit = self.ard_dictionary['pumps'][pump_name]['lower limit']
+        else:
+            lower_limit = float(lower_limit)
+
+        upper_limit, lower_limit = self.check_component_setpoints(pump_name,
+                                                                  upper_limit, lower_limit)
+
+        # Set the values in the ard_dictionary
+        self.ard_dictionary['pumps'][pump_name]['upper limit'] = upper_limit
+        self.ard_dictionary['pumps'][pump_name]['lower limit'] = lower_limit
+
+        # Clear the inputs
+        for setpoint_input in [upper_input_text, lower_input_text]:
+            setpoint_input.clear()
+
+    def update_pump1_setpoint(self):
+        worker = Worker(self.update_pump_setpoint, self.InputPump1VolUpper,
+                        self.InputPump1VolLower, self.pump_names[0])
+        worker.run()
+
+    def update_pump2_setpoint(self):
+        worker = Worker(self.update_pump_setpoint, self.InputPump2VolUpper,
+                        self.InputPump2VolLower, self.pump_names[1])
+        worker.run()
+
+    def update_pump3_setpoint(self):
+        worker = Worker(self.update_pump_setpoint, self.InputPump3VolUpper,
+                        self.InputPump3VolLower, self.pump_names[2])
+        worker.run()
+
+    def update_pump_vol_calc_inputs(self, slope_obj, intercept_obj, pump_name):
+
+        slope = slope_obj.text()
+        intercept = intercept_obj.text()
+
+        if slope == "":
+            slope = self.ard_dictionary['pumps'][pump_name]['psi_to_gal_slope']
+        else:
+            slope = float(slope)
+
+        if intercept == "":
+            intercept = self.ard_dictionary['pumps'][pump_name]['psi_to_gal_intercept']
+        else:
+            intercept = float(intercept)
+
+        self.ard_dictionary['pumps'][pump_name]['psi_to_gal_slope'] = round(slope, 2)
+        self.ard_dictionary['pumps'][pump_name]['psi_to_gal_intercept'] = round(intercept, 2)
+
+        # clear the inputs
+        for setpoint_input in [slope_obj, intercept_obj]:
+            setpoint_input.clear()
+
+    def update_pump1_vol_calc_inputs(self):
+        self.update_pump_vol_calc_inputs(self.InputPump1VolSlope,
+                                         self.InputPump1VolIntercept,
+                                         self.pump_names[0])
+
+    def update_pump2_vol_calc_inputs(self):
+        self.update_pump_vol_calc_inputs(self.InputPump2VolSlope,
+                                         self.InputPump2VolIntercept,
+                                         self.pump_names[1])
+
+    def update_pump3_vol_calc_inputs(self):
+        self.update_pump_vol_calc_inputs(self.InputPump3VolSlope,
+                                         self.InputPump3VolIntercept,
+                                         self.pump_names[2])
+
     def update_heater_setpoint(self, upper_input_text, lower_input_text, heater_name):
-        """ Changes the setpoint of a heater"""
+        """ Changes the setpoints of a heater"""
 
         # Grab the values inside of the input boxes
         upper_limit = upper_input_text.toPlainText()
@@ -173,8 +280,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
             lower_limit = float(lower_limit)
 
         # Check the inputs
-        upper_limit, lower_limit = self.check_heater_setpoints(heater_name,
-                                                               upper_limit, lower_limit)
+        upper_limit, lower_limit = self.check_component_setpoints(heater_name,
+                                                                  upper_limit, lower_limit)
 
         # Set the values in the ard_dictionary
         self.ard_dictionary['heaters'][heater_name]['upper limit'] = float(upper_limit)
@@ -184,19 +291,19 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         for setpoint_input in [upper_input_text, lower_input_text]:
             setpoint_input.clear()
 
-    def check_heater_setpoints(self, heater_name, upper, lower):
+    def check_component_setpoints(self, component_name, upper, lower):
         """ Does a simple check of the heater inputs"""
 
         # Check to make sure that the new upper value is above the lower setpoint
         if upper < lower:
             print(("Upper limit {} for {} is lower than the lower setpoint {}.\n"
-                   "Changing upper to be 1 degree above setpoint").format(upper, heater_name, lower))
+                   "Changing upper to be 1 degree above setpoint").format(upper, component_name, lower))
             upper = lower + 1.0
 
         # Check to make sure that the new lower value is less than the upper setpoint
         if lower > upper:
-            print(("Lower limit {} for {} is higher than the setpoint {}.\n"
-                  "Changing lower limit to be 1 degree below setpoint").format(lower, heater_name, setpoint))
+            print(("Lower limit {} for {} is higher than the higher setpoint {}.\n"
+                  "Changing lower limit to be 1 degree below upper setpoint").format(lower, component_name, upper))
             lower = upper - 1.0
 
         return upper, lower
@@ -358,6 +465,45 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
         self.LabelHeater3TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][self.heater_names[2]]['tsensor_name']))
+
+        # Pump 1 Page
+        self.VariablePump1Volume.setText(str(self.ard_dictionary['pumps'][self.pump_names[0]]['gallons']))
+        self.LabelPump1Status.setText(str(self.ard_dictionary['pumps'][self.pump_names[0]]['status']))
+        self.VariablePump1Upper.setText(str(self.ard_dictionary['pumps'][self.pump_names[0]]['upper limit']))
+        self.VariablePump1Lower.setText(str(self.ard_dictionary['pumps'][self.pump_names[0]]['lower limit']))
+        self.VariablePump1Pressure.setText((str(self.ard_dictionary['presssensors'][self.ard_dictionary['pumps']
+                                            [self.pump_names[0]]['psensor_name']]['pressure'])))
+        self.VariablePump1VolSlope.setText(str(self.ard_dictionary['pumps'][self.pump_names[0]]['psi_to_gal_slope']))
+        self.VariablePump1VolIntercept.setText((str(self.ard_dictionary['pumps']
+                                                    [self.pump_names[0]]['psi_to_gal_intercept'])))
+        self.LabelPump1PSensor.setText('Controlling Pressure Sensor: {}'.format(
+            self.ard_dictionary['pumps'][self.pump_names[0]]['psensor_name']))
+
+        # Pump 2 Page
+        self.VariablePump2Volume.setText(str(self.ard_dictionary['pumps'][self.pump_names[1]]['gallons']))
+        self.LabelPump2Status.setText(str(self.ard_dictionary['pumps'][self.pump_names[1]]['status']))
+        self.VariablePump2Upper.setText(str(self.ard_dictionary['pumps'][self.pump_names[1]]['upper limit']))
+        self.VariablePump2Lower.setText(str(self.ard_dictionary['pumps'][self.pump_names[1]]['lower limit']))
+        self.VariablePump2Pressure.setText((str(self.ard_dictionary['presssensors'][self.ard_dictionary['pumps']
+        [self.pump_names[1]]['psensor_name']]['pressure'])))
+        self.VariablePump2VolSlope.setText(str(self.ard_dictionary['pumps'][self.pump_names[1]]['psi_to_gal_slope']))
+        self.VariablePump2VolIntercept.setText((str(self.ard_dictionary['pumps']
+                                                    [self.pump_names[1]]['psi_to_gal_intercept'])))
+        self.LabelPump2PSensor.setText('Controlling Pressure Sensor: {}'.format(
+            self.ard_dictionary['pumps'][self.pump_names[1]]['psensor_name']))
+
+        # Pump 3 Page
+        self.VariablePump3Volume.setText(str(self.ard_dictionary['pumps'][self.pump_names[2]]['gallons']))
+        self.LabelPump3Status.setText(str(self.ard_dictionary['pumps'][self.pump_names[2]]['status']))
+        self.VariablePump3Upper.setText(str(self.ard_dictionary['pumps'][self.pump_names[2]]['upper limit']))
+        self.VariablePump3Lower.setText(str(self.ard_dictionary['pumps'][self.pump_names[2]]['lower limit']))
+        self.VariablePump3Pressure.setText((str(self.ard_dictionary['presssensors'][self.ard_dictionary['pumps']
+        [self.pump_names[2]]['psensor_name']]['pressure'])))
+        self.VariablePump3VolSlope.setText(str(self.ard_dictionary['pumps'][self.pump_names[2]]['psi_to_gal_slope']))
+        self.VariablePump3VolIntercept.setText((str(self.ard_dictionary['pumps']
+                                                    [self.pump_names[2]]['psi_to_gal_intercept'])))
+        self.LabelPump3PSensor.setText('Controlling Pressure Sensor: {}'.format(
+            self.ard_dictionary['pumps'][self.pump_names[2]]['psensor_name']))
 
     def start_brew_time(self):
         self.BrewingTime.brew_time = 0

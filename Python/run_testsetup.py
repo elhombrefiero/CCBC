@@ -28,16 +28,16 @@ if __name__ == "__main__":
     T7 = TemperatureSensor("Test Setup 7", "", 992)
     T8 = TemperatureSensor("Test Setup 8", "", 991)
     T9 = TemperatureSensor("Test Setup 9", "", 990)
-    Press1 = PressureSensor("Fake Pressure Sensor1", pin_num=0, slope=0.3298, intercept=-0.772)
-    Press2 = PressureSensor("Fake Pressure Sensor2", pin_num=1, slope=0.3298, intercept=-0.772)
-    Press3 = PressureSensor("Fake Pressure Sensor3", pin_num=2, slope=0.3298, intercept=-0.772)
-    Press4 = PressureSensor("Fake Pressure Sensor4", pin_num=3, slope=0.3298, intercept=-0.772)
+    Press1 = PressureSensor("Fake Pressure Sensor1", pin_num=0)
+    Press2 = PressureSensor("Fake Pressure Sensor2", pin_num=1)
+    Press3 = PressureSensor("Fake Pressure Sensor3", pin_num=2)
+    Press4 = PressureSensor("Fake Pressure Sensor4", pin_num=3)
     H1 = Heater("Heater 1", 5, "OFF", T1, 73.0)
     H2 = Heater("Heater 2", 6, "OFF", T6, 73.0)
     H3 = Heater("Heater 3", 7, "OFF", T8, 73.0)
-    Pump1 = Pump("Fake Pump1", Press1, 4, 100, pin_status="OFF")
-    Pump2 = Pump("Fake Pump2", Press2, 3, 100, pin_status="OFF")
-    Pump3 = Pump("Fake Pump3", Press3, 2, 100, pin_status="OFF")
+    Pump1 = Pump("Fake Pump1", Press1, 4, 0, pin_status="OFF")
+    Pump2 = Pump("Fake Pump2", Press2, 3, 0, pin_status="OFF")
+    Pump3 = Pump("Fake Pump3", Press3, 2, 0, pin_status="OFF")
 
     ard_data_manager = Manager()
     ard_dict = ard_data_manager.dict()
@@ -95,8 +95,8 @@ if __name__ == "__main__":
         # Third level for the pumps are the name, pressure sensor name, pin number, and setpoint
         ard_dict['pumps'][pump.name]['name'] = pump.name
         ard_dict['pumps'][pump.name]['psensor_name'] = pump.pressure_sensor.name
-        ard_dict['pumps'][pump.name]['psi_to_gal_slope'] = 1.0
-        ard_dict['pumps'][pump.name]['psi_to_gal_intercept'] = 1.0
+        ard_dict['pumps'][pump.name]['psi_to_gal_slope'] = 8.2759
+        ard_dict['pumps'][pump.name]['psi_to_gal_intercept'] = 0.0
         ard_dict['pumps'][pump.name]['gallons'] = 0.0
         ard_dict['pumps'][pump.name]['pin_num'] = pump.pin_num
         ard_dict['pumps'][pump.name]['upper limit'] = pump.gallon_setpoint
@@ -111,8 +111,8 @@ if __name__ == "__main__":
                        pumps=pumps)
 
     print("Starting the serial reading")
-    ard_process = ArdControl(ard_dict, ard_command_dict)
-    ard_process.start()
+    # ard_process = ArdControl(ard_dict, ard_command_dict)
+    # ard_process.start()
 
     tsensor_names = [t.name for t in t_sensors]
     print("tsensor_names: {}".format(tsensor_names))
@@ -134,5 +134,15 @@ if __name__ == "__main__":
             except:
                 print("Could not restart the gui process!")
         ard_dict['tempsensors']['Test Setup 5']['value'] = random.randint(100, 200)
+        ard_dict['presssensors'][psensor_names[0]]['voltage'] = random.randint(5, 45)/10
+        ard_dict['presssensors'][psensor_names[0]]['pressure'] = round(
+            ard_dict['presssensors'][psensor_names[0]]['voltage'] *
+            ard_dict['presssensors'][psensor_names[0]]['volts_to_pressure_slope'] +
+            ard_dict['presssensors'][psensor_names[0]]['volts_to_pressure_intercept'], 2)
+        ard_dict['pumps'][pump_names[0]]['gallons'] = round(
+            ard_dict['presssensors'][psensor_names[0]]['pressure'] *
+            ard_dict['pumps'][pump_names[0]]['psi_to_gal_slope'] +
+            ard_dict['pumps'][pump_names[0]]['psi_to_gal_intercept'], 2)
+
         time.sleep(10)
 
