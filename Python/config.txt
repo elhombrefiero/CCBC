@@ -1,0 +1,34 @@
+# Configuration file
+# Pound signs act as comments
+# Order of the sensors matters!
+# Temperature Sensors
+# Temperature sensors have the following layout:
+# TemperatureSensor,Name of Sensor,Serial number
+TemperatureSensor,Hot Water Tank,28FF4A7780160477
+TemperatureSensor,Mash Tun Hi,28FF98338016051A
+TemperatureSensor,Mash Tun Low,28FF8495801604B9
+TemperatureSensor,HERMS In,28FF7C2480160561
+TemperatureSensor,HERMS Out,28FF3294801604E5
+TemperatureSensor,HERMS H20,28FFB41880160527
+TemperatureSensor,Boil Tun,28FFB47780160473
+TemperatureSensor,Wort Out,28FF59A08516052E
+TemperatureSensor,Ambient Temp,28FF437880160540
+# Pressure Sensors
+# Pressure sensors have the following layout:
+# PressureSensor,Name of Sensor,Analog Pin Number
+PressureSensor,Pressure Sensor 1,0
+PressureSensor,Pressure Sensor 2,1
+PressureSensor,Pressure Sensor 3,2
+PressureSensor,Pressure Sensor 4,3
+# Heaters
+# Heaters have the following layout:
+# Heater,Name of Heater,Digital Pin Number
+Heater,Heater 1,5
+Heater,Heater 2,4
+Heater,Heater 3,3
+# Pumps
+# Pumps have the following layout:
+# Pump,Name of Pump,Digital Pin Number
+Pump,Pump 1,9
+Pump,Pump 2,8
+Pump,Pump 3,7
