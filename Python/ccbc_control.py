@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-""" Coulson Craft Brewery Control (aka "The Brains")
+""" Brewery Control (aka "The Brains")
 
-This python script acts as the brains of the
-CCB. Works in conjunction with an Arduino script to:
+    This python script acts as the brains of the
+    CCB. Works in conjunction with an Arduino script to:
 
     1) Read data coming in through the serial port. 
     2) Send commands to the Arduino to turn pins ON or OFF.
@@ -31,9 +31,11 @@ class Worker(Thread):
 
 
 class ArdControl(Process):
-    """ Class which will read and process arduino data and issue commands when requested"""
+    """ Class which will read and process arduino data and issue commands when needed"""
 
-    def __init__(self, ard_data, ard_commands, serial_port='/dev/ttyACM0'):
+    # TODO: Create function that will return all of the data to be displayed in GUI
+
+    def __init__(self, ard_data, serial_port='/dev/ttyACM0'):
         Process.__init__(self)
         self.SERIAL_PORT = serial_port
         self.BAUDRATE = 9600
@@ -42,7 +44,6 @@ class ArdControl(Process):
         self.WRITETIMEOUT = 0.25
         self.lock = Lock()
         self.ard_data = ard_data
-        self.ard_commands = ard_commands
         self.digital_pin_status = {}
         self.update_digital_pin_dict()
         self.ser = serial.Serial(baudrate=self.BAUDRATE,
@@ -289,6 +290,7 @@ class ArdControl(Process):
 
 
 class CCBC_Brains:
+    # TODO: Update the Brains to actually do something (plotting and/or datalogging)
 
     def __init__(self, ard_dictionary, ard_commands, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
         """ Reads sensor values and runs functions to command hardware"""
@@ -307,64 +309,6 @@ class CCBC_Brains:
         self.p_sensors = p_sensors
         self.heaters = heaters
         self.pumps = pumps
-
-    @staticmethod
-    def setup_ard_dictionary(ard_dict, ard_data_manager, t_sensors, p_sensors, heaters, pumps):
-        """ Pre-populates an ard_dictionary with data
-
-        Dictionary will look like the following:
-
-        ard_dictionary[sensor/controller][name][property: value]
-        """
-
-        # Create the first level of the dictionary
-        for first_level in ['tempsensors', 'presssensors', 'pumps', 'heaters']:
-            ard_dict[first_level] = ard_data_manager.dict()
-
-        # Second level for the temperature sensors will start with the name
-        for t in t_sensors:
-            ard_dict['tempsensors'][t.name] = ard_data_manager.dict()
-
-            # Third level for the temperature sensors will be name, serial number, units, and current value
-            ard_dict['tempsensors'][t.name]['value'] = t.cur_temp
-            ard_dict['tempsensors'][t.name]['name'] = t.name
-            ard_dict['tempsensors'][t.name]['units'] = t.units
-            ard_dict['tempsensors'][t.name]['serial_num'] = t.serial_num
-
-        # Second level for the pressure sensors will start with the names
-        for p in p_sensors:
-            ard_dict['presssensors'][p.name] = ard_data_manager.dict()
-
-            # Third level for the pressure sensors will be name, analog pin number, and current value
-            ard_dict['presssensors'][p.name]['name'] = p.name
-            ard_dict['presssensors'][p.name]['value'] = p.current_pressure
-            ard_dict['presssensors'][p.name]['pin_num'] = p.pin_num
-            ard_dict['presssensors'][p.name]['units'] = p.units
-
-        # Second level for the heaters will start with the name
-        for heater in heaters:
-            ard_dict['heaters'][heater.name] = ard_data_manager.dict()
-
-            # Third level for the heaters will have the name, pin number, status,
-            # name of temperature sensor, setpoint, upper temperature limit and the lower temperature limit
-            ard_dict['heaters'][heater.name]['name'] = heater.name
-            ard_dict['heaters'][heater.name]['pin_num'] = heater.pin_num
-            ard_dict['heaters'][heater.name]['status'] = heater.returnPinStatus()
-            ard_dict['heaters'][heater.name]['tsensor_name'] = heater.temp_sensor.name
-            ard_dict['heaters'][heater.name]['setpoint'] = heater.temperature_setpoint
-            ard_dict['heaters'][heater.name]['upper limit'] = heater.upper_limit
-            ard_dict['heaters'][heater.name]['lower limit'] = heater.lower_limit
-            ard_dict['heaters'][heater.name]['maxtemp'] = heater.max_temp
-
-        for pump in pumps:
-            ard_dict['pumps'][pump.name] = ard_data_manager.dict()
-
-            # Third level for the pumps are the name, pressure sensor name, pin number, and setpoint
-            ard_dict['pumps'][pump.name]['name'] = pump.name
-            ard_dict['pumps'][pump.name]['psensor_name'] = pump.pressure_sensor.name
-            ard_dict['pumps'][pump.name]['pin_num'] = pump.pin_num
-            ard_dict['pumps'][pump.name]['setpoint'] = pump.pressure_setpoint
-            ard_dict['pumps'][pump.name]['status'] = pump.returnPinStatus()
 
     def printTemperatureSensors(self):
         """ Goes through the sensors in the array and returns their 
@@ -458,13 +402,4 @@ class CCBC_Brains:
     def returnArdDict(self):
         return self.ard_dictionary
 
-    @staticmethod
-    def writeJSONFile(directory, dictionary):
-        # Write a json file using the dictionary
-        with io.open(os.path.join(directory, "ccbc.json"),
-                     "w", encoding='utf8') as outfile:
-            str_ = json.dumps(dictionary,
-                              indent=4, sort_keys=True,
-                              separators=(',', ': '), ensure_ascii=False)
-            outfile.write(to_unicode(str_))
-        return str_
+

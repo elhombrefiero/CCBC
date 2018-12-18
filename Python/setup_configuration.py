@@ -10,9 +10,12 @@ from multiprocessing import Manager
 # Global File
 CONFIG_FILE = "config.txt"
 
-# Default slopes and intercepts
+# Default slopes and intercepts for sensors and controllers
 DEFAULT_VOLT_TO_PRESSURE_SLOPE = 0.3215
 DEFAULT_VOLT_TO_PRESSURE_INT = -0.063
+DEFAULT_PSI_TO_GAL_SLOPE = 8.2759
+DEFAULT_PSI_TO_GAL_INT = 0.0
+DEFAULT_GALLON_LIMIT = 14.0
 
 
 def return_configuration(config_file=CONFIG_FILE):
@@ -36,7 +39,7 @@ def return_configuration(config_file=CONFIG_FILE):
     for first_level in ['tempsensors', 'presssensors', 'heaters', 'pumps']:
         d[first_level] = manager.dict()
 
-    # Read configuration file and fill
+    # Read configuration file and fill dictionary with data
     with open(config_file) as fileobj:
         config_lines = fileobj.readlines()
 
@@ -58,20 +61,50 @@ def return_configuration(config_file=CONFIG_FILE):
         if line.startswith('PressureSensor'):
             split_line = line.split(',')
             name = split_line[1]
-            pin = split_line[2]
+            pin = split_line[2].strip()
             d['presssensors'][name] = manager.dict()
+            d['presssensors'][name]['name'] = name
             d['presssensors'][name]['voltage'] = 0.0
             d['presssensors'][name]['pressure'] = 0.0
             d['presssensors'][name]['volts_to_pressure_slope'] = DEFAULT_VOLT_TO_PRESSURE_SLOPE
             d['presssensors'][name]['volts_to_pressure_intercept'] = DEFAULT_VOLT_TO_PRESSURE_INT
-            d['presssensors'][name]['pin_num'] = pin.strip()
+            d['presssensors'][name]['pin_num'] = int(pin)
             d['presssensors'][name]['units'] = 'psig'
             psensornames.append(name)
+        if line.startswith('Heater'):
+            split_line = line.split(',')
+            name = split_line[1]
+            pin = split_line[2].strip()
+            d['heaters'][name] = manager.dict()
+            d['heaters'][name]['name'] = name
+            d['heaters'][name]['pin_num'] = int(pin)
+            d['heaters'][name]['status'] = 'OFF'
+            d['heaters'][name]['tsensor_name'] = tsensornames[0]
+            d['heaters'][name]['lower limit'] = 32.0
+            d['heaters'][name]['upper limit'] = 32.0
+            d['heaters'][name]['maxtemp'] = 212.0
+            heaternames.append(name)
+        if line.startswith('Pump'):
+            split_line = line.split(',')
+            name = split_line[1]
+            pin = split_line[2].strip()
+            d['pumps'][name] = manager.dict()
+            d['pumps'][name]['pin_num'] = int(pin)
+            d['pumps'][name]['name'] = name
+            d['pumps'][name]['psensor_name'] = psensornames[0]
+            d['pumps'][name]['psi_to_gal_slope'] = DEFAULT_PSI_TO_GAL_SLOPE
+            d['pumps'][name]['psi_to_gal_intercept'] = DEFAULT_PSI_TO_GAL_INT
+            d['pumps'][name]['gallons'] = 0.0
+            d['pumps'][name]['upper limit'] = DEFAULT_GALLON_LIMIT
+            d['pumps'][name]['lower limit'] = DEFAULT_GALLON_LIMIT * 0.95
+            d['pumps'][name]['status'] = 'OFF'
+            pumpnames.append(name)
 
-    return manager, d, tsensornames, psensornames
+    return manager, d, tsensornames, psensornames, heaternames, pumpnames
 
 
 if __name__ == "__main__":
-    manager, ard_dict, tsensornames, psensornames = return_configuration()
+    (manager, ard_dict, tsensornames,
+    psensornames, heaternames, pumpnames) = return_configuration()
 
     print("Script complete")

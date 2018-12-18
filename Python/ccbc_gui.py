@@ -88,12 +88,12 @@ class Worker(QRunnable):
 
 
 class ccbcGUI(QMainWindow, Ui_MainWindow):
+    # TODO: Make generalized dictionary look up that includes exception handling
 
-    def __init__(self, ard_dictionary, ard_commands, tsensor_names, psensor_names, heater_names, pump_names):
+    def __init__(self, ard_dictionary, tsensor_names, psensor_names, heater_names, pump_names):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.ard_dictionary = ard_dictionary
-        self.ard_commands = ard_commands
         self.tsensor_names = tsensor_names
         self.psensor_names = psensor_names
         self.heater_names = heater_names
