@@ -12,6 +12,8 @@ from ccbc_gui import ccbcGUI
 from ccbc_control import CCBC_Brains, ArdControl
 import setup_configuration
 
+# TODO: Create a class that acts as a Brewer, where certain parts of the process can be grouped together
+
 
 # Defined Functions:
 

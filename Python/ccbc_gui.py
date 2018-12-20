@@ -10,7 +10,8 @@ from theGUI import Ui_MainWindow
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
 # TODO: Create a universal brew time to work with the tables. Include ability to pause
 # TODO: A time to start the brewery. For example: when current time is less than time_to_brew, start brewery
-
+# TODO: Create popup window that shows the active components and shows flows and temperatures
+# TODO: Add strip charts using pyqtgraph
 
 class Clock(QtWidgets.QLCDNumber):
 
