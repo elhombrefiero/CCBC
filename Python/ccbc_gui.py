@@ -1,10 +1,18 @@
 #!/usr/bin/env Python3
 
+# Import Python standard libraries
 import sys
-import time
+import os
+from datetime import datetime
+import csv
+
+# Import third-party packages
+import numpy as np
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QThread, QTime, QTimer, QRunnable, pyqtSlot, QThreadPool, QDateTime
 from PyQt5.QtWidgets import QMainWindow, QLCDNumber
+
+# Import local project modules
 from theGUI import Ui_MainWindow
 
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
@@ -13,7 +21,109 @@ from theGUI import Ui_MainWindow
 # TODO: Create popup window that shows the active components and shows flows and temperatures
 # TODO: Add strip charts using pyqtgraph
 
-class Clock(QtWidgets.QLCDNumber):
+
+class Logger(object):
+    """ Class that creates a csv file, which tracks real time data from the brewery.
+
+        refresh_rate is in milliseconds (defaults to every five minutes)
+    """
+
+    def __init__(self, ard_dict, refresh_rate=5000, filename=1):
+        self.filepath = os.path.join('.',
+                                     'logs',
+                                     datetime.today().strftime('%m-%d-%Y')
+                                     )
+        os.makedirs(self.filepath, exist_ok=True)
+
+        self.refresh_rate = refresh_rate
+        self.paused = False
+
+        # Timer used to refresh the data
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+
+        # Shared arduino dictionary with all of the brewery data
+        self.ard_dict = ard_dict
+
+        # If a unique name was not given for the file, then assume a number.
+        # To avoid overwriting an existing file:
+        self.filename = filename
+        if isinstance(self.filename, int):
+            self._check_for_unique_filename()
+
+        self.full_path = os.path.join(self.filepath, self.filename)
+
+        # Store the fieldnames for csv file writing
+        self.fieldnames = [name for ardtype in ard_dict.keys()
+                           for name in ard_dict[ardtype].keys()
+                           if ardtype is not "heaters"]  # Currently ignoring heaters
+        self.fieldnames.insert(0, "Time")
+
+        self.starttime = datetime.now()
+
+    def start(self):
+        """ """
+        self.starttime = datetime.now()
+        self._setup()
+
+    def _setup(self):
+        """ Creates the first entry in the csv log file"""
+        with open(self.full_path, 'w', newline='') as csvobj:
+            writer = csv.DictWriter(csvobj, fieldnames=self.fieldnames)
+            writer.writeheader()
+
+    def _update_temp_sensor_data(self):
+        """ Return a dictionary of all of the temperature sensor data"""
+        temp_sensor_data = {}
+        for tsensor in self.ard_dict['tempsensors'].keys():
+            temp_sensor_data[tsensor] = self.ard_dict['tempsensors'][tsensor]['value']
+
+        return temp_sensor_data
+
+    def _update_press_sensor_data(self):
+        """ Return a dictionary of all of the pressure sensor data"""
+        press_sensor_data = {}
+        for psensor in self.ard_dict['presssensors'].keys():
+            press_sensor_data[psensor] = self.ard_dict['presssensors'][psensor]['pressure']
+
+        return press_sensor_data
+
+    def _update_volume_data(self):
+        """ Return a dictionary of all of the volume data"""
+        volume_data = {}
+        for pump in self.ard_dict['pumps'].keys():
+            volume_data[pump] = self.ard_dict['pumps'][pump]['gallons']
+
+        return volume_data
+
+    def update(self):
+        """ Updates all of the data into the log file"""
+        if self.paused:
+            pass
+        else:
+            all_data = {'Time': str(datetime.now() - self.starttime)}
+            tsensor_data = self._update_temp_sensor_data()
+            psensor_data = self._update_press_sensor_data()
+            volume_data = self._update_volume_data()
+
+            for data in [tsensor_data, psensor_data, volume_data]:
+                all_data.update(data)
+
+            with open(self.full_path, 'a', newline='') as csvobj:
+                writer = csv.DictWriter(csvobj, fieldnames=self.fieldnames)
+                writer.writerow(all_data)
+
+    def _check_for_unique_filename(self):
+        """ Prevents overwriting an existing file"""
+        while True:
+            if os.path.exists(os.path.join(self.filepath, str(self.filename) + '.csv')):
+                self.filename += 1
+            else:
+                self.filename = str(self.filename) + '.csv'
+                break
+
+
+class Clock(QLCDNumber):
 
     def __init__(self, digits=8, parent=None):
         super(Clock, self).__init__(parent)
@@ -101,6 +211,8 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.pump_names = pump_names
         self.thread = QThread()
         self.threadpool = QThreadPool()
+        self.logger = Logger(self.ard_dictionary)
+        self.logger_timer = QTimer()
         self.CBHeater1TSensor.addItems(tsensor_names)
         self.CBHeater2TSensor.addItems(tsensor_names)
         self.CBHeater3TSensor.addItems(tsensor_names)
@@ -509,6 +621,9 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
     def start_brew_time(self):
         self.BrewingTime.brew_time = 0
         self.BrewingTime.active = True
+        self.logger.start()
+        self.logger_timer.timeout.connect(self._update_logger)
+        self.logger_timer.start(30000)
 
     def pause_or_resume_brew_time(self):
         # Brewing is currently going. After pressing button, brewing pauses and button should say resume
@@ -527,8 +642,12 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         worker = Worker(self.update_labels)
         self.threadpool.start(worker)
 
+    def _update_logger(self):
+        self.logger.update()
+
     def start_everything(self):
         self.label_timer.timeout.connect(self.refresh_dynamic_labels)
         self.label_timer.start(250)
+
 
 
