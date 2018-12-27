@@ -177,8 +177,9 @@ class ArdControl(Process):
         # Analog pin outputs have the following syntax:
         # name=PinX,pin_num=X,value=val
         sensor_details = data.split(',')
-        pin_num = sensor_details[1].split('=')[1]
-        voltage = sensor_details[2].split('=')[1]
+        # Pin number must be an integer; voltage is a float
+        pin_num = int(sensor_details[1].split('=')[1])
+        voltage = float(sensor_details[2].split('=')[1])
 
         # ard data has the following syntax:
         # self.ard_data['presssensors'][pname]
