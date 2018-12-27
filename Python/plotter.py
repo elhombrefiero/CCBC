@@ -50,11 +50,21 @@ class Plotter(object):
         self.win_heaters = pg.GraphicsWindow()
         self.win_heaters.setWindowTitle('Heaters')
 
+        # Limit lines (Red dashed lined)
+        self.limit_pen = pg.mkPen('r', style=pg.QtCore.Qt.DashLine)
+
         # Add heater data to plots
         self.heater1_plot = self.win_heaters.addPlot()
+        self.heater1_plot.enableAutoRange()
+        self.heater1_plot.showButtons()
+        self.heater1_plot.setTitle('Heater 1')
+        self.heater1_plot.setLabel('left', 'Temperature (F)')
+        self.heater1_plot.setLabel('bottom', 'Time (secs)')
         self.heater1_cur_temp_curve = self.heater1_plot.plot(self.time, self.heater1_current_temp)
         self.heater1_low_curve = self.heater1_plot.plot(self.time, self.heater1_lower)
         self.heater1_high_curve = self.heater1_plot.plot(self.time, self.heater1_upper)
+
+        self.plot_timer.start(self.plot_freq * 1000)
 
     def _update_plots(self):
 
@@ -87,8 +97,13 @@ class Plotter(object):
 
         # Update the plot to use this current data
         self.heater1_cur_temp_curve.setData(self.time, self.heater1_current_temp)
-        self.heater1_low_curve.setData(self.time, self.heater1_lower)
-        self.heater1_high_curve.setData(self.time, self.heater1_upper)
+        self.heater1_low_curve.setData(self.time, self.heater1_lower, pen=self.limit_pen)
+        self.heater1_high_curve.setData(self.time, self.heater1_upper, pen=self.limit_pen)
+
+        # Set the position of the plots to be the last instance of the time entry
+        self.heater1_cur_temp_curve.setPos(self.time[-1], 0)
+        self.heater1_low_curve.setPos(self.time[-1], 0)
+        self.heater1_high_curve.setPos(self.time[-1], 0)
 
     def start(self):
         # Make run_time be the current time
