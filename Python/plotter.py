@@ -61,8 +61,8 @@ class Plotter(object):
         self.heater1_plot.setLabel('left', 'Temperature (F)')
         self.heater1_plot.setLabel('bottom', 'Time (secs)')
         self.heater1_cur_temp_curve = self.heater1_plot.plot(self.time, self.heater1_current_temp)
-        self.heater1_low_curve = self.heater1_plot.plot(self.time, self.heater1_lower)
-        self.heater1_high_curve = self.heater1_plot.plot(self.time, self.heater1_upper)
+        self.heater1_low_curve = self.heater1_plot.plot(self.time, self.heater1_lower, pen=self.limit_pen)
+        self.heater1_high_curve = self.heater1_plot.plot(self.time, self.heater1_upper, pen=self.limit_pen)
 
         self.plot_timer.start(self.plot_freq * 1000)
 
