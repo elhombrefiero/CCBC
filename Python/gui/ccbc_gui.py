@@ -1,126 +1,22 @@
 #!/usr/bin/env Python3
 
 # Import Python standard libraries
-import sys
-import os
-from datetime import datetime
-import csv
 
 # Import third-party packages
-import numpy as np
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QThread, QTime, QTimer, QRunnable, pyqtSlot, QThreadPool, QDateTime
-from PyQt5.QtWidgets import QMainWindow, QLCDNumber
+from PyQt5.QtCore import QThread, QTime, QTimer, QThreadPool, QDateTime
+from PyQt5.QtWidgets import QMainWindow, QLCDNumber, QTableWidgetItem
 
 # Import local project modules
-from theGUI import Ui_MainWindow
+from .theGUI import Ui_MainWindow
+from .helper_functions import Worker
 
+# TODO: Add an overall override with individual buttons for each relay
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
 # TODO: Create a universal brew time to work with the tables. Include ability to pause
 # TODO: A time to start the brewery. For example: when current time is less than time_to_brew, start brewery
 # TODO: Create popup window that shows the active components and shows flows and temperatures
 # TODO: Add strip charts using pyqtgraph
-
-
-class Logger(object):
-    """ Class that creates a csv file, which tracks real time data from the brewery.
-
-        refresh_rate is in milliseconds (defaults to every five minutes)
-    """
-
-    def __init__(self, ard_dict, refresh_rate=5000, filename=1):
-        self.filepath = os.path.join('.',
-                                     'logs',
-                                     datetime.today().strftime('%m-%d-%Y')
-                                     )
-        os.makedirs(self.filepath, exist_ok=True)
-
-        self.refresh_rate = refresh_rate
-        self.paused = False
-
-        # Timer used to refresh the data
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update)
-
-        # Shared arduino dictionary with all of the brewery data
-        self.ard_dict = ard_dict
-
-        # If a unique name was not given for the file, then assume a number.
-        # To avoid overwriting an existing file:
-        self.filename = filename
-        if isinstance(self.filename, int):
-            self._check_for_unique_filename()
-
-        self.full_path = os.path.join(self.filepath, self.filename)
-
-        # Store the fieldnames for csv file writing
-        self.fieldnames = [name for ardtype in ard_dict.keys()
-                           for name in ard_dict[ardtype].keys()
-                           if ardtype is not "heaters"]  # Currently ignoring heaters
-        self.fieldnames.insert(0, "Time")
-
-        self.starttime = datetime.now()
-
-    def start(self):
-        """ """
-        self.starttime = datetime.now()
-        self._setup()
-
-    def _setup(self):
-        """ Creates the first entry in the csv log file"""
-        with open(self.full_path, 'w', newline='') as csvobj:
-            writer = csv.DictWriter(csvobj, fieldnames=self.fieldnames)
-            writer.writeheader()
-
-    def _update_temp_sensor_data(self):
-        """ Return a dictionary of all of the temperature sensor data"""
-        temp_sensor_data = {}
-        for tsensor in self.ard_dict['tempsensors'].keys():
-            temp_sensor_data[tsensor] = self.ard_dict['tempsensors'][tsensor]['value']
-
-        return temp_sensor_data
-
-    def _update_press_sensor_data(self):
-        """ Return a dictionary of all of the pressure sensor data"""
-        press_sensor_data = {}
-        for psensor in self.ard_dict['presssensors'].keys():
-            press_sensor_data[psensor] = self.ard_dict['presssensors'][psensor]['pressure']
-
-        return press_sensor_data
-
-    def _update_volume_data(self):
-        """ Return a dictionary of all of the volume data"""
-        volume_data = {}
-        for pump in self.ard_dict['pumps'].keys():
-            volume_data[pump] = self.ard_dict['pumps'][pump]['gallons']
-
-        return volume_data
-
-    def update(self):
-        """ Updates all of the data into the log file"""
-        if self.paused:
-            pass
-        else:
-            all_data = {'Time': str(datetime.now() - self.starttime)}
-            tsensor_data = self._update_temp_sensor_data()
-            psensor_data = self._update_press_sensor_data()
-            volume_data = self._update_volume_data()
-
-            for data in [tsensor_data, psensor_data, volume_data]:
-                all_data.update(data)
-
-            with open(self.full_path, 'a', newline='') as csvobj:
-                writer = csv.DictWriter(csvobj, fieldnames=self.fieldnames)
-                writer.writerow(all_data)
-
-    def _check_for_unique_filename(self):
-        """ Prevents overwriting an existing file"""
-        while True:
-            if os.path.exists(os.path.join(self.filepath, str(self.filename) + '.csv')):
-                self.filename += 1
-            else:
-                self.filename = str(self.filename) + '.csv'
-                break
 
 
 class Clock(QLCDNumber):
@@ -175,30 +71,7 @@ class BrewingTime(QtWidgets.QLCDNumber):
             self.active = True
 
 
-class Worker(QRunnable):
-    """ Worker thread
-
-    Inherits from QRunnable to handle worker thread setup, signals and wrap-up.
-
-    :param callback: The function callback to run on this worker thread. Supplied args
-                     and kwargs will be passed to the runner.
-    :type callback: function
-    :param args: Arguments to make availale to the run code
-    :param kwargs: Keywords arguments to make available to the run code
-    """
-
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-
-    @pyqtSlot()
-    def run(self):
-        self.fn(*self.args, **self.kwargs)
-
-
-class ccbcGUI(QMainWindow, Ui_MainWindow):
+class BreweryGraphic(QMainWindow, Ui_MainWindow):
     # TODO: Make generalized dictionary look up that includes exception handling
 
     def __init__(self, ard_dictionary, tsensor_names, psensor_names, heater_names, pump_names):
@@ -211,8 +84,6 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.pump_names = pump_names
         self.thread = QThread()
         self.threadpool = QThreadPool()
-        self.logger = Logger(self.ard_dictionary)
-        self.logger_timer = QTimer()
         self.CBHeater1TSensor.addItems(tsensor_names)
         self.CBHeater2TSensor.addItems(tsensor_names)
         self.CBHeater3TSensor.addItems(tsensor_names)
@@ -244,6 +115,9 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.ButtonUpdatePump1VolCalcInputs.clicked.connect(self.update_pump1_vol_calc_inputs)
         self.ButtonUpdatePump2VolCalcInputs.clicked.connect(self.update_pump2_vol_calc_inputs)
         self.ButtonUpdatePump3VolCalcInputs.clicked.connect(self.update_pump3_vol_calc_inputs)
+        self.button_addrow_heater1setpointtable.clicked.connect(self._add_row_to_heater1setpoints)
+        self.button_addrow_heater2setpointtable.clicked.connect(self._add_row_to_heater2setpoints)
+        self.button_addrow_heater3setpointtable.clicked.connect(self._add_row_to_heater3setpoints)
         self.update_static_labels()
         self.update_labels()
         self.label_timer = QTimer()
@@ -254,11 +128,44 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.BrewingTime.setGeometry(QtCore.QRect(840, 60, 161, 61))
         self.BrewingTimeWidget.setObjectName("BrewingTime")
         self.start_time_edit.setDateTime(QDateTime.currentDateTime())
-        self.PausePushButton.clicked.connect(self.pause_or_resume_brew_time)
-        self.StartNowButton.clicked.connect(self.start_brew_time)
+        self.button_pause_resume.clicked.connect(self.pause_or_resume_brew_time)
+        self.button_startbrewing.clicked.connect(self.start_brew_time)
         self.show()
         self.start_everything()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
+
+    def _add_row_to_heater1setpoints(self):
+        """ Adds a new row to the heater 1 setpoint table"""
+        current_row_count = self.table_heater1setpoints.rowCount()
+        last_time = self.table_heater1setpoints.item(current_row_count - 1, 0).text()
+        last_setpoint = self.table_heater1setpoints.item(current_row_count - 1, 1).text()
+        # Add a row
+        self.table_heater1setpoints.insertRow(current_row_count)
+        # Assign previous values to the new row
+        self.table_heater1setpoints.setItem(current_row_count, 0, QTableWidgetItem(last_time))
+        self.table_heater1setpoints.setItem(current_row_count, 1, QTableWidgetItem(last_setpoint))
+
+    def _add_row_to_heater2setpoints(self):
+        """ Adds a new row to the heater 1 setpoint table"""
+        current_row_count = self.table_heater2setpoints.rowCount()
+        last_time = self.table_heater2setpoints.item(current_row_count - 1, 0).text()
+        last_setpoint = self.table_heater2setpoints.item(current_row_count - 1, 1).text()
+        # Add a row
+        self.table_heater2setpoints.insertRow(current_row_count)
+        # Assign previous values to the new row
+        self.table_heater2setpoints.setItem(current_row_count, 0, QTableWidgetItem(last_time))
+        self.table_heater2setpoints.setItem(current_row_count, 1, QTableWidgetItem(last_setpoint))
+
+    def _add_row_to_heater3setpoints(self):
+        """ Adds a new row to the heater 1 setpoint table"""
+        current_row_count = self.table_heater3setpoints.rowCount()
+        last_time = self.table_heater3setpoints.item(current_row_count - 1, 0).text()
+        last_setpoint = self.table_heater3setpoints.item(current_row_count - 1, 1).text()
+        # Add a row
+        self.table_heater3setpoints.insertRow(current_row_count)
+        # Assign previous values to the new row
+        self.table_heater3setpoints.setItem(current_row_count, 0, QTableWidgetItem(last_time))
+        self.table_heater3setpoints.setItem(current_row_count, 1, QTableWidgetItem(last_setpoint))
 
     def check_table_setpoints(self):
         """ This routine looks up the setpoint tables and updates the values accordingly
@@ -451,7 +358,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp'] = setpoint
         self.InputHeater3MaxTemp.clear()
 
-    def update_static_labels(self):
+    def update_static_labels(self, **kwargs):
         # Update the status page text variables
 
         self.LabelT1.setText(self.ard_dictionary['tempsensors'][self.tsensor_names[0]]['name'])
@@ -518,7 +425,7 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
         self.VariableHeater3Lower.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['lower limit']))
         self.VariableHeater3MaxTemp.setText(str(self.ard_dictionary['heaters'][self.heater_names[2]]['maxtemp']))
 
-    def update_labels(self):
+    def update_labels(self, **kwargs):
 
         # Utilize the shared ccbc.ard_dictionary to populate these numbers
         # ccbc.ard_dictionary['tempsensors'][t_sensor.name]['value']
@@ -621,9 +528,6 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
     def start_brew_time(self):
         self.BrewingTime.brew_time = 0
         self.BrewingTime.active = True
-        self.logger.start()
-        self.logger_timer.timeout.connect(self._update_logger)
-        self.logger_timer.start(30000)
 
     def pause_or_resume_brew_time(self):
         # Brewing is currently going. After pressing button, brewing pauses and button should say resume
@@ -635,15 +539,9 @@ class ccbcGUI(QMainWindow, Ui_MainWindow):
             self.BrewingTime.change_status()
             self.PausePushButton.setText("Pause")
 
-    def heater1_table_setpoint(self):
-        pass
-
     def refresh_dynamic_labels(self):
         worker = Worker(self.update_labels)
         self.threadpool.start(worker)
-
-    def _update_logger(self):
-        self.logger.update()
 
     def start_everything(self):
         self.label_timer.timeout.connect(self.refresh_dynamic_labels)
