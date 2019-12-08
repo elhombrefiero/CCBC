@@ -13,12 +13,15 @@ import numpy as np
 class Plotter(object):
     """ Plots data from a shared dictionary.
 
-    Takes in the arduino dictionary, a plotting frequency (default=30 seconds)
-    and the total plot span (default=3600secs)
+    Takes in the arduino dictionary, a plotting frequency (default=10 seconds)
+    and the total plot span (default=3600secs i.e., 6 minutes)
     """
 
+    # TODO: Create subroutine which will create a new numpy array for every item in ard_dict
+    # TODO: Create function that takes in a name to add to the plot
+
     def __init__(self, ard_dict, temp_sensor_names, press_sensor_names,
-                 heater_names, pump_names, plot_freq=30, total_plot_span=3600):
+                 heater_names, pump_names, plot_freq=10, total_plot_span=3600):
         self.ard_dict = ard_dict
         self.temp_sensor_names = temp_sensor_names
         self.press_sensor_names = press_sensor_names

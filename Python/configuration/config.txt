@@ -13,6 +13,7 @@ TemperatureSensor,HERMS H20,28FFB41880160527
 TemperatureSensor,Boil Tun,28FFB47780160473
 TemperatureSensor,Wort Out,28FF59A08516052E
 TemperatureSensor,Ambient Temp,28FF437880160540
+#
 # Pressure Sensors
 # Pressure sensors have the following layout:
 # PressureSensor,Name of Sensor,Analog Pin Number
@@ -20,12 +21,14 @@ PressureSensor,Pressure Sensor 1,0
 PressureSensor,Pressure Sensor 2,1
 PressureSensor,Pressure Sensor 3,2
 PressureSensor,Pressure Sensor 4,3
+#
 # Heaters
 # Heaters have the following layout:
 # Heater,Name of Heater,Digital Pin Number
 Heater,Heater 1,5
 Heater,Heater 2,4
 Heater,Heater 3,3
+#
 # Pumps
 # Pumps have the following layout:
 # Pump,Name of Pump,Digital Pin Number

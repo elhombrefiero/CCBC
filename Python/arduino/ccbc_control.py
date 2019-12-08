@@ -14,14 +14,13 @@
     """
 
 # Import the python libraries needed
-import json
-import io
-import os
 import time
 import serial
 from threading import Thread, Lock
 from multiprocessing import Process
-from multiprocessing.pool import ThreadPool
+
+# Import other modules
+from configuration.setup_configuration import SERIAL_PORT
 
 
 class Worker(Thread):
@@ -35,7 +34,7 @@ class ArdControl(Process):
 
     # TODO: Create function that will return all of the data to be displayed in GUI
 
-    def __init__(self, ard_data, serial_port='/dev/ttyACM0'):
+    def __init__(self, ard_data, serial_port=SERIAL_PORT):
         Process.__init__(self)
         self.SERIAL_PORT = serial_port
         self.BAUDRATE = 9600

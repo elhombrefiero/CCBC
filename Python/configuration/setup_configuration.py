@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
 # Import standard Python modules
+import os
 from multiprocessing import Manager
 
 # Import third-party libraries
 
 # Import relative files
+CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config.txt'))
 
 # Global File
-CONFIG_FILE = "config.txt"
 
 # Default slopes and intercepts for sensors and controllers
 DEFAULT_VOLT_TO_PRESSURE_SLOPE = 0.3215
@@ -16,6 +17,8 @@ DEFAULT_VOLT_TO_PRESSURE_INT = -0.063
 DEFAULT_PSI_TO_GAL_SLOPE = 8.2759
 DEFAULT_PSI_TO_GAL_INT = 0.0
 DEFAULT_GALLON_LIMIT = 14.0
+
+SERIAL_PORT = '/dev/ttyACM0'
 
 
 def return_configuration(config_file=CONFIG_FILE):
@@ -101,10 +104,3 @@ def return_configuration(config_file=CONFIG_FILE):
             pumpnames.append(name)
 
     return manager, d, tsensornames, psensornames, heaternames, pumpnames
-
-
-if __name__ == "__main__":
-    (manager, ard_dict, tsensornames,
-    psensornames, heaternames, pumpnames) = return_configuration()
-
-    print("Script complete")

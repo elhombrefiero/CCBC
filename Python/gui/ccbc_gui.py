@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QMainWindow, QLCDNumber, QTableWidgetItem
 # Import local project modules
 from .theGUI import Ui_MainWindow
 from .helper_functions import Worker
+from plotter.plotter import Plotter
 
 # TODO: Add an overall override with individual buttons for each relay
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
@@ -133,6 +134,9 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.show()
         self.start_everything()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
+
+    def _add_data_to_plotter(self):
+        pass
 
     def _add_row_to_heater1setpoints(self):
         """ Adds a new row to the heater 1 setpoint table"""
