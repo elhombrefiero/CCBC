@@ -33,6 +33,7 @@ class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when needed"""
 
     # TODO: Create function that will return all of the data to be displayed in GUI
+    # TODO: Add a function to return the status of all of the digital and analog pins
 
     def __init__(self, ard_data, serial_port=SERIAL_PORT):
         Process.__init__(self)

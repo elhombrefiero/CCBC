@@ -14,7 +14,6 @@ from plotter.plotter import Plotter
 from arduino.ccbc_control import ArdControl
 
 # TODO: Add an overall override with individual buttons for each relay
-# TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
 # TODO: Create a universal brew time to work with the tables. Include ability to pause
 # TODO: A time to start the brewery. For example: when current time is less than time_to_brew, start brewery
 # TODO: Create popup window that shows the active components and shows flows and temperatures
