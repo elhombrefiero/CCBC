@@ -13,7 +13,7 @@ import numpy as np
 class Plotter(object):
     """ Plots data from a shared dictionary.
 
-    Takes in the arduino dictionary, a plotting frequency (default=10 seconds)
+    Takes in the arduino dictionary, a plotting frequency (default=5 seconds)
     and the total plot span (default=3600secs i.e., 6 minutes)
 
     Public functions include:
@@ -21,7 +21,7 @@ class Plotter(object):
         clear_plot: Cleans the plot info
     """
 
-    def __init__(self, ard_dict, plot_freq=10, total_plot_span=3600):
+    def __init__(self, ard_dict, plot_freq=5, total_plot_span=3600):
         self.ard_dict = ard_dict
         self.plot_freq = plot_freq
         self.total_plot_span = total_plot_span

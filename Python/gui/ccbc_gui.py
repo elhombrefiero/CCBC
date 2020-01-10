@@ -4,13 +4,14 @@
 
 # Import third-party packages
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QThread, QTime, QTimer, QThreadPool, QDateTime
+from PyQt5.QtCore import QTime, QTimer, QThreadPool, QDateTime
 from PyQt5.QtWidgets import QMainWindow, QLCDNumber, QTableWidgetItem
 
 # Import local project modules
 from .theGUI import Ui_MainWindow
 from .helper_functions import Worker
 from plotter.plotter import Plotter
+from arduino.ccbc_control import ArdControl
 
 # TODO: Add an overall override with individual buttons for each relay
 # TODO: Have the GUI have some sort of table where the user can put in the heater/pump setpoints as a function of time
@@ -83,8 +84,18 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.psensor_names = psensor_names
         self.heater_names = heater_names
         self.pump_names = pump_names
-        self.thread = QThread()
+
+        self.ard_control = ArdControl(self.ard_dictionary)
+        self.ard_control_health = 'AVAILABLE'
+
+        # Start a plotter instance
+        self.plotter = Plotter(self.ard_dictionary)
+        self.plotter.start()
+        self.plotter_health = 'ONLINE'
+
         self.threadpool = QThreadPool()
+
+        # Append the sensor names to the lists
         self.CBHeater1TSensor.addItems(tsensor_names)
         self.CBHeater2TSensor.addItems(tsensor_names)
         self.CBHeater3TSensor.addItems(tsensor_names)
@@ -97,13 +108,26 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.CBPump1PSensor.currentIndexChanged.connect(self.update_pump1_psensor)
         self.CBPump2PSensor.currentIndexChanged.connect(self.update_pump2_psensor)
         self.CBPump3PSensor.currentIndexChanged.connect(self.update_pump3_psensor)
+
+        # TODO: Add some items to the plot components list
+        # Add some items to the plot components list
+        #
+        #self.list_brewery_components.addItems()
+
+        # Backfill the heater setpoints to the first row of the setpoint table
+
+        # Change the heater label to show what is controlling said heater
+        # TODO: Add function to read in a timing file and then populate the table with that.
+        #   If no file exists, then assume a constant for the first row and leave there.
         self.LabelHeater1TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][heater_names[0]]['tsensor_name']))
         self.LabelHeater2TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][heater_names[1]]['tsensor_name']))
         self.LabelHeater3TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][heater_names[2]]['tsensor_name']))
-        self.Button_startSerial.clicked.connect(self.start_everything)
+
+        # Assign some functions to the buttons
+        self.Button_startSerial.clicked.connect(self._start_serial_connection)
         self.ButtonUpdateHeater1Setpoints.clicked.connect(self.update_heater1_setpoint)
         self.ButtonUpdateHeater2Setpoints.clicked.connect(self.update_heater2_setpoint)
         self.ButtonUpdateHeater3Setpoints.clicked.connect(self.update_heater3_setpoint)
@@ -119,23 +143,53 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.button_addrow_heater1setpointtable.clicked.connect(self._add_row_to_heater1setpoints)
         self.button_addrow_heater2setpointtable.clicked.connect(self._add_row_to_heater2setpoints)
         self.button_addrow_heater3setpointtable.clicked.connect(self._add_row_to_heater3setpoints)
+        # Buttons that start/stop/pause the brewing timer
+        self.button_pause_resume.clicked.connect(self.pause_or_resume_brew_time)
+        self.button_startbrewing.clicked.connect(self.start_brew_time)
+
+        # Update the static and dynamic labels once
         self.update_static_labels()
         self.update_labels()
+
+        # Label timer is used to refresh the labels
         self.label_timer = QTimer()
+
+        # Create a clock to show the current time
         self.Clock = Clock(parent=self.centralwidget)
         self.Clock.setGeometry(QtCore.QRect(840, 10, 161, 61))
         self.Clock.setObjectName("Clock")
+
+        # Create a Brew time to track the current time in the brew process
         self.BrewingTime = BrewingTime(parent=self.centralwidget)
         self.BrewingTime.setGeometry(QtCore.QRect(840, 60, 161, 61))
         self.BrewingTimeWidget.setObjectName("BrewingTime")
         self.start_time_edit.setDateTime(QDateTime.currentDateTime())
-        self.button_pause_resume.clicked.connect(self.pause_or_resume_brew_time)
-        self.button_startbrewing.clicked.connect(self.start_brew_time)
+
         self.show()
-        self.start_everything()
+        self.refresh_labels()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
+    def _check_health_of_processes(self):
+        # Check arduino control health
+
+        # Check logger health
+
+        # Check plotter health
+        pass
+
+    def _start_serial_connection(self):
+        self.ard_control.start()
+
+    def _set_label_to_online(self, label):
+        pass
+
+    def _set_label_to_offline(self, label):
+        pass
+
     def _add_data_to_plotter(self):
+        pass
+
+    def _clear_plot_items(self):
         pass
 
     def _add_row_to_heater1setpoints(self):
@@ -170,6 +224,18 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         # Assign previous values to the new row
         self.table_heater3setpoints.setItem(current_row_count, 0, QTableWidgetItem(last_time))
         self.table_heater3setpoints.setItem(current_row_count, 1, QTableWidgetItem(last_setpoint))
+
+    def _lookup_current_heater1setpoint(self):
+        """ Looks up the current heater 1 setpoint and changes the heater1 setpoint if necessary"""
+        pass
+
+    def _lookup_current_heater2setpoint(self):
+        """ Looks up the current heater 2 setpoint and changes the heater2 setpoint if necessary"""
+        pass
+
+    def _lookup_current_heater3setpoint(self):
+        """ Looks up the current heater 3 setpoint and changes the heater3 setpoint if necessary"""
+        pass
 
     def check_table_setpoints(self):
         """ This routine looks up the setpoint tables and updates the values accordingly
@@ -547,7 +613,7 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         worker = Worker(self.update_labels)
         self.threadpool.start(worker)
 
-    def start_everything(self):
+    def refresh_labels(self):
         self.label_timer.timeout.connect(self.refresh_dynamic_labels)
         self.label_timer.start(250)
 
