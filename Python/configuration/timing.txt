@@ -1,0 +1,26 @@
+# Timing file
+#
+# Pound signs act as comments
+# Script will use this file to build setpoint tables. Time inputs are in seconds.
+# Units are degF for Heaters. Units for pumps are gallons for volume.
+# No interpolation is done between table entries
+# If this file is not filled out properly, the gui table will only have one entry and assume that setpoint at
+# time zero.
+#
+# If a given line matches a component name, the next comma-delimited lines describe the
+# timing information for that entry until the script reaches the next entry or the end of file
+# The first entry is the time and the second is the set point at that time (in seconds).
+# The component name MUST match the name it's trying to drive.
+# For example, if component "Heater 1" needs to aim for 75 degF for five minutes, then increase to 120 degF for fifteen
+# minutes, then decrease to 100 degF for thirty minutes, the entries would look like so (minus the comment lines):
+# Heater 1
+# 0,75
+# 300,120
+# 1200,100
+# 3000,100
+Heater 1
+0.0,32.0
+Heater 2
+0.0,32.0
+Heater 3
+0.0,32.0

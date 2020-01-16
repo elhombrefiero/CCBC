@@ -1,6 +1,7 @@
 #!/usr/bin/env Python3
 
 # Import Python standard libraries
+import multiprocessing as mp
 
 # Import third-party packages
 from PyQt5 import QtWidgets, QtCore
@@ -12,6 +13,7 @@ from .theGUI import Ui_MainWindow
 from .helper_functions import Worker
 from plotter.plotter import Plotter
 from arduino.ccbc_control import ArdControl
+from configuration import setup_configuration
 
 # TODO: Add an overall override with individual buttons for each relay
 # TODO: Create a universal brew time to work with the tables. Include ability to pause
@@ -87,12 +89,11 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.ard_control = ArdControl(self.ard_dictionary)
         self.ard_control_health = 'AVAILABLE'
 
-        # Start a plotter instance
-        self.plotter = Plotter(self.ard_dictionary)
-        self.plotter.start()
-        self.plotter_health = 'ONLINE'
-
         self.threadpool = QThreadPool()
+
+        # Start a plotter instance
+        # self.plotter = Plotter(self.ard_dictionary)
+        # self.plotter_health = 'ONLINE'
 
         # Append the sensor names to the lists
         self.CBHeater1TSensor.addItems(tsensor_names)
@@ -113,11 +114,40 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         #
         #self.list_brewery_components.addItems()
 
-        # Backfill the heater setpoints to the first row of the setpoint table
+        timing_info = setup_configuration.return_timing_info()
+        # Assume a table of 1 row with  one entry [ Time 0, Value Setpoint]
+        self.table_heater1setpoints.setItem(0, 0, QTableWidgetItem('0.0'))
+        self.table_heater1setpoints.setItem(0, 1, QTableWidgetItem('32.0'))
+        self.table_heater2setpoints.setItem(0, 0, QTableWidgetItem('0.0'))
+        self.table_heater2setpoints.setItem(0, 1, QTableWidgetItem('32.0'))
+        self.table_heater3setpoints.setItem(0, 0, QTableWidgetItem('0.0'))
+        self.table_heater3setpoints.setItem(0, 1, QTableWidgetItem('32.0'))
+        if timing_info is not None:
+            if self.heater_names[0] in timing_info:
+                row = 1
+                for time, value in timing_info[self.heater_names[0]]['info']:
+                    self.table_heater1setpoints.setRowCount(row)
+                    self.table_heater1setpoints.setItem(row-1, 0, QTableWidgetItem(time))
+                    self.table_heater1setpoints.setItem(row-1, 1, QTableWidgetItem(value))
+                    row += 1
+
+            if self.heater_names[1] in timing_info:
+                row = 1
+                for time, value in timing_info[self.heater_names[1]]['info']:
+                    self.table_heater2setpoints.setRowCount(row)
+                    self.table_heater2setpoints.setItem(row-1, 0, QTableWidgetItem(time))
+                    self.table_heater2setpoints.setItem(row-1, 1, QTableWidgetItem(value))
+                    row += 1
+
+            if self.heater_names[2] in timing_info:
+                row = 1
+                for time, value in timing_info[self.heater_names[2]]['info']:
+                    self.table_heater3setpoints.setRowCount(row)
+                    self.table_heater3setpoints.setItem(row-1, 0, QTableWidgetItem(time))
+                    self.table_heater3setpoints.setItem(row-1, 1, QTableWidgetItem(value))
+                    row += 1
 
         # Change the heater label to show what is controlling said heater
-        # TODO: Add function to read in a timing file and then populate the table with that.
-        #   If no file exists, then assume a constant for the first row and leave there.
         self.LabelHeater1TSensor.setText('Controlling Temperature Sensor: {}'.format(
             self.ard_dictionary['heaters'][heater_names[0]]['tsensor_name']))
         self.LabelHeater2TSensor.setText('Controlling Temperature Sensor: {}'.format(
@@ -168,6 +198,9 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
         self.refresh_labels()
         print("Multithreading with maximum {} threads".format(self.threadpool.maxThreadCount()))
 
+    def _start_plotter(self):
+        self.plotter.start()
+
     def _check_health_of_processes(self):
         # Check arduino control health
 
@@ -178,6 +211,7 @@ class BreweryGraphic(QMainWindow, Ui_MainWindow):
 
     def _start_serial_connection(self):
         self.ard_control.start()
+        self.ard_control_health = 'ONLINE'
 
     def _set_label_to_online(self, label):
         pass

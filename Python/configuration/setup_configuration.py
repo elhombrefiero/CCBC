@@ -8,6 +8,7 @@ from multiprocessing import Manager
 
 # Import relative files
 CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config.txt'))
+TIMING_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), 'timing.txt'))
 
 # Global File
 
@@ -104,3 +105,31 @@ def return_configuration(config_file=CONFIG_FILE):
             pumpnames.append(name)
 
     return manager, d, tsensornames, psensornames, heaternames, pumpnames
+
+
+def return_timing_info(config_file=TIMING_FILE):
+    """ Reads in the timing information and returns a dictionary of timing info"""
+
+    if not os.path.exists(TIMING_FILE):
+        # Return a dictionary of each heater setpoint with a list of 1 of the current setpoint
+        return None
+
+    timing_info = dict()
+
+    with open(TIMING_FILE) as fileobj:
+        filelines = fileobj.readlines()
+
+    for line in filelines:
+        if line.startswith('#'):
+            continue
+        else:
+            if line[0].isalpha():
+                comp_name = line.strip()
+                if comp_name not in timing_info:
+                    timing_info[comp_name] = dict()
+                    timing_info[comp_name]['info'] = list()
+                    continue
+            time, value = line.split(',')
+            # Append tuples of the time and corresponding values
+            timing_info[comp_name]['info'].append((time.strip(), value.strip()))
+    return timing_info
