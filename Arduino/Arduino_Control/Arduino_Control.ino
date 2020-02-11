@@ -3,8 +3,11 @@
 // open and shut switches (pins)
 // Written by Rene Valdez
 
-// Libraries obtained from:
-// https://github.com/milesburton/Arduino-Temperature-Control-Library
+// Libraries obtained from Arduino Library Manager:
+// ArduinoSTL
+// MAX 31850 DallasTemp
+// MAX 31850 OneWire
+#include <ArduinoSTL.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -17,24 +20,8 @@ OneWire oneWire(ONE_WIRE_PORT);
 // Pass oneWire reference to Dallas Temperature
 DallasTemperature sensors(&oneWire);
 
-// Arrays to hold device addresses
-DeviceAddress T1, T2, T3, T4, T5, T6, T7, T8, T9;
-
-// Array to hold device Addresses
-uint8_t *myTSensors[] = {
-  T1,
-  T2,
-  T3,
-  T4,
-  T5,
-  T6,
-  T7,
-  T8,
-  T9,
-};
-
-// Declare number of sensors in global scope
-int numSensors = 9;
+// Vector to hold device addresses
+std::vector<uint8_t *> myTSensors;
 
 // Strings used to send and receive through serial
 String readString;
@@ -42,34 +29,26 @@ String pinStatus;
 
 void setup()
 {
-  // Set pins 2-13 as output
-  for (int i=2; i<14; i++) {
-    pinMode(i, OUTPUT);
-  }
   Serial.begin(9600);
   while (! Serial); // Wait untilSerial is ready - Leonardo
-  Serial.print("Coulson Craft Brewery Control");
+  Serial.print("Craft Brewery Control Starting...");
   Serial.println();
   
   // Setup the library
   sensors.begin();
-  
+
   // Get number of sensors
-  byte SensorCount = sensors.getDeviceCount();
+  int numSensors = sensors.getDeviceCount();
   
   // Print devices found and respective addresses
-  Serial.print("Assuming ");
+  Serial.print("Found ");
   Serial.print(numSensors);
-  Serial.println(" devices.");
+  Serial.println(" temperature sensors.");
   
-  // Assigning an address to each member of myTSensor array
+  // Assigning an address to each member of myTSensor vector
   for (int i = 0; i < numSensors; i ++)
   {
-    if (!sensors.getAddress(myTSensors[i], i)) 
-    {
-      Serial.print("Unable to find address for Device ");
-      Serial.println(i);
-    }
+    myTSensors.push_back(new DeviceAddress);
     delay(10);   
   }
   
@@ -159,7 +138,7 @@ void returnAllInfo() {
      name=Temp1,serial_num=blahblah1,value=55.55,units=F
      name=Temp2,serial_num=blahblah2,value=69.69,units=F
      If you change this format here, change it in the python script as well! */
-  for (int i = 0; i < numSensors; i++)
+  for (int i = 0; i < myTSensors.size(); i++)
     {
     float tempF = sensors.getTempFByIndex(i);
     // Only include valid temperature readings
