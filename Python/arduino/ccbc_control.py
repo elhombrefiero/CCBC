@@ -14,14 +14,13 @@
     """
 
 # Import the python libraries needed
-import json
-import io
-import os
 import time
 import serial
 from threading import Thread, Lock
 from multiprocessing import Process
-from multiprocessing.pool import ThreadPool
+
+# Import other modules
+from configuration.setup_configuration import SERIAL_PORT
 
 
 class Worker(Thread):
@@ -34,8 +33,9 @@ class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when needed"""
 
     # TODO: Create function that will return all of the data to be displayed in GUI
+    # TODO: Add a function to return the status of all of the digital and analog pins
 
-    def __init__(self, ard_data, serial_port='/dev/ttyACM0'):
+    def __init__(self, ard_data, serial_port=SERIAL_PORT):
         Process.__init__(self)
         self.SERIAL_PORT = serial_port
         self.BAUDRATE = 9600
