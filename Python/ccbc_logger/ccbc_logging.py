@@ -1,29 +1,104 @@
 #!/usr/bin/env python3
 
 # Python Library Imports
-
-# Other Imports
-
-# Defined Functions:
 import csv
 import os
 from datetime import datetime
 
+# Third-party Imports
 from PyQt5.QtCore import QTimer
 
+from .. import LOGS_FOLDER
 
-class Logger(object):
+
+# Defined Functions:
+
+
+class BrewObjectLogger(object):
     """ Class that creates a csv file, which tracks real time data from the brewery.
 
+        ard_dict is the shared (i.e., multi-processing) dictionary that has the information.
+        component is group under which the object is located: tempsensors, heaters, presssensors, or pumps
+        object_name is the object to which data will be captured
+        log_dir is the directory where the files will be stored (defaults to logs directory)
+        filename is the name for the file (if left blank, will assume a concatenation of component and object_name
         refresh_rate is in milliseconds (defaults to every five minutes)
     """
 
-    def __init__(self, ard_dict, refresh_rate=5000, filename='1'):
-        self.filepath = os.path.join('.',
-                                     'logs',
-                                     datetime.today().strftime('%m-%d-%Y')
-                                     )
-        os.makedirs(self.filepath, exist_ok=True)
+    def __init__(self, ard_dict, component, object_name,
+                 log_dir=LOGS_FOLDER, filename=None, refresh_rate=5000):
+        self.ard_dict = ard_dict
+        self.component = component
+        self.object_name = object_name
+        self.log_dir = log_dir
+        self.filename = filename
+        self.refresh_rate = refresh_rate
+        self._create_fieldnames_and_lookups()
+        self._write_header()
+        self.header_written = False
+
+        if self.filename is None:
+            self.filename = self.component + '_' + self.object_name
+
+    def _create_fieldnames_and_lookups(self):
+        # first two must be brewtime and clocktime
+        self.fieldnames = ['brewtime', 'clocktime', 'value']
+        # Lookups are lists corresponding to what to grab in the component/object AFTER clocktime in fieldnames
+        self.lookups = ['value']
+
+    def _write_header(self):
+        with open(os.path.join(self.log_dir, self.filename), 'w', newline='') as fileobj:
+            logwriter = csv.DictWriter(fileobj, fieldnames=self.fieldnames)
+            logwriter.writeheader()
+        self.header_written = True
+
+    def update(self, brew_time):
+        clocktime = datetime.now().strftime('%I:%M:%S')
+        # Make a copy of the fieldnames with the brewtime and clock time removed
+        fieldname_copy = self.fieldnames.copy()
+        fieldname_copy.pop(0)
+        fieldname_copy.pop(0)
+        try:
+            dict_to_write = {'brewtime': brew_time,
+                             'clocktime': clocktime,
+                             }
+            for i in range(0, len(self.lookups)):
+                dict_to_write[fieldname_copy[i]] = self.ard_dict[self.component][self.object_name][self.lookups[i]]
+        except KeyError:
+            return
+
+        if not self.header_written:
+            self._write_header()
+        with open(os.path.join(self.log_dir, self.filename), 'a', newline='') as fileobj:
+            logwriter = csv.DictWriter(fileobj, fieldnames=self.fieldnames)
+            logwriter.writerow(dict_to_write)
+
+
+class TempSensorLogger(BrewObjectLogger):
+    pass
+
+
+class HeaterLogger(BrewObjectLogger):
+    pass
+
+
+class PressureSensorLogger(BrewObjectLogger):
+    pass
+
+
+class PumpLogger(BrewObjectLogger):
+    pass
+
+
+class BreweryLogger(object):
+    """ Object that will call the individual component loggers to update their respective files."""
+
+    # TODO: Consider turning off certain components
+    def __init__(self, ard_dict, refresh_rate=5000, filename='brew_started_on'):
+        self.log_dir = os.path.join(LOGS_FOLDER,
+                                    datetime.today().strftime('%m-%d-%Y')
+                                    )
+        os.makedirs(self.log_dir, exist_ok=True)
 
         self.refresh_rate = refresh_rate
         self.paused = False
@@ -35,18 +110,15 @@ class Logger(object):
         # Shared arduino dictionary with all of the brewery data
         self.ard_dict = ard_dict
 
-        # If a unique name was not given for the file, then assume a number.
-        # To avoid overwriting an existing file:
         self.filename = filename
-        if isinstance(self.filename, int):
-            self._check_for_unique_filename()
+        self._check_for_unique_filename()
 
-        self.full_path = os.path.join(self.filepath, self.filename)
+        self.full_path = os.path.join(self.log_dir, self.filename)
 
         # Store the fieldnames for csv file writing
         self.fieldnames = [name for ardtype in ard_dict.keys()
                            for name in ard_dict[ardtype].keys()
-                           if ardtype is not "heaters"]  # Currently ignoring heaters
+                           if ardtype is not "heaters"]  # TODO: Add heaters
         self.fieldnames.insert(0, "Time")
 
         self.starttime = datetime.now()
@@ -105,9 +177,16 @@ class Logger(object):
 
     def _check_for_unique_filename(self):
         """ Prevents overwriting an existing file"""
-        while True:
-            if os.path.exists(os.path.join(self.filepath, str(self.filename) + '.csv')):
-                self.filename += 1
-            else:
-                self.filename = str(self.filename) + '.csv'
-                break
+        num_to_append = 1
+        base_name = str(self.filename)
+        full_path = os.path.join(self.log_dir, base_name + '.csv')
+        if not os.path.exists(full_path):
+            self.filename = base_name
+        else:
+            # Attempt to rename the end of the basename by 1
+            while num_to_append < 10:
+                full_path = os.path.join(self.log_dir, base_name + "_" + str(num_to_append) + '.csv')
+                num_to_append += 1
+                if not os.path.exists(full_path):
+                    self.filename = base_name + "_" + str(num_to_append)
+                    break
