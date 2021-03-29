@@ -1,0 +1,29 @@
+# Configuration file
+# Pound signs act as comments
+# Order of the sensors matters!
+# Temperature Sensors
+# Temperature sensors have the following layout:
+# TemperatureSensor,Name of Sensor,Serial number
+TemperatureSensor,TSensor 1,28FFAC378217045A
+TemperatureSensor,TSensor 2,28FF6AB585160484
+#
+# Pressure Sensors
+# Pressure sensors have the following layout:
+# PressureSensor,Name of Sensor,Analog Pin Number
+PressureSensor,Pressure Sensor 1,0
+PressureSensor,Pressure Sensor 2,1
+PressureSensor,Pressure Sensor 3,2
+PressureSensor,Pressure Sensor 4,3
+#
+# Heaters
+# Heaters have the following layout:
+# Heater,Name of Heater,Digital Pin Number
+Heater,Heater 1,4
+Heater,Heater 2,6
+#
+# Pumps
+# Pumps have the following layout:
+# Pump,Name of Pump,Digital Pin Number
+Pump,Pump 1,9
+Pump,Pump 2,8
+Pump,Pump 3,7

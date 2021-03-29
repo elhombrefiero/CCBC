@@ -19,6 +19,7 @@ DEFAULT_PSI_TO_GAL_INT = 0.0
 DEFAULT_GALLON_LIMIT = 14.0
 
 SERIAL_PORT = '/dev/ttyACM0'
+#SERIAL_PORT = 'COM4'
 
 
 def return_configuration(config_file=CONFIG_FILE):
@@ -36,9 +37,11 @@ def return_configuration(config_file=CONFIG_FILE):
     psensornames = []
     heaternames = []
     pumpnames = []
+    hindex = 0
 
     # Create mp dictionary and fill first level
     d = manager.dict()
+    d['brewtime'] = 0
     for first_level in ['tempsensors', 'presssensors', 'heaters', 'pumps']:
         d[first_level] = manager.dict()
 
@@ -80,13 +83,15 @@ def return_configuration(config_file=CONFIG_FILE):
             pin = split_line[2].strip()
             d['heaters'][name] = manager.dict()
             d['heaters'][name]['name'] = name
+            d['heaters'][name]['index'] = hindex
             d['heaters'][name]['pin_num'] = int(pin)
-            d['heaters'][name]['status'] = 'OFF'
+            d['heaters'][name]['status'] = 'OFF'  # TODO: Use integers for plotting/logging
             d['heaters'][name]['tsensor_name'] = tsensornames[0]
             d['heaters'][name]['lower limit'] = 32.0
             d['heaters'][name]['upper limit'] = 32.0
             d['heaters'][name]['maxtemp'] = 212.0
             heaternames.append(name)
+            hindex += 1
         if line.startswith('Pump'):
             split_line = line.split(',')
             name = split_line[1]
