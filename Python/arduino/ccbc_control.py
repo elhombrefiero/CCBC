@@ -32,41 +32,31 @@ class Worker(Thread):
 class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when needed"""
 
+    # TODO: Make the ARdControl class simpler
     # TODO: Create function that will return all of the data to be displayed in GUI
     # TODO: Add a function to return the status of all of the digital and analog pins
 
     def __init__(self, ard_data, serial_port=SERIAL_PORT):
         Process.__init__(self)
-        self.SERIAL_PORT = serial_port
+        self.serial_port = serial_port
         self.BAUDRATE = 9600
         self.TIMEOUT = 0.05
         self.ARD_RETURNALL = b'!'
         self.WRITETIMEOUT = 0.25
         self.lock = Lock()
         self.ard_data = ard_data
-        self.digital_pin_status = {}
-        self.update_digital_pin_dict()
         self.ser = serial.Serial(baudrate=self.BAUDRATE,
                                  timeout=self.TIMEOUT,
                                  write_timeout=self.WRITETIMEOUT)
 
-    def update_digital_pin_dict(self):
-        """ Parses through the heaters and pumps and assigns the key/value pairs to the dict"""
-
-        for heater in self.ard_data['heaters'].keys():
-            pin_num = self.ard_data['heaters'][heater]['pin_num']
-            status = self.ard_data['heaters'][heater]['status']
-            self.digital_pin_status[pin_num] = status
-
-        for pump in self.ard_data['pumps'].keys():
-            pin_num = self.ard_data['pumps'][pump]['pin_num']
-            status = self.ard_data['pumps'][pump]['status']
-            self.digital_pin_status[pin_num] = status
-
-    def startSerial(self):
+    def start_serial(self):
         """ Opens the serial port to the Arduino"""
-        self.ser.setPort(self.SERIAL_PORT)
+        self.ser.setPort(self.serial_port)
         self.ser.open()
+
+    def close_everything(self):
+        self.ser.close()
+        self.close()
 
     def return_serial_lines(self):
         ard_lines = []
@@ -84,6 +74,15 @@ class ArdControl(Process):
         with self.lock:
             self.ser.write(self.ARD_RETURNALL)
 
+    def send_arduino_data(self, command:str):
+        """ Sends command to arduino
+
+        command is in the form of a string
+        """
+
+        with self.lock:
+            self.ser.write(command.encode())
+
     def read_arduino_data_and_format_dictionary(self):
         """ Read incoming serial data from Arduino serial and return string.
 
@@ -94,7 +93,8 @@ class ArdControl(Process):
         For temperatures, the python script uses serial number to map that to a specific
         sensor.
         An example, using two temperature probes:
-        name=Temp1,serial_num=blahblah1,value=55.55,units=F#name=Temp2,serial_num=blahblah2,value=69.69,units=F
+        <Tsensor:name=Temp1,serial_num=blahblah1,value=55.55,units=F><name=Temp2,serial_num=blahblah2,value=69.69,units=F>
+        <heater:name=Heater 1,index=0,setpoint_high=110.0,setpoint_low=95.0,setpoint_max=212.0,tsensor_address=AKDKDKD>
 
         Format of the arduino data is in the following form:
           1) Arduino variable name (e.g., Name=Temp1)
@@ -107,21 +107,23 @@ class ArdControl(Process):
         After each variable, there will be one comma.
         """
 
-        # Use a thread to issue command to the serial port
-        Worker(self.request_arduino_data)
+        # Issue request command to the serial port
+        self.request_arduino_data()
 
-        # Use another thread to receive all of the serial data
-        arduino_lines = self.return_serial_lines()
+        # Receive all of the serial data in lines
+        ard_lines = self.return_serial_lines()
 
-        if arduino_lines:
-            for line in arduino_lines:
-                self.arduinoLineToDictionary(line)
+        for line in ard_lines:
+            self.arduino_line_to_dictionary(line)
 
-    def arduinoLineToDictionary(self, line):
+    def arduino_line_to_dictionary(self, line):
         """ Takes a line of data from the Arduino and puts it into the dictionary"""
 
         # Temperatures have the following syntax:
-        # name=TempX,serial_num=blahblah,value=50,units=F
+        # <Tsensor:name=Temp1,serial_num=blahblah1,value=55.55,units=F,...>
+
+        # Heaters have the following syntax:
+        # <heater:name=Heater 1,index=0,setpoint_high=120.0,setpoint_low=110.0,pin=4,tsensor_address=DKDKDKD,...>
 
         # Analog pin outputs have the following syntax:
         # analogpin:name=PinX,pin_num=X,value=val
@@ -143,33 +145,113 @@ class ArdControl(Process):
             # First entry is the type, the rest is the data
             type_of_data = serial_read_input_list[0]
             data = serial_read_input_list[1]
-        except:
+        except Exception as e:
+            print("Ran into issue in arduino_line_to_dictionary: {}".format(e))
             return
 
-        if type_of_data == "tempsensor":
+        if type_of_data.lower() == "tsensor":
             self.process_temp_data(data)
 
-        if type_of_data == "analogpin":
+        if type_of_data.lower() == "heater":
+            self.process_heater_data(data)
+
+        if type_of_data.lower() == "analogpin":
             self.process_pressure_data(data)
 
-        if type_of_data == "digitalpin":
-            self.process_heater_pump_data(data)
+        if type_of_data.lower() == "digitalpin":
+            self.process_digital_pin_data(data)
 
     def process_temp_data(self, data):
-        """ processes a tempsensor line from the Arduino"""
+        """ Processes a tempsensor line from the Arduino.
 
-        # Temperatures have the following syntax:
-        # name=TempX,serial_num=blahblah,value=50,units=F
-        sensor_details = data.split(',')
-        serial_num = sensor_details[1].split('=')[1]
-        value = sensor_details[2].split('=')[1]
+        Temperatures have the following syntax:
+        name=TempX,serial_num=blahblah,value=50,units=F
+        """
 
-        # ard_data has the following syntax
-        # self.ard_data['tempsensors'][t.name]['serial_num']
+        tsensor_info = {}
+
+        for group in data.split(';'):
+            key, value = group.split('=')
+            tsensor_info[key] = value
+
+        # Make sure that the serial number exists in the ard_data
+        try:
+            serial_num = tsensor_info['serial']
+        except KeyError:
+            return
 
         for tname in self.ard_data['tempsensors'].keys():
             if self.ard_data['tempsensors'][tname]['serial_num'] == serial_num:
-                self.ard_data['tempsensors'][tname]['value'] = value
+                try:
+                    tsensor_temp = float(tsensor_info['cur_temp'])
+                except Exception as e:
+                    print("Issue converting temperature to float: {}".format(e))
+                    return
+                self.ard_data['tempsensors'][tname]['value'] = tsensor_temp
+
+    def process_heater_data(self, data):
+        """Process a heater output from the arduino.
+
+        Attributes from the arduino output have:
+        name (lookup)
+        index (lookup)
+        setpoint_high
+        setpoint_low
+        setpoint_max
+        pin
+        status
+        tsensor_address
+        """
+        heater_info = {}
+
+        for group in data.split(","):
+            key, value = group.split('=')
+            heater_info[key] = value
+
+        # The index of the heaters have to match
+        if 'index' not in heater_info:
+            return
+
+        index = heater_info['index']
+        matching_name = None
+
+        for heater_name in self.ard_data['heater'].keys():
+            if self.ard_data['heater'][heater_name]['index'] == index:
+                matching_name = heater_name
+
+        # Found the matching heater
+        if 'name' in heater_info:
+            if self.ard_data['heater'][matching_name]['name'] != heater_info['name']:
+                self.send_arduino_data("heater:index={};new_name={}#".format(index,
+                                                                             matching_name))
+        if "setpoint_high" in heater_info:
+            if self.ard_data['heater'][matching_name]['setpoint_high'] != heater_info['setpoint_high']:
+                new_setpoint_high = self.ard_data['heater'][matching_name]['setpoint_high']
+                self.send_arduino_data("heater:index={};setpoint_high={}#".format(index,
+                                                                                  new_setpoint_high))
+
+        if "setpoint_low" in heater_info:
+            if self.ard_data['heater'][matching_name]['setpoint_low'] != heater_info['setpoint_low']:
+                new_setpoint_low = self.ard_data['heater'][matching_name]['setpoint_low']
+                self.send_arduino_data("heater:index={};setpoint_low={}#".format(index,
+                                                                                 new_setpoint_low))
+
+        if "setpoint_max" in heater_info:
+            if self.ard_data['heater'][matching_name]['maxtemp'] != heater_info['setpoint_max']:
+                new_setpoint_max = self.ard_data['heater'][matching_name]['maxtemp']
+                self.send_arduino_data("heater:index={};setpoint_max={}#".format(index,
+                                                                                 new_setpoint_max))
+
+        if "pin" in heater_info:
+            if self.ard_data['heater'][matching_name]['pin_num'] != heater_info['pin']:
+                new_pin = self.ard_data['heater'][matching_name]['pin_num']
+                self.send_arduino_data("heater:index={};new_pin={}#".format(index,new_pin))
+
+        if "tsensor_address" in heater_info:
+            tsensor_name = self.ard_data['heater'][matching_name]['tsensor_name']
+            tsensor_address = self.ard_data['tempsensors'][tsensor_name]['serial_num']
+            if tsensor_address != heater_info['tsensor_address']:
+                self.send_arduino_data("heater:index={};tsensor_address={}".format(index, tsensor_address))
 
     def process_pressure_data(self, data):
         """ Process a presssensor line from the Arduino"""
@@ -192,7 +274,7 @@ class ArdControl(Process):
                 self.ard_data['presssensors'][pname]['voltage'] = voltage
                 self.ard_data['presssensors'][pname]['pressure'] = pressure
 
-    def process_heater_pump_data(self, data):
+    def process_digital_pin_data(self, data):
         """ Processes a digital output line from the Arduino"""
 
         # Digital outputs have the following syntax:
@@ -206,26 +288,6 @@ class ArdControl(Process):
 
         # Store the status of the d pins in a dictionary
         self.digital_pin_status[pin_num] = status
-
-    def check_setpoints(self):
-        # TODO: Can possibly put this in the CCBC Brains
-        """ Looks at each heater and attached temperature sensor and determines pin status."""
-        for heater in self.ard_data['heaters'].keys():
-            current_temp = float(self.ard_data['tempsensors'][self.ard_data['heaters'][heater]['tsensor_name']]['value'])
-
-            # Assign the pin_status the previous value from the previous iteration
-            pin_status = self.ard_data['heaters'][heater]['status']
-
-            if current_temp > self.ard_data['heaters'][heater]['upper limit']:
-                pin_status = 'OFF'
-
-            if current_temp < self.ard_data['heaters'][heater]['lower limit']:
-                pin_status = 'ON'
-
-            if current_temp >= self.ard_data['heaters'][heater]['maxtemp']:
-                pin_status = 'OFF'
-
-            self.ard_data['heaters'][heater]['status'] = pin_status
 
         for pump in self.ard_data['pumps'].keys():
             pressure = float(self.ard_data['presssensors'][self.ard_data['pumps'][pump]['psensor_name']]['pressure'])
@@ -268,139 +330,29 @@ class ArdControl(Process):
                 with self.lock:
                     self.ser.write(msg.encode())
 
+    def update_ard_info(self, component, name, ):
+        """Ensures consistency with what the arduino has and what the python dictionary says."""
+        pass
+
     def run(self):
         """ Opens the serial port and begins reading the arduino data"""
-        self.startSerial()
-        # Wait about five seconds before doing anything
-        time.sleep(5)
+        self.start_serial()
+
         while True:
-            # Check setpoints against all controllers
-            self.check_setpoints()
-
-            # Issue any new commands as necessary
-            self.check_pins()
-
-            # Receive the latest Arduino data and process into dictionary
-            self.read_arduino_data_and_format_dictionary()
-
-            # Clean all of the arduino stuff to avoid incorrect inputs
-            with self.lock:
-                self.ser.reset_output_buffer()
-            with self.lock:
-                self.ser.reset_input_buffer()
-
-
-class CCBC_Brains:
-    # TODO: Update the Brains to actually do something (plotting and/or datalogging)
-
-    def __init__(self, ard_dictionary, ard_commands, t_sensors=[], p_sensors=[], heaters=[], pumps=[]):
-        """ Reads sensor values and runs functions to command hardware"""
-
-        # Have 2 mp Pools, one reading the serial and writing to the ard_dictionary and writing values to the
-        #   sensor objects, the other should convert the ard_dictionary to a json file for the website
-        # Have an input dictionary with two levels of mp.manager.dict(), which the user can use to send
-        # new setpoints to the objects. Make sure the logic will pick up on those
-        # TODO: Add logic to determine whether the child process died and to revive it
-
-        self.ARD_RETURNALL = b'!'
-        self.WRITETIMEOUT = 0.25
-        self.ard_dictionary = ard_dictionary
-        self.ard_commands = ard_commands
-        self.t_sensors = t_sensors
-        self.p_sensors = p_sensors
-        self.heaters = heaters
-        self.pumps = pumps
-
-    def printTemperatureSensors(self):
-        """ Goes through the sensors in the array and returns their 
-        name and current value.
-        """
-        
-        for temp_sensor in self.t_sensors:
-            print("{}: {}F".format(temp_sensor.name, temp_sensor.cur_temp))
-
-    def printPressSensors(self):
-        """ Goes through the pressure sensors in array and returns current value"""
-        for press_sensor in self.p_sensors:
-            print("{}: {}psi".format(press_sensor.name,
-                                     press_sensor.current_pressure))
-
-    def printHeaterStatus(self):
-        """ Goes through the heaters in array and returns their name and status"""
-        
-        for heater in self.heaters:
-            print("{} Status: {}, {} Setpoint: {}F, Current Value: {}".format(heater.name,
-                                                                              heater.returnPinStatus(),
-                                                                              heater.temp_sensor.name,
-                                                                              heater.temperature_setpoint,
-                                                                              heater.returnCurrentTemp()))
-
-    def updateTempSensorValues(self):
-        """ Cycle through the temperature sensors and update their values
-        
-        Basically, update the values to the ones in the dictionary.
-        """
-        # Look through each temperature sensor
-        for hw_sensor in self.t_sensors:
-            # Grab the serial number for the sensor
             try:
-                sensor_serial = hw_sensor.returnSerial()
-            except:
-                return
-            # Look through the entries in the dictionary
-            try:
-                for sensor_type, sensor_entries in self.ard_dictionary.items():
-                    for name, sensor_dict in sensor_entries.items():
-                        # Within each entry, look at the name and value
-                        for attribute, value in sensor_dict.items():
-                            # If the serial number value matches the one in the 
-                            # hw_sensor, then update the hw_sensor value
-                            if value == sensor_serial:
-                                hw_sensor.cur_temp = sensor_dict['value']
-            except:
-                return
+                # Check setpoints against all controllers
+                self.check_setpoints()
 
-    def updatePresSensorValues(self):
-        """ Cycle through the pressure sensors and update their values"""
+                # Issue any new commands as necessary
+                self.check_pins()
 
-        # TODO: Update the logic to account for new method of using ard_dictionary
+                # Receive the latest Arduino data and process into dictionary
+                self.read_arduino_data_and_format_dictionary()
 
-        # Look through each pressure sensor
-        for hw_sensor in self.p_sensors:
-            # Grab the analog pin number for sensor
-            try:
-                sensor_pin_num = str(hw_sensor.pin_num)
-            except:
-                return
-            # Look through entries in dictionary and try to find a match
-            try:
-                for sensor_type, sensor_entries in self.ard_dictionary.items():
-                    if sensor_type == "analogpin":
-                        for name, sensor_dict in sensor_entries.items():
-                            if sensor_dict['pin_num'] == sensor_pin_num:
-                                hw_sensor.update_voltage_and_pressure(float(sensor_dict['value']))
-            except:
-                return
-
-    def updateHeaterControllers(self):
-        """ Make heaters send their commands, if applicable."""
-        
-        for heater in self.heaters:
-            try:
-                heater.determinePinStatus(self.ser)
-            except:
-                return
-
-    def updatePumpControllers(self):
-        """ Make pumps send their commands, if applicable."""
-
-        for pump in self.pumps:
-            try:
-                pump.determinePinStatus(self.ser)
-            except:
-                return
-       
-    def returnArdDict(self):
-        return self.ard_dictionary
-
-
+                # Clean all of the arduino stuff to avoid incorrect inputs
+                with self.lock:
+                    self.ser.reset_output_buffer()
+                with self.lock:
+                    self.ser.reset_input_buffer()
+            except KeyboardInterrupt:
+                self.close_everything()
