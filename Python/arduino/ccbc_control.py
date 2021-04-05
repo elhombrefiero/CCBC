@@ -74,7 +74,7 @@ class ArdControl(Process):
         with self.lock:
             self.ser.write(self.ARD_RETURNALL)
 
-    def send_arduino_data(self, command:str):
+    def send_arduino_data(self, command: str):
         """ Sends command to arduino
 
         command is in the form of a string
@@ -108,13 +108,14 @@ class ArdControl(Process):
         """
 
         # Issue request command to the serial port
-        self.request_arduino_data()
+        Worker(self.request_arduino_data)
 
         # Receive all of the serial data in lines
         ard_lines = self.return_serial_lines()
 
-        for line in ard_lines:
-            self.arduino_line_to_dictionary(line)
+        if ard_lines:
+            for line in ard_lines:
+                self.arduino_line_to_dictionary(line)
 
     def arduino_line_to_dictionary(self, line):
         """ Takes a line of data from the Arduino and puts it into the dictionary"""
@@ -138,6 +139,13 @@ class ArdControl(Process):
 
         # For the heaters and pumps, it has to find a digital pin_num, then match that to the one in the ard_dictionary
 
+        # Grab just the inner portion
+        if line[0] != "<" and line[-1] != ">":
+            return
+
+        line = line.replace("<", "")
+        line = line.replace(">", "")
+
         # Split the serial read text by colons to get the type of data and the data itself
         serial_read_input_list = line.split(":")
 
@@ -156,6 +164,9 @@ class ArdControl(Process):
             self.process_heater_data(data)
 
         if type_of_data.lower() == "analogpin":
+            pass
+
+        if type_of_data.lower() == "psensor":
             self.process_pressure_data(data)
 
         if type_of_data.lower() == "digitalpin":
@@ -192,8 +203,8 @@ class ArdControl(Process):
     def process_heater_data(self, data):
         """Process a heater output from the arduino.
 
-        Attributes from the arduino output have:
-        name (lookup)
+        Attributes from the arduino output:
+        name
         index (lookup)
         setpoint_high
         setpoint_low
@@ -204,7 +215,7 @@ class ArdControl(Process):
         """
         heater_info = {}
 
-        for group in data.split(","):
+        for group in data.split(";"):
             key, value = group.split('=')
             heater_info[key] = value
 
@@ -212,53 +223,83 @@ class ArdControl(Process):
         if 'index' not in heater_info:
             return
 
-        index = heater_info['index']
+        try:
+            index = int(heater_info['index'])
+        except:
+            return
+
+        name_in_ard_dict = None
         matching_name = None
 
-        for heater_name in self.ard_data['heater'].keys():
-            if self.ard_data['heater'][heater_name]['index'] == index:
+        for heater_name in self.ard_data['heaters'].keys():
+            if self.ard_data['heaters'][heater_name]['index'] == index:
                 matching_name = heater_name
+
+        if matching_name not in self.ard_data['heaters'].keys():
+            return
 
         # Found the matching heater
         if 'name' in heater_info:
-            if self.ard_data['heater'][matching_name]['name'] != heater_info['name']:
+            if self.ard_data['heaters'][matching_name]['name'] != heater_info['name']:
                 self.send_arduino_data("heater:index={};new_name={}#".format(index,
                                                                              matching_name))
         if "setpoint_high" in heater_info:
-            if self.ard_data['heater'][matching_name]['setpoint_high'] != heater_info['setpoint_high']:
-                new_setpoint_high = self.ard_data['heater'][matching_name]['setpoint_high']
+            try:
+                arduino_stpt_high = float(heater_info['setpoint_high'])
+            except:
+                return
+            if self.ard_data['heaters'][matching_name]['upper limit'] != arduino_stpt_high:
+                new_setpoint_high = self.ard_data['heaters'][matching_name]['upper limit']
                 self.send_arduino_data("heater:index={};setpoint_high={}#".format(index,
                                                                                   new_setpoint_high))
 
         if "setpoint_low" in heater_info:
-            if self.ard_data['heater'][matching_name]['setpoint_low'] != heater_info['setpoint_low']:
-                new_setpoint_low = self.ard_data['heater'][matching_name]['setpoint_low']
+            try:
+                arduino_stpt_low = float(heater_info['setpoint_low'])
+            except:
+                return
+            if self.ard_data['heaters'][matching_name]['lower limit'] != arduino_stpt_low:
+                new_setpoint_low = self.ard_data['heaters'][matching_name]['lower limit']
                 self.send_arduino_data("heater:index={};setpoint_low={}#".format(index,
                                                                                  new_setpoint_low))
 
         if "setpoint_max" in heater_info:
-            if self.ard_data['heater'][matching_name]['maxtemp'] != heater_info['setpoint_max']:
-                new_setpoint_max = self.ard_data['heater'][matching_name]['maxtemp']
+            try:
+                arduino_stpt_max = float(heater_info['setpoint_max'])
+            except:
+                return
+            if self.ard_data['heaters'][matching_name]['maxtemp'] != arduino_stpt_max:
+                new_setpoint_max = self.ard_data['heaters'][matching_name]['maxtemp']
                 self.send_arduino_data("heater:index={};setpoint_max={}#".format(index,
                                                                                  new_setpoint_max))
 
         if "pin" in heater_info:
-            if self.ard_data['heater'][matching_name]['pin_num'] != heater_info['pin']:
-                new_pin = self.ard_data['heater'][matching_name]['pin_num']
-                self.send_arduino_data("heater:index={};new_pin={}#".format(index,new_pin))
+            try:
+                arduino_pin = int(heater_info["pin"])
+            except:
+                return
+            if self.ard_data['heaters'][matching_name]['pin_num'] != arduino_pin:
+                new_pin = self.ard_data['heaters'][matching_name]['pin_num']
+                self.send_arduino_data("heater:index={};new_pin={}#".format(index, new_pin))
 
-        if "tsensor_address" in heater_info:
-            tsensor_name = self.ard_data['heater'][matching_name]['tsensor_name']
+        tsensor_name = self.ard_data['heaters'][matching_name]['tsensor_name']
+
+        if tsensor_name is None:  # There should be no tsensor in the arduino
+            if "tsensor_address" in heater_info:
+                # TODO: Remove tensor address
+                pass
+
+        else:
             tsensor_address = self.ard_data['tempsensors'][tsensor_name]['serial_num']
-            if tsensor_address != heater_info['tsensor_address']:
-                self.send_arduino_data("heater:index={};tsensor_address={}".format(index, tsensor_address))
+            if "tsensor_address" not in heater_info or tsensor_address != heater_info['tsensor_address']:
+                self.send_arduino_data("heater:index={};tsensor_address={}#".format(index, tsensor_address))
 
     def process_pressure_data(self, data):
         """ Process a presssensor line from the Arduino"""
 
         # Analog pin outputs have the following syntax:
         # name=PinX,pin_num=X,value=val
-        sensor_details = data.split(',')
+        sensor_details = data.split(';')
         # Pin number must be an integer; voltage is a float
         pin_num = int(sensor_details[1].split('=')[1])
         voltage = float(sensor_details[2].split('=')[1])
@@ -308,44 +349,12 @@ class ArdControl(Process):
 
             self.ard_data['pumps'][pump]['status'] = pin_status
 
-    def check_pins(self):
-        # Read the status of every digital pin input in ard_data
-        for heater in self.ard_data['heaters'].keys():
-            pin_num = int(self.ard_data['heaters'][heater]['pin_num'])
-            status = self.ard_data['heaters'][heater]['status']
-            # Check against the value in the digital pin status dict
-            if self.digital_pin_status[pin_num] != status:
-                # Issue a command to be what is in the ard_data dict
-                msg = "{}={}#".format(pin_num, status)
-                with self.lock:
-                    self.ser.write(msg.encode())
-
-        for pump in self.ard_data['pumps'].keys():
-            pin_num = int(self.ard_data['pumps'][pump]['pin_num'])
-            status = self.ard_data['pumps'][pump]['status']
-            # Check against the value in the digital pin status dict
-            if self.digital_pin_status[pin_num] != status:
-                # Issue a command to be what is in the ard_data dict
-                msg = "{}={}#".format(pin_num, status)
-                with self.lock:
-                    self.ser.write(msg.encode())
-
-    def update_ard_info(self, component, name, ):
-        """Ensures consistency with what the arduino has and what the python dictionary says."""
-        pass
-
     def run(self):
         """ Opens the serial port and begins reading the arduino data"""
         self.start_serial()
 
         while True:
             try:
-                # Check setpoints against all controllers
-                self.check_setpoints()
-
-                # Issue any new commands as necessary
-                self.check_pins()
-
                 # Receive the latest Arduino data and process into dictionary
                 self.read_arduino_data_and_format_dictionary()
 
