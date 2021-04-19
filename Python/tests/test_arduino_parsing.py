@@ -48,7 +48,6 @@ class ArduinoControlConnectionTests(unittest.TestCase):
 
         ard_controller.process_temp_data.assert_called_with("index=0;serial=28FFAC378217045A;cur_temp=111.11")
 
-
     def test_ard_dict_update_heater(self):
         """ Checks that the process line to dictionary works"""
         heater_line = "<heater:name=Heater 1;index=0;setpoint_high=32.00;setpoint_low=31.00;setpoint_max=212.00;pin" \
@@ -97,6 +96,7 @@ class ArduinoControlConnectionTests(unittest.TestCase):
         ard_controller.send_arduino_data = MagicMock()
 
         ard_dict['heaters'][heaternames[0]]['upper limit'] = new_setpoint_high
+        ard_dict['heaters'][heaternames[0]]['tsensor_name'] = "TSensor 1"
 
         ard_controller.process_heater_data(heater_data)
 
@@ -119,6 +119,7 @@ class ArduinoControlConnectionTests(unittest.TestCase):
         ard_controller.send_arduino_data = MagicMock()
 
         ard_dict['heaters'][heaternames[0]]['lower limit'] = new_setpoint_low
+        ard_dict['heaters'][heaternames[0]]['tsensor_name'] = "TSensor 1"
 
         ard_controller.process_heater_data(heater_data)
         ard_controller.send_arduino_data.assert_called_with(f"heater:index=0;setpoint_low={new_setpoint_low}#")
@@ -140,6 +141,7 @@ class ArduinoControlConnectionTests(unittest.TestCase):
         ard_controller.send_arduino_data = MagicMock()
 
         ard_dict['heaters'][heaternames[0]]['maxtemp'] = new_setpoint_max
+        ard_dict['heaters'][heaternames[0]]['tsensor_name'] = "TSensor 1"
         ard_controller.process_heater_data(heater_data)
 
         ard_controller.send_arduino_data.assert_called_with(f"heater:index=0;setpoint_max={new_setpoint_max}#")
@@ -163,6 +165,8 @@ class ArduinoControlConnectionTests(unittest.TestCase):
         ard_controller.send_arduino_data = MagicMock()
 
         ard_dict['heaters'][heaternames[0]]['pin_num'] = new_pin
+        ard_dict['heaters'][heaternames[0]]['tsensor_name'] = "TSensor 1"
+
         ard_controller.process_heater_data(heater_data)
 
         ard_controller.send_arduino_data.assert_called_with(f"heater:index=0;new_pin={new_pin}#")
@@ -212,6 +216,8 @@ class ArduinoControlConnectionTests(unittest.TestCase):
         ard_controller.send_arduino_data = MagicMock()
 
         ard_dict['heaters'][heaternames[0]]['name'] = new_heater_name
+        ard_dict['heaters'][heaternames[0]]['tsensor_name'] = "TSensor 1"
+
         ard_controller.process_heater_data(heater_data)
 
         ard_controller.send_arduino_data.assert_called_with(f"heater:index=0;new_name={new_heater_name}#")

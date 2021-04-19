@@ -32,7 +32,6 @@ class Worker(Thread):
 class ArdControl(Process):
     """ Class which will read and process arduino data and issue commands when needed"""
 
-    # TODO: Make the ARdControl class simpler
     # TODO: Create function that will return all of the data to be displayed in GUI
     # TODO: Add a function to return the status of all of the digital and analog pins
 
@@ -286,8 +285,7 @@ class ArdControl(Process):
 
         if tsensor_name is None:  # There should be no tsensor in the arduino
             if "tsensor_address" in heater_info:
-                # TODO: Remove tensor address
-                pass
+                self.send_arduino_data("heater:index={};tsensor_address={}#".format(index, "remove"))
 
         else:
             tsensor_address = self.ard_data['tempsensors'][tsensor_name]['serial_num']
@@ -318,6 +316,7 @@ class ArdControl(Process):
     def process_digital_pin_data(self, data):
         """ Processes a digital output line from the Arduino"""
 
+        # TODO: Modify this for when manual control is requested
         # Digital outputs have the following syntax:
         # name=PinX,pin_num=X,value=val, where val is 0/1 for OFF/ON
         sensor_details = data.split(',')
