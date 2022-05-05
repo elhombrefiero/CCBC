@@ -1,0 +1,7 @@
+flask
+flask-cors
+python-dotenv
+serial
+gpiozero
+fake_rpi
+RPi.GPIO
