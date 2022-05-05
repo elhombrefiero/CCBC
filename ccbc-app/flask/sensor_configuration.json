@@ -1,0 +1,138 @@
+{
+    "temperature_sensors": [
+        {
+            "id": 1,
+            "name": "Hot Water Tank",
+            "serial": "28FF4A7780160477",
+            "value": 9999
+        },
+        {
+            "id": 2,
+            "name": "Mash Tun High",
+            "serial": "28FF98338016051A",
+            "value": 9999
+        },
+        {
+            "id": 3,
+            "name": "Mash Tun Low",
+            "serial": "28FF8495801604B9",
+            "value": 9999
+        },
+        {
+            "id": 4,
+            "name": "HERMS In",
+            "serial": "28FF7C2480160561",
+            "value": 9999
+        },
+        {
+            "id": 5,
+            "name": "HERMS Out",
+            "serial": "28FF3294801604E5",
+            "value": 9999
+        },
+        {
+            "id": 6,
+            "name": "HERMS H2O",
+            "serial": "28FFB41880160527",
+            "value": 9999
+        },
+        {
+            "id": 7,
+            "name": "Boil Kettle",
+            "serial": "28FFB47780160473",
+            "value": 9999
+        },
+        {
+            "id": 8,
+            "name": "Wort Out",
+            "serial": "28FF59A08516052E",
+            "value": 9999
+        },
+        {
+            "id": 9,
+            "name": "Ambient Temp",
+            "serial": "28FF437880160540",
+            "value": 9999
+        }
+    ],
+
+    "pressure_sensors": [
+        {
+            "id": 1,
+            "name": "Pressure Sensor 1",
+            "analog_pin": 0,
+            "value": 9999
+        },
+        {
+            "id": 2,
+            "name": "Pressure Sensor 2",
+            "analog_pin": 1,
+            "value": 9999
+        },
+        {
+            "id": 3,
+            "name": "Pressure Sensor 3",
+            "analog_pin": 2,
+            "value": 9999
+        },
+        {
+            "id": 4,
+            "name": "Pressure Sensor 4",
+            "analog_pin": 3,
+            "value": 9999
+        }
+    ],
+
+    "heaters": [
+        {
+            "id": 1,
+            "name": "Heater 1",
+            "digital_pin": 5,
+            "status": "OFF",
+            "upper_limit": 9999,
+            "lower_limit": 9999,
+            "max_limit": 9999
+        },
+        {
+            "id": 2,
+            "name": "Heater 2",
+            "digital_pin": 4,
+            "status": "OFF",
+            "upper_limit": 9999,
+            "lower_limit": 9999,
+            "max_limit": 9999
+        },
+        {
+            "id": 3,
+            "name": "Heater 3",
+            "digital_pin": 3,
+            "status": "OFF",
+            "upper_limit": 9999,
+            "lower_limit": 9999,
+            "max_limit": 9999
+        }
+
+    ], 
+
+    "pumps": [
+        {
+            "id": 1,
+            "name": "Pump 1",
+            "digital_pin": 9,
+            "status": "OFF1"
+        },
+        {
+            "id": 2,
+            "name": "Pump 2",
+            "digital_pin": 8,
+            "status": "OFF2"
+        },
+        {
+            "id": 3,
+            "name": "Pump 3",
+            "digital_pin": 7,
+            "status": "OFF3"
+        }
+
+    ]
+}
