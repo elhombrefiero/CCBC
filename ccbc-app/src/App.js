@@ -19,13 +19,13 @@ function App() {
       </div> */}
       <Grid container space={2}>
         <Grid item xs={6} md={4}>
-          <Pump id="0" name="Pump 1" />
+          <Pump id="0" name="Pump 1" pin="9" />
         </Grid>
         <Grid item xs={6} md={4}>
-          <Pump id="1" name="Pump 2" />
+          <Pump id="1" name="Pump 2" pin="8" />
         </Grid>
         <Grid item xs={6} md={4}>
-          <Pump id="2" name="Pump 3" />
+          <Pump id="2" name="Pump 3" pin="7" />
         </Grid>
       </Grid>      
     </div>

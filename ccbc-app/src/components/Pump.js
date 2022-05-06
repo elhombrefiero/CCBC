@@ -8,15 +8,21 @@ function Pump(props) {
   const [status, setStatus] = useState({});
 
   function turnOn() {
-    setStatus({"name": props.name, "status": "ON"});
-    console.log("TURNING ON");
-    console.log(status);
+    setStatus({
+      "id": props.name,
+      "name": props.name,
+      "digital_pin": props.pin, 
+      "status": "ON"
+    });
   };
   
   function turnOff() {
-    setStatus({"name": props.name, "status": "OFF"});
-    console.log("TURNING OFF");
-    console.log(status);
+    setStatus({
+      "id": props.name,
+      "name": props.name,
+      "digital_pin": props.pin, 
+      "status": "OFF"
+    });
   };
    
   useEffect(() => {
@@ -33,13 +39,14 @@ function Pump(props) {
       fetch('/pumps').then(
         response => response.json()
       ).then(data => setStatus({
+        "id": props.id,
         "name": props.name, 
+        "pin": data['pumpData'][props.id]['digital_pin'],
         "status": data['pumpData'][props.id]['status']
       }))
     }, [])
-
-  console.log("CURRENT STATUS IN REACT: " + status.status)
-
+  
+  console.log(status)
 
   return (
     <div className="pump-input">
@@ -48,7 +55,9 @@ function Pump(props) {
         <Button variant="contained" color="error" onClick={turnOn}>On</Button>
         <Button variant="contained" color="primary" onClick={turnOff}>Off</Button>
       </div>
+      <p>Current ID: {status.id}</p>
       <p>Current Name: {status.name}</p>
+      <p>Current Pin: {status.pin}</p>
       <p>Current Status: {status.status}</p>
     </div>
   );

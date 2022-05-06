@@ -54,7 +54,10 @@ def pumps():
         # Send ON/OFF to Arduino
         # Use try/except for development with Arduino inactive.
         try:
-            command = bytes(config['pumps'][index]['status'], 'utf-8')
+            pin = config['pumps'][index]['digital_pin']
+            status = config['pumps'][index]['status']
+            # TODO: Figure out why Rene puts a # at the end.
+            command = bytes(f'{pin}={status}#', 'utf-8')
             ser.write(command)
         except NameError:
             print('Serial port is not open.')
