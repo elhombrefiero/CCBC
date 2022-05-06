@@ -5,14 +5,15 @@ import json
 
 
 # Arduino setup.
-USB_PORT = '/dev/ttyACM1'
+USB_PORT = '/dev/ttyACM0'
 
 try:
     ser = serial.Serial(USB_PORT, 9600)
     ser.baudrate = 9600
     print('Serial setup complete.')
-except:
+except Exception as err:
     print('Could not open serial port.')
+    print(err)
 
 # Server setup.
 app = Flask(__name__, static_folder='../build', static_url_path='')

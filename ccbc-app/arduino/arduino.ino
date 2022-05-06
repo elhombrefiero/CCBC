@@ -17,7 +17,7 @@ void loop() {
         } else if (command == "OFF") {
             digitalWrite(pump1, LOW);
         } else {
-            Serial.println("Invalid command. Supply ON or OFF.")
+            Serial.println("Invalid command. Supply ON or OFF.");
         }
     }
 }
