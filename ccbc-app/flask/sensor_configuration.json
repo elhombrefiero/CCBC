@@ -119,19 +119,19 @@
             "id": 1,
             "name": "Pump 1",
             "digital_pin": 9,
-            "status": "OFF1"
+            "status": "OFF"
         },
         {
             "id": 2,
             "name": "Pump 2",
             "digital_pin": 8,
-            "status": "OFF2"
+            "status": "OFF"
         },
         {
             "id": 3,
             "name": "Pump 3",
             "digital_pin": 7,
-            "status": "OFF3"
+            "status": "OFF"
         }
 
     ]
