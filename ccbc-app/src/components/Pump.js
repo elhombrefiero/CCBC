@@ -9,7 +9,7 @@ function Pump(props) {
 
   function turnOn() {
     setStatus({
-      "id": props.name,
+      "id": props.id,
       "name": props.name,
       "digital_pin": props.pin, 
       "status": "ON"
@@ -18,7 +18,7 @@ function Pump(props) {
   
   function turnOff() {
     setStatus({
-      "id": props.name,
+      "id": props.id,
       "name": props.name,
       "digital_pin": props.pin, 
       "status": "OFF"
