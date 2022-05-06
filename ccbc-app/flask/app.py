@@ -21,6 +21,14 @@ CORS(app)
 # Configuration setup.
 config = json.load(open('sensor_configuration.json'))
 
+@app.route('/')
+@cross_origin()
+def home():
+    """
+    Give access to app in build folder. This is needed
+    to access the RPi webserver from another computer.
+    """
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/configuration', methods=['GET'])
 @cross_origin()
