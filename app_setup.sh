@@ -7,6 +7,7 @@ npx create-react-app $app_name
 
 # Material UI install.
 npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material
 
 # Create flask directory.
 mkdir $app_name/flask
