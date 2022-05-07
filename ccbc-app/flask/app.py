@@ -62,4 +62,42 @@ def pumps():
         except NameError:
             print('Serial port is not open.')
         
-    return {'pumpData': config['pumps']}
+    return {'data': config['pumps']}
+
+
+@app.route('/heaters', methods=['GET', 'POST'])
+@cross_origin()
+def heaters():
+    """Control heaters and return the current heater configuration."""
+    if request.method == 'POST':
+        if request.json['name'] == 'Hot Water Tank Heater':
+            index = 0
+        elif request.json['name'] == 'HERMS Heater':
+            index = 1
+        elif request.json['name'] == 'Boil Kettle Heater':
+            index = 2
+        config['heaters'][index]['setpoint'] = request.json['setpoint']
+        config['heaters'][index]['deadband'] = request.json['deadband']
+
+        # Send ON/OFF to Arduino
+        # Use try/except for development with Arduino inactive.
+        # try:
+        #     pin = config['pumps'][index]['digital_pin']
+        #     status = config['pumps'][index]['status']
+        #     # TODO: Figure out why Rene puts a # at the end.
+        #     command = bytes(f'{pin}={status}#', 'utf-8')
+        #     ser.write(command)
+        # except NameError:
+        #     print('Serial port is not open.')
+    return {'data': config['heaters']}
+
+
+@app.route('/temperatures', methods=['GET'])
+@cross_origin()
+def temperatures():
+    """Get temperatures from Arduino."""
+    try:
+        line = ser.readline().decode('utf-8').strip()
+    except NameError:
+        return {'message': "Serial port is not open."}
+    return {'message': line}

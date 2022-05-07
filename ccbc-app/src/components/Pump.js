@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Button from '@mui/material/Button'
 import './Pump.css'
 
-
 function Pump(props) {
  
   const [status, setStatus] = useState({});
@@ -41,8 +40,8 @@ function Pump(props) {
       ).then(data => setStatus({
         "id": props.id,
         "name": props.name, 
-        "pin": data['pumpData'][props.id]['digital_pin'],
-        "status": data['pumpData'][props.id]['status']
+        "pin": data['data'][props.id]['digital_pin'],
+        "status": data['data'][props.id]['status']
       }))
     }, [])
   
@@ -55,9 +54,9 @@ function Pump(props) {
         <Button variant="contained" color="error" onClick={turnOn}>On</Button>
         <Button variant="contained" color="primary" onClick={turnOff}>Off</Button>
       </div>
-      <p>Current ID: {status.id}</p>
+      {/* <p>Current ID: {status.id}</p>
       <p>Current Name: {status.name}</p>
-      <p>Current Pin: {status.pin}</p>
+      <p>Current Pin: {status.pin}</p> */}
       <p>Current Status: {status.status}</p>
     </div>
   );

@@ -1,33 +1,13 @@
-/* button {
-    width: 50%;
-    height: 50px;
-    font-size: 14px;
-    font-weight: bold;
-    margin: 2%;
-}
-
-p {
-    font-size: 14px;
-}
-
 .heater-input {
     border: 3px solid black;
     border-radius: 10px;
     margin: 2%;
-    margin-left: 12%;
-    margin-right: 12%;
-    margin-top: 5%;
-    padding-left: 5%;
-    padding-right: 5%;
-    padding-bottom: 2%;
-}
-
-.heading-container {
     text-align: center;
 }
 
-.button-container {
-    text-align: center;
+.heater-buttons-container {
     display: flex;
     justify-content: space-evenly;
-} */
+    flex-wrap: wrap;
+    margin-bottom: 5%;
+}

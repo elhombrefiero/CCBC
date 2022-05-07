@@ -86,30 +86,27 @@
     "heaters": [
         {
             "id": 1,
-            "name": "Heater 1",
+            "name": "Hot Water Tank Heater",
             "digital_pin": 5,
             "status": "OFF",
-            "upper_limit": 9999,
-            "lower_limit": 9999,
-            "max_limit": 9999
+            "setpoint": 170,
+            "deadband": 1
         },
         {
             "id": 2,
-            "name": "Heater 2",
+            "name": "HERMS Heater",
             "digital_pin": 4,
             "status": "OFF",
-            "upper_limit": 9999,
-            "lower_limit": 9999,
-            "max_limit": 9999
+            "setpoint": 150,
+            "deadband": 1
         },
         {
             "id": 3,
-            "name": "Heater 3",
+            "name": "Boil Kettle Heater",
             "digital_pin": 3,
             "status": "OFF",
-            "upper_limit": 9999,
-            "lower_limit": 9999,
-            "max_limit": 9999
+            "setpoint": 212,
+            "deadband": 1
         }
 
     ], 
