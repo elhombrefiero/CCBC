@@ -1,29 +1,23 @@
 import React, { useState, useEffect } from "react";
-import Button from '@mui/material/Button'
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import MuiToggleButton from "@mui/material/ToggleButton";
+import { styled } from "@mui/material/styles";
 import './Pump.css'
 
 function Pump(props) {
- 
-  const [status, setStatus] = useState({});
 
-  function turnOn() {
-    setStatus({
-      "id": props.id,
-      "name": props.name,
-      "digital_pin": props.pin, 
-      "status": "ON"
-    });
-  };
-  
-  function turnOff() {
-    setStatus({
-      "id": props.id,
-      "name": props.name,
-      "digital_pin": props.pin, 
-      "status": "OFF"
-    });
-  };
-   
+  const ToggleButton = styled(MuiToggleButton)({
+    "&.Mui-selected, &.Mui-selected:hover": {
+      color: "white",
+      backgroundColor: '#d32f2f'
+    }
+  });
+
+  const [status, setStatus] = useState({});
+ 
   useEffect(() => {
     fetch('/pumps', {
         method: 'POST',
@@ -40,25 +34,33 @@ function Pump(props) {
       ).then(data => setStatus({
         "id": props.id,
         "name": props.name, 
-        "pin": data['data'][props.id]['digital_pin'],
+        "pin": data['data'][props.id]['pin'],
         "status": data['data'][props.id]['status']
       }))
     }, [])
   
-  console.log(status)
-
   return (
-    <div className="pump-input">
-      <h4>{props.name}</h4>
-      <div className="pump-buttons-container">
-        <Button variant="contained" color="error" onClick={turnOn}>On</Button>
-        <Button variant="contained" color="primary" onClick={turnOff}>Off</Button>
-      </div>
-      {/* <p>Current ID: {status.id}</p>
-      <p>Current Name: {status.name}</p>
-      <p>Current Pin: {status.pin}</p> */}
-      <p>Current Status: {status.status}</p>
-    </div>
+    <Card variant="outlined" className="pump-card">
+      <CardHeader title={props.name}></CardHeader>
+      <CardContent>
+        <ToggleButton
+          value="check"
+          color="primary"
+          selected={status['status']}
+          onChange={() => {
+            setStatus({
+              "id": props.id,
+              "name": props.name,
+              "pin": props.pin, 
+              "status": !status['status']
+            });
+          }}
+        >
+          <PowerSettingsNewIcon />
+        </ToggleButton>
+      </CardContent>
+      <p>Pump Status: {status.status ? 'ON' : 'OFF'}</p>
+    </Card>
   );
 }
 

@@ -1,11 +1,4 @@
-.pump-input {
-    border: 3px solid black;
-    border-radius: 10px;
+.pump-card {
     margin: 2%;
     text-align: center;
-}
-
-.pump-buttons-container {
-    display: flex;
-    justify-content: space-evenly;
 }
