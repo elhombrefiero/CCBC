@@ -10,10 +10,10 @@ function OneWireTemperature() {
         ).then(data => setTemperature(data))
     }
 
-    useEffect(() => {
-        const timer = setInterval(fetchTemperature, 1000);
-        return () => clearInterval(timer);
-    }, [])
+    // useEffect(() => {
+    //     const timer = setInterval(fetchTemperature, 1000);
+    //     return () => clearInterval(timer);
+    // }, [])
 
     return (
         <div>

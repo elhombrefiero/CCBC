@@ -22,6 +22,7 @@ CORS(app)
 # Configuration setup.
 config = json.load(open('sensor_configuration.json'))
 
+
 @app.route('/')
 @cross_origin()
 def home():
@@ -30,6 +31,7 @@ def home():
     to access the RPi webserver from another computer.
     """
     return send_from_directory(app.static_folder, 'index.html')
+
 
 @app.route('/configuration', methods=['GET'])
 @cross_origin()
@@ -51,13 +53,14 @@ def pumps():
             index = 2
         config['pumps'][index]['status'] = request.json['status']
 
-        # Send ON/OFF to Arduino
         # Use try/except for development with Arduino inactive.
         try:
-            pin = config['pumps'][index]['digital_pin']
+            # Only send number from pin. D1, D2, A0, A1, etc.
+            pin = config['pumps'][index]['pin'][1:]
             status = config['pumps'][index]['status']
-            # TODO: Figure out why Rene puts a # at the end.
-            command = bytes(f'{pin}={status}#', 'utf-8')
+            print(f'{pin}={status}')
+
+            command = bytes(f'{pin}={status}', 'utf-8')
             ser.write(command)
         except NameError:
             print('Serial port is not open.')

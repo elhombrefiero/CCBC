@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Button from '@mui/material/Button'
-import SendIcon from '@mui/icons-material/Send'
-import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 import './Heater.css'
 
 // TODO: Add a slider from Material UI to control voltage to heater
@@ -11,7 +17,7 @@ function Heater(props) {
 
   const [status, setStatus] = useState({});
 
-  function incrementSetpointByOne() {
+  function incrementSetpoint() {
     setStatus(previousValue => {
       return {
         ...previousValue,
@@ -20,7 +26,7 @@ function Heater(props) {
     });
   }
  
-  function decrementSetpointByOne() {
+  function decrementSetpoint() {
     setStatus(previousValue => {
       return {
         ...previousValue,
@@ -29,25 +35,7 @@ function Heater(props) {
     });
   }
   
-  function incrementSetpointByFive() {
-    setStatus(previousValue => {
-      return {
-        ...previousValue,
-        "setpoint": status.setpoint + 5
-      };
-    });
-  }
- 
-  function decrementSetpointByFive() {
-    setStatus(previousValue => {
-      return {
-        ...previousValue,
-        "setpoint": status.setpoint - 5
-      };
-    });
-  }
-  
-  function incrementDeadbandByOne() {
+  function incrementDeadband() {
     setStatus(previousValue => {
       return {
         ...previousValue,
@@ -56,7 +44,7 @@ function Heater(props) {
     });
   }
  
-  function decrementDeadbandByOne() {
+  function decrementDeadband() {
     setStatus(previousValue => {
       return {
         ...previousValue,
@@ -65,16 +53,6 @@ function Heater(props) {
     });
   }
  
-  function handleTransfer() {
-      fetch('/heaters', {
-          method: 'POST',
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(status)
-      }).then(() => {
-          console.log(status)
-      })
-  }
-
   useEffect(() => {
       fetch('/heaters', {
           method: 'POST',
@@ -99,46 +77,46 @@ function Heater(props) {
     }, [])
 
   return (
-    <div className="heater-input">
-      <h4>{props.name}</h4>
-      <p>Setpoint</p>
-      {/* <div className="heater-buttons-container">
-        <Button variant="outlined" color="primary" onClick={incrementSetpointByOne}>+1</Button>
-        <Button variant="outlined" color="primary" onClick={decrementSetpointByOne}>-1</Button>
-        <Button variant="outlined" color="primary" onClick={incrementSetpointByFive}>+5</Button>
-        <Button variant="outlined" color="primary" onClick={decrementSetpointByFive}>-5</Button>
-      </div> */}
+    <Card variant="outlined" className="heater-input">
+      <CardHeader title={props.name}></CardHeader>
+      <CardContent>
+        <div className="inputs-container" style={{ marginBottom: '2ch' }}>
+          <TextField
+            label="Setpoint"
+            sx={{ width: '15ch' }}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">F</InputAdornment>,
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            value={status.setpoint}
+          />
+          <Button variant="contained" onClick={incrementSetpoint}><ArrowUpwardIcon></ArrowUpwardIcon></Button>
+          <Button variant="contained" onClick={decrementSetpoint}><ArrowDownwardIcon></ArrowDownwardIcon></Button>
+        </div>
 
-      <Grid container space={2}>
-        <Grid item xs={6} md={3}>
-          <Button variant="outlined" color="primary" onClick={incrementSetpointByOne}>+1</Button>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Button variant="outlined" color="primary" onClick={decrementSetpointByOne}>-1</Button>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Button variant="outlined" color="primary" onClick={incrementSetpointByFive}>+5</Button>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Button variant="outlined" color="primary" onClick={decrementSetpointByFive}>-5</Button>
-        </Grid>
-      </Grid>
-      <p>Deaband</p>
-      <div className="heater-buttons-container">
-        <Button variant="outlined" color="primary" onClick={incrementDeadbandByOne}>+1</Button>
-        <Button variant="outlined" color="primary" onClick={decrementDeadbandByOne}>-1</Button>
-      </div>
-      <Button
-        variant="contained" 
-        color="primary" 
-        endIcon={<SendIcon />} 
-        onClick={handleTransfer}>
-          Update
-      </Button>
-      <p>Status: {status.status}</p>
-      <p>Setpoint: {status.setpoint}F</p>
-      <p>Deadband: {status.deadband}F</p>
-    </div>
+        <div className="inputs-container">
+          <TextField
+            label="Diff"
+            id="outlined-end-adornment"
+            sx={{ width: '15ch' }}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">F</InputAdornment>,
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            value={status.deadband}
+          />
+          <Button variant="contained" onClick={incrementDeadband}><ArrowUpwardIcon></ArrowUpwardIcon></Button>
+          <Button variant="contained" onClick={decrementDeadband}><ArrowDownwardIcon></ArrowDownwardIcon></Button>
+        </div>
+      </CardContent>
+
+      <p>Heater Status: {status.status}</p>
+
+    </Card>
   );
 }
 

@@ -1,13 +1,9 @@
 .heater-input {
-    border: 3px solid black;
-    border-radius: 10px;
     margin: 2%;
     text-align: center;
 }
 
-.heater-buttons-container {
+.inputs-container {
     display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    margin-bottom: 5%;
+    justify-content: center;
 }

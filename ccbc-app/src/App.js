@@ -16,7 +16,7 @@ function App() {
         <h1>CCBC Control Panel</h1>
         <Temperatures />
       </div> */}
-      <OneWireTemperature />
+      {/* <OneWireTemperature />
       <Grid container space={2}>
         <Grid item xs={6} md={4}>
           <Heater id="0" name="Hot Water Tank Heater" pin="5"/>
@@ -27,7 +27,7 @@ function App() {
         <Grid item xs={6} md={4}>
           <Heater id="2" name="Boil Kettle Heater" pin="3"/>
         </Grid>
-      </Grid>
+      </Grid> */}
       {/* TODO: I think I can get rid of pin here and use whatever is in
       the configurationf file */}
       <Grid container space={2}>
