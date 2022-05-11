@@ -60,25 +60,25 @@
         {
             "id": 1,
             "name": "Pressure Sensor 1",
-            "analog_pin": 0,
+            "pin": "A0",
             "value": 9999
         },
         {
             "id": 2,
             "name": "Pressure Sensor 2",
-            "analog_pin": 1,
+            "pin": "A1",
             "value": 9999
         },
         {
             "id": 3,
             "name": "Pressure Sensor 3",
-            "analog_pin": 2,
+            "pin": "A2",
             "value": 9999
         },
         {
             "id": 4,
             "name": "Pressure Sensor 4",
-            "analog_pin": 3,
+            "pin": "A3",
             "value": 9999
         }
     ],
@@ -87,7 +87,7 @@
         {
             "id": 1,
             "name": "Hot Water Tank Heater",
-            "digital_pin": 5,
+            "pin": "D5",
             "status": "OFF",
             "setpoint": 170,
             "deadband": 1
@@ -95,7 +95,7 @@
         {
             "id": 2,
             "name": "HERMS Heater",
-            "digital_pin": 4,
+            "pin": "D4",
             "status": "OFF",
             "setpoint": 150,
             "deadband": 1
@@ -103,7 +103,7 @@
         {
             "id": 3,
             "name": "Boil Kettle Heater",
-            "digital_pin": 3,
+            "pin": "D3",
             "status": "OFF",
             "setpoint": 212,
             "deadband": 1
@@ -115,20 +115,20 @@
         {
             "id": 1,
             "name": "Pump 1",
-            "digital_pin": 9,
-            "status": "OFF"
+            "pin": "D9",
+            "status": false
         },
         {
             "id": 2,
             "name": "Pump 2",
-            "digital_pin": 8,
-            "status": "OFF"
+            "pin": "D8",
+            "status": false
         },
         {
             "id": 3,
             "name": "Pump 3",
-            "digital_pin": 7,
-            "status": "OFF"
+            "pin": "D7",
+            "status": false
         }
 
     ]
