@@ -100,6 +100,8 @@ def heaters():
 def temperatures():
     """Get temperatures from Arduino."""
     try:
+        command = bytes(f'getTemperature', 'utf-8')
+        ser.write(command)
         line = ser.readline().decode('utf-8').strip()
     except NameError:
         return {'message': "Serial port is not open."}

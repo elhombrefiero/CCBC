@@ -1,19 +1,23 @@
-// #include <OneWire.h>
-// #include <DallasTemperature.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define pump1 9
 #define pump2 8
 #define pump3 7
-#define hot_water_heater 2
+#define hotWaterHeater 2
 
 // Setup a oneWire instance to communicate with any OneWire device
-// OneWire oneWire(hot_water_heater);
+OneWire oneWire(hotWaterHeater);
 
 // Pass oneWire reference to DallasTemperature library
-// DallasTemperature sensors(&oneWire);
+DallasTemperature sensors(&oneWire);
 
 
 void controlPump(String cmd) {
+  // Command from python is in the following
+  // form: pump=X=True or pump=X=False where X
+  // is the pin provided by the front end.
+
   // Trim "pump=" from string.
   cmd.remove(0, 5);
 
@@ -39,9 +43,19 @@ void controlPump(String cmd) {
 }
 
 
+void getTemperatures() {
+  // Send the command to get temperatures.
+  sensors.requestTemperatures(); 
+
+  // Print the temperature in Fahrenheit.
+  Serial.print((sensors.getTempCByIndex(0) * 9.0) / 5.0 + 32.0);
+  Serial.println("F");
+}
+
+
 void setup() {
     // put your setup code here to run once
-    // sensors.begin();
+    sensors.begin();
     Serial.begin(9600);
     pinMode(pump1, OUTPUT);
     pinMode(pump2, OUTPUT);
@@ -57,39 +71,12 @@ void loop() {
 
         if (command.startsWith("pump")) {
           controlPump(command);
+        } else if (command.startsWith("getTemperature")) {
+          getTemperature();
         } else {
           Serial.println("DO NOTHING");
         }
 
         delay(500);
-
-        // Send the command to get temperatures
-        // sensors.requestTemperatures(); 
-
-        // Print the temperature in Fahrenheit
-        // Serial.print((sensors.getTempCByIndex(0) * 9.0) / 5.0 + 32.0);
-        // Serial.println("F");
-        
-        // delay(500);
-
-        // Read the input from Python, which are
-        // in the following format:
-        // Switching pin statuses
-        //   X=OFF or X=ON
-        // where X is the pin number
-        // Returning all information
-        //   !
-        //char ch = Serial.read();
-        //Serial.println(ch);
-        
-
-        
-        //readString += ch;
-        // The character # is used to stop reading from serial
-        //if (ch == '#')
-        //    {
-        //    setPinStatus(readString);
-        //    readString="";
-        //    }
     }
 }

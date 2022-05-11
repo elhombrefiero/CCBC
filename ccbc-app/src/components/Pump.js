@@ -17,7 +17,9 @@ function Pump(props) {
   });
 
   const [status, setStatus] = useState({});
- 
+
+  // TODO: Need to figure out how to fetch get a initial startup to populate
+  //       status from configuration file.
   useEffect(() => {
     fetch('/pumps', {
         method: 'POST',

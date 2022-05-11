@@ -4,16 +4,14 @@ function OneWireTemperature() {
 
     const [temperature, setTemperature] = useState({});
 
-    function fetchTemperature () {
-        fetch('/temperatures').then(
-            response => response.json()
-        ).then(data => setTemperature(data))
-    }
-
-    // useEffect(() => {
-    //     const timer = setInterval(fetchTemperature, 1000);
-    //     return () => clearInterval(timer);
-    // }, [])
+    useEffect(() => {
+        const timer = setInterval(() => {
+            fetch('/temperatures').then(
+                response => response.json()
+            ).then(data => setTemperature(data))
+        }, 2000);
+        return () => clearInterval(timer);
+    }, [])
 
     return (
         <div>
