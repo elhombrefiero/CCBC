@@ -60,7 +60,7 @@ def pumps():
             status = config['pumps'][index]['status']
             print(f'{pin}={status}')
 
-            command = bytes(f'{pin}={status}', 'utf-8')
+            command = bytes(f'pump={pin}={status}', 'utf-8')
             ser.write(command)
         except NameError:
             print('Serial port is not open.')

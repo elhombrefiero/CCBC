@@ -12,9 +12,32 @@
 // Pass oneWire reference to DallasTemperature library
 // DallasTemperature sensors(&oneWire);
 
-// Strings used to send and receive through serial
-String readString;
-String pinStatus;
+
+void controlPump(String cmd) {
+  // Trim "pump=" from string.
+  cmd.remove(0, 5);
+
+  // Get index of equal sign.
+  int equalIndex = cmd.indexOf("=");
+
+  // Get pin number to left of equal sign.
+  int pinNumber = cmd.substring(0, equalIndex).toInt();
+
+  // Get status to right of equal sign.
+  String status = cmd.substring(equalIndex + 1);
+
+  // Convert status to lower case.
+  status.toLowerCase();
+
+  // Turn pump on or off.
+  if (status == "true") {
+    digitalWrite(pinNumber, HIGH);
+  } else {
+    digitalWrite(pinNumber, LOW);
+  }
+
+}
+
 
 void setup() {
     // put your setup code here to run once
@@ -25,32 +48,20 @@ void setup() {
     pinMode(pump3, OUTPUT);
 }
 
-// Function copied from Rene.
-void setPinStatus(String string) {
-  // Find the index of the equals sign
-  int equalssign_index = readString.indexOf("=");
-  // Pin number is everything before that
-  String pinNum = readString.substring(0, equalssign_index);
-  int pin_num = pinNum.toInt();
-  // Status is the string after = and before #
-  int poundsign_index = readString.indexOf("#");
-  String pinStatus = readString.substring(equalssign_index + 1, poundsign_index); 
-  setSwitchOnOff(pin_num, pinStatus);
-}
-
-// Function copied from Rene.
-void setSwitchOnOff(int pin, String status_of_pin) {
-  if (status_of_pin == "ON") {
-    digitalWrite(pin, HIGH);
-  }
-  else {
-    digitalWrite(pin, LOW);
-  }
-}
 
 void loop() {
     // put your main code here to run repeatedly
     if (Serial.available() > 0) {
+
+        String command = Serial.readString();
+
+        if (command.startsWith("pump")) {
+          controlPump(command);
+        } else {
+          Serial.println("DO NOTHING");
+        }
+
+        delay(500);
 
         // Send the command to get temperatures
         // sensors.requestTemperatures(); 
@@ -68,13 +79,17 @@ void loop() {
         // where X is the pin number
         // Returning all information
         //   !
-        char ch = Serial.read();
-        readString += ch;
+        //char ch = Serial.read();
+        //Serial.println(ch);
+        
+
+        
+        //readString += ch;
         // The character # is used to stop reading from serial
-        if (ch == '#')
-            {
-            setPinStatus(readString);
-            readString="";
-            }
+        //if (ch == '#')
+        //    {
+        //    setPinStatus(readString);
+        //    readString="";
+        //    }
     }
 }
