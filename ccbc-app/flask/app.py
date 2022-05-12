@@ -9,7 +9,6 @@ USB_PORT = '/dev/ttyACM0'
 
 try:
     ser = serial.Serial(USB_PORT, baudrate=9600, timeout=1)
-    ser.reset_input_buffer()
     print('Serial setup complete.')
 except Exception as err:
     print('Could not open serial port.')
@@ -60,7 +59,9 @@ def pumps():
             status = config['pumps'][index]['status']
 
             command = bytes(f'pump={pin}={status}', 'utf-8')
+            ser.reset_input_buffer()
             ser.write(command)
+            ser.reset_output_buffer()
         except NameError:
             print('Serial port is not open.')
         
@@ -100,12 +101,14 @@ def temperatures():
     """Get temperatures from Arduino."""
     try:
         command = bytes(f'getTemperature', 'utf-8')
+        ser.reset_input_buffer()
         ser.write(command)
 
         if ser.in_waiting > 0:
             line = ser.readline().decode('utf-8').strip()
         else:
             line = "??"
+        ser.reset_output_buffer()
     except NameError:
         return {'message': "Serial port is not open."}
     return {'message': line}
