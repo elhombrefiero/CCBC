@@ -9,7 +9,7 @@ function OneWireTemperature() {
             fetch('/temperatures').then(
                 response => response.json()
             ).then(data => setTemperature(data))
-        }, 2000);
+        }, 10000);
         return () => clearInterval(timer);
     }, [])
 

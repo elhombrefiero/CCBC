@@ -1,6 +1,6 @@
-import serial
 from flask import Flask, request, render_template, send_from_directory
 from flask_cors import CORS, cross_origin
+import serial
 import json
 
 
@@ -8,8 +8,8 @@ import json
 USB_PORT = '/dev/ttyACM0'
 
 try:
-    ser = serial.Serial(USB_PORT, 9600)
-    ser.baudrate = 9600
+    ser = serial.Serial(USB_PORT, baudrate=9600, timeout=1)
+    ser.reset_input_buffer()
     print('Serial setup complete.')
 except Exception as err:
     print('Could not open serial port.')
@@ -58,7 +58,6 @@ def pumps():
             # Only send number from pin. D1, D2, A0, A1, etc.
             pin = config['pumps'][index]['pin'][1:]
             status = config['pumps'][index]['status']
-            print(f'{pin}={status}')
 
             command = bytes(f'pump={pin}={status}', 'utf-8')
             ser.write(command)
@@ -102,7 +101,12 @@ def temperatures():
     try:
         command = bytes(f'getTemperature', 'utf-8')
         ser.write(command)
-        line = ser.readline().decode('utf-8').strip()
+
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8').strip()
+        else:
+            line = "??"
     except NameError:
         return {'message': "Serial port is not open."}
     return {'message': line}
+

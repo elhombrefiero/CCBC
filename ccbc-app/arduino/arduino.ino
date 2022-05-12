@@ -43,7 +43,7 @@ void controlPump(String cmd) {
 }
 
 
-void getTemperatures() {
+void getTemperature() {
   // Send the command to get temperatures.
   sensors.requestTemperatures(); 
 
@@ -71,12 +71,11 @@ void loop() {
 
         if (command.startsWith("pump")) {
           controlPump(command);
-        } else if (command.startsWith("getTemperature")) {
+        } else if (command == "getTemperature") {
           getTemperature();
-        } else {
-          Serial.println("DO NOTHING");
         }
 
         delay(500);
+
     }
 }
