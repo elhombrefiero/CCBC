@@ -12,6 +12,7 @@ OneWire oneWire(hotWaterHeater);
 // Pass oneWire reference to DallasTemperature library
 DallasTemperature sensors(&oneWire);
 
+String strCommand;
 
 void controlPump(String cmd) {
   // Command from python is in the following
@@ -19,7 +20,7 @@ void controlPump(String cmd) {
   // is the pin provided by the front end.
 
   // Trim "pump=" from string.
-  cmd.remove(0, 5);
+  // cmd.remove(0, 5);
 
   // Get index of equal sign.
   int equalIndex = cmd.indexOf("=");
@@ -68,13 +69,23 @@ void loop() {
     // put your main code here to run repeatedly
     if (Serial.available() > 0) {
 
-        String command = Serial.readString();
-
-        if (command.startsWith("pump")) {
-          controlPump(command);
-        } else if (command == "getTemperature") {
+        char character = Serial.read();
+        strCommand += character;
+        
+        if (character == '#') {
+            controlPump(strCommand);
+            strCommand = "";
+        } else {
           getTemperature();
         }
+
+        // String command = Serial.readString();
+
+        // if (command.startsWith("pump")) {
+        //   controlPump(command);
+        // } else if (command == "getTemperature") {
+        //   getTemperature();
+        // }
 
     }
 }
