@@ -58,7 +58,8 @@ def pumps():
             pin = config['pumps'][index]['pin'][1:]
             status = config['pumps'][index]['status']
 
-            command = bytes(f'pump={pin}={status}', 'utf-8')
+            # Use # so Arduino know when pump command ends.
+            command = bytes(f'pump={pin}={status}#', 'utf-8')
             ser.reset_input_buffer()
             ser.write(command)
             ser.reset_output_buffer()

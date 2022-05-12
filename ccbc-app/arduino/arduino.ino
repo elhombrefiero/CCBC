@@ -26,9 +26,10 @@ void controlPump(String cmd) {
 
   // Get pin number to left of equal sign.
   int pinNumber = cmd.substring(0, equalIndex).toInt();
-
-  // Get status to right of equal sign.
-  String status = cmd.substring(equalIndex + 1);
+  
+  // Get status to right of equal sign up to the # symbol
+  int poundIndex = cmd.indexOf("#");
+  String status = cmd.substring(equalIndex + 1, poundIndex);
 
   // Convert status to lower case.
   status.toLowerCase();
@@ -74,8 +75,6 @@ void loop() {
         } else if (command == "getTemperature") {
           getTemperature();
         }
-
-        delay(500);
 
     }
 }
